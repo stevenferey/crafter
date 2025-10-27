@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, env } from './api';
 import type {
   CRA,
   CreateCRAInput,
@@ -6,6 +6,25 @@ import type {
   CRAFilters,
   CRASortOptions,
 } from '@/types/cra.types';
+
+// Log de l'URL de l'API au chargement
+console.log('🌐 [CRA Service] API_URL:', env.apiUrl);
+
+/**
+ * Format de réponse de l'API backend
+ */
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+  pagination?: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
 
 /**
  * Service pour la gestion des CRAs
@@ -18,11 +37,15 @@ export const craService = {
     filters?: CRAFilters,
     sort?: CRASortOptions,
   ): Promise<CRA[]> {
+    console.log('🔍 [CRA Service] Fetching CRAs...', { filters, sort });
+
     const params = new URLSearchParams();
 
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
       });
     }
 
@@ -34,35 +57,64 @@ export const craService = {
     const query = params.toString();
     const url = `/cras${query ? `?${query}` : ''}`;
 
-    return api.get<CRA[]>(url);
+    const response = await api.get<ApiResponse<CRA[]>>(url);
+    console.log('✅ [CRA Service] CRAs fetched:', response.data?.length || 0);
+    return response.data || [];
   },
 
   /**
    * Récupère un CRA par son ID
    */
   async getCRAById(id: string): Promise<CRA> {
-    return api.get<CRA>(`/cras/${id}`);
+    console.log('🔍 [CRA Service] Fetching CRA by ID:', id);
+    const response = await api.get<ApiResponse<CRA>>(`/cras/${id}`);
+    if (!response.success || !response.data) {
+      console.error('❌ [CRA Service] Failed to fetch CRA:', response.error);
+      throw new Error(response.error || 'Failed to fetch CRA');
+    }
+    console.log('✅ [CRA Service] CRA fetched:', response.data.id);
+    return response.data;
   },
 
   /**
    * Crée un nouveau CRA
    */
   async createCRA(data: CreateCRAInput): Promise<CRA> {
-    return api.post<CRA>('/cras', data);
+    console.log('📝 [CRA Service] Creating CRA...', data);
+    const response = await api.post<ApiResponse<CRA>>('/cras', data);
+    if (!response.success || !response.data) {
+      console.error('❌ [CRA Service] Failed to create CRA:', response.error);
+      throw new Error(response.error || 'Failed to create CRA');
+    }
+    console.log('✅ [CRA Service] CRA created:', response.data.id);
+    return response.data;
   },
 
   /**
    * Met à jour un CRA existant
    */
   async updateCRA(id: string, data: Partial<UpdateCRAInput>): Promise<CRA> {
-    return api.put<CRA>(`/cras/${id}`, data);
+    console.log('✏️ [CRA Service] Updating CRA:', id, data);
+    const response = await api.put<ApiResponse<CRA>>(`/cras/${id}`, data);
+    if (!response.success || !response.data) {
+      console.error('❌ [CRA Service] Failed to update CRA:', response.error);
+      throw new Error(response.error || 'Failed to update CRA');
+    }
+    console.log('✅ [CRA Service] CRA updated:', response.data.id);
+    return response.data;
   },
 
   /**
    * Supprime un CRA
    */
   async deleteCRA(id: string): Promise<void> {
-    return api.delete(`/cras/${id}`);
+    console.log('🗑️ [CRA Service] Deleting CRA:', id);
+    const response = await api.delete<ApiResponse<void>>(`/cras/${id}`);
+    if (!response.success) {
+      console.error('❌ [CRA Service] Failed to delete CRA:', response.error);
+      throw new Error(response.error || 'Failed to delete CRA');
+    }
+    console.log('✅ [CRA Service] CRA deleted');
   },
 
   /**
