@@ -6,7 +6,6 @@ import { useCRAStore } from '@/stores/cra.store';
 import { useAppStore } from '@/stores/app.store';
 import {
   Input,
-  Select,
   DatePicker,
   Textarea,
   Button,
@@ -25,11 +24,13 @@ export function EditCRA() {
   const updateCRA = useCRAStore((state) => state.updateCRA);
   const deleteCRA = useCRAStore((state) => state.deleteCRA);
   const isLoading = useCRAStore((state) => state.isLoading);
+  const error = useCRAStore((state) => state.error);
   const addNotification = useAppStore((state) => state.addNotification);
 
   // Charger le CRA au montage du composant
   useEffect(() => {
     if (id) {
+      console.log('✏️ [EditCRA] Loading CRA:', id);
       fetchCRAById(id);
     }
   }, [id, fetchCRAById]);
@@ -44,27 +45,32 @@ export function EditCRA() {
   } = useEditCRAForm(
     selectedCRA
       ? {
-          month: selectedCRA.month,
-          year: selectedCRA.year,
+          date: selectedCRA.date,
           client: selectedCRA.client,
-          consultant: selectedCRA.consultant,
-          days: selectedCRA.days,
-          activities: selectedCRA.activities,
+          activities: selectedCRA.activities.map((act) => ({
+            id: act.id,
+            description: act.description,
+            hours: act.hours,
+            category: act.category,
+          })),
           status: selectedCRA.status,
         }
-      : {},
+      : {}
   );
 
   // Réinitialiser le formulaire quand les données sont chargées
   useEffect(() => {
     if (selectedCRA) {
+      console.log('✏️ [EditCRA] Resetting form with data:', selectedCRA);
       reset({
-        month: selectedCRA.month,
-        year: selectedCRA.year,
+        date: selectedCRA.date,
         client: selectedCRA.client,
-        consultant: selectedCRA.consultant,
-        days: selectedCRA.days,
-        activities: selectedCRA.activities,
+        activities: selectedCRA.activities.map((act) => ({
+          id: act.id,
+          description: act.description,
+          hours: act.hours,
+          category: act.category,
+        })),
         status: selectedCRA.status,
       });
     }
@@ -76,56 +82,46 @@ export function EditCRA() {
     name: 'activities',
   });
 
-  // Données pour les sélecteurs
-  const months = [
-    { value: '1', label: 'Janvier' },
-    { value: '2', label: 'Février' },
-    { value: '3', label: 'Mars' },
-    { value: '4', label: 'Avril' },
-    { value: '5', label: 'Mai' },
-    { value: '6', label: 'Juin' },
-    { value: '7', label: 'Juillet' },
-    { value: '8', label: 'Août' },
-    { value: '9', label: 'Septembre' },
-    { value: '10', label: 'Octobre' },
-    { value: '11', label: 'Novembre' },
-    { value: '12', label: 'Décembre' },
+  // Catégories prédéfinies
+  const categories = [
+    'Développement',
+    'Réunion',
+    'Documentation',
+    'Tests',
+    'Code Review',
+    'Support',
+    'Formation',
+    'Analyse',
+    'Conception',
+    'DevOps',
+    'Autre',
   ];
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => ({
-    value: (currentYear - 2 + i).toString(),
-    label: (currentYear - 2 + i).toString(),
-  }));
 
   // Soumission du formulaire
   const onSubmit = async (data: CRAFormData) => {
     if (!id) return;
 
+    console.log('✏️ [EditCRA] Submitting update:', data);
     try {
-      // Convertir les activités en s'assurant que les IDs sont présents
-      const activities = data.activities.map(({ id: activityId, ...activity }) =>
-        activityId
-          ? { id: activityId, ...activity }
-          : { id: `temp-${Date.now()}-${Math.random()}`, ...activity }
-      );
+      // Retirer les IDs des activités (gérés côté serveur)
+      const activities = data.activities.map(({ id, ...activity }) => activity);
 
       await updateCRA(id, {
-        month: data.month,
-        year: data.year,
+        date: data.date,
         client: data.client,
-        consultant: data.consultant,
-        days: data.days,
         activities,
         status: data.status,
       });
 
-      addNotification('CRA modifié avec succès', 'success');
-      navigate(`/cra/${id}/preview`);
+      addNotification('CRA mis à jour avec succès', 'success');
+      navigate('/');
     } catch (error) {
+      console.error('❌ [EditCRA] Error:', error);
       addNotification(
-        error instanceof Error ? error.message : 'Erreur lors de la modification du CRA',
-        'error',
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la mise à jour du CRA',
+        'error'
       );
     }
   };
@@ -134,26 +130,34 @@ export function EditCRA() {
   const handleDelete = async () => {
     if (!id) return;
 
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce CRA ?')) {
-      try {
-        await deleteCRA(id);
-        addNotification('CRA supprimé avec succès', 'success');
-        navigate('/');
-      } catch (error) {
-        addNotification(
-          error instanceof Error ? error.message : 'Erreur lors de la suppression du CRA',
-          'error',
-        );
-      }
+    const confirmed = window.confirm(
+      'Êtes-vous sûr de vouloir supprimer ce CRA ? Cette action est irréversible.'
+    );
+
+    if (!confirmed) return;
+
+    console.log('🗑️ [EditCRA] Deleting CRA:', id);
+    try {
+      await deleteCRA(id);
+      addNotification('CRA supprimé avec succès', 'success');
+      navigate('/');
+    } catch (error) {
+      console.error('❌ [EditCRA] Error deleting:', error);
+      addNotification(
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la suppression du CRA',
+        'error'
+      );
     }
   };
 
   // Ajouter une nouvelle activité
   const handleAddActivity = () => {
     append({
-      date: datePickerUtils.getToday(),
       description: '',
-      hours: 8,
+      hours: 4,
+      category: 'Développement',
     });
   };
 
@@ -161,25 +165,47 @@ export function EditCRA() {
   if (isLoading && !selectedCRA) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-4 text-gray-600">Chargement du CRA...</p>
-          </div>
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Chargement du CRA...</p>
         </div>
       </div>
     );
   }
 
-  // Afficher une erreur si le CRA n'existe pas
-  if (!selectedCRA && !isLoading) {
+  // Afficher une erreur si le CRA n'est pas trouvé
+  if (error || (!isLoading && !selectedCRA)) {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <p className="text-red-800">CRA introuvable</p>
-          <Button variant="outline" onClick={() => navigate('/')} className="mt-4">
-            Retour au dashboard
-          </Button>
+          <div className="flex items-start gap-3">
+            <svg
+              className="w-6 h-6 text-red-600 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <div>
+              <h3 className="text-lg font-medium text-red-800">
+                CRA introuvable
+              </h3>
+              <p className="text-sm text-red-700 mt-1">
+                {error || "Le CRA demandé n'existe pas ou n'a pas pu être chargé."}
+              </p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => navigate('/')}
+              >
+                Retour au dashboard
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -189,20 +215,6 @@ export function EditCRA() {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-          <button onClick={() => navigate('/')} className="hover:text-gray-900">
-            Dashboard
-          </button>
-          <span>/</span>
-          <button
-            onClick={() => navigate(`/cra/${id}/preview`)}
-            className="hover:text-gray-900"
-          >
-            CRA #{id}
-          </button>
-          <span>/</span>
-          <span className="text-gray-900">Éditer</span>
-        </div>
         <h1 className="text-3xl font-bold text-gray-900">Éditer le CRA</h1>
         <p className="text-gray-600 mt-1">
           Modifiez les informations du compte rendu d'activité
@@ -214,27 +226,16 @@ export function EditCRA() {
         {/* Informations générales */}
         <FormSection
           title="Informations générales"
-          description="Période et contexte du CRA"
+          description="Date et client du CRA"
         >
           <FormGroup columns={2}>
-            <Select
-              label="Mois"
-              placeholder="Sélectionner un mois"
-              options={months}
-              error={errors.month?.message}
+            <DatePicker
+              label="Date"
+              error={errors.date?.message}
               required
               fullWidth
-              {...register('month')}
-            />
-
-            <Select
-              label="Année"
-              placeholder="Sélectionner une année"
-              options={years}
-              error={errors.year?.message}
-              required
-              fullWidth
-              {...register('year')}
+              {...(register('date') as any)}
+              max={datePickerUtils.getToday()}
             />
 
             <Input
@@ -246,35 +247,13 @@ export function EditCRA() {
               fullWidth
               {...register('client')}
             />
-
-            <Input
-              label="Consultant"
-              placeholder="Nom du consultant"
-              error={errors.consultant?.message}
-              required
-              fullWidth
-              {...register('consultant')}
-            />
-
-            <Input
-              label="Jours travaillés"
-              type="number"
-              min={1}
-              max={31}
-              placeholder="20"
-              error={errors.days?.message}
-              helperText="Nombre de jours travaillés dans le mois"
-              required
-              fullWidth
-              {...register('days', { valueAsNumber: true })}
-            />
           </FormGroup>
         </FormSection>
 
         {/* Activités */}
         <FormSection
           title="Détail des activités"
-          description="Modifiez les activités réalisées pendant la période"
+          description="Modifiez ou ajoutez des activités"
         >
           <div className="space-y-4">
             {fields.length === 0 && (
@@ -331,23 +310,14 @@ export function EditCRA() {
                   </button>
                 </div>
 
-                <FormGroup columns={3}>
-                  <DatePicker
-                    label="Date"
-                    error={errors.activities?.[index]?.date?.message}
-                    required
-                    fullWidth
-                    {...(register(`activities.${index}.date`) as any)}
-                    max={datePickerUtils.getToday()}
-                  />
-
+                <FormGroup columns={2}>
                   <Input
                     label="Heures"
                     type="number"
                     step="0.25"
                     min="0.25"
                     max="24"
-                    placeholder="8"
+                    placeholder="4"
                     error={errors.activities?.[index]?.hours?.message}
                     helperText="Multiple de 0.25"
                     required
@@ -357,7 +327,28 @@ export function EditCRA() {
                     })}
                   />
 
-                  <div className="md:col-span-3">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Catégorie <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      {...register(`activities.${index}.category`)}
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.activities?.[index]?.category && (
+                      <p className="text-sm text-red-600">
+                        {errors.activities[index]?.category?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2">
                     <Textarea
                       label="Description"
                       rows={3}
@@ -414,51 +405,44 @@ export function EditCRA() {
           </div>
         </FormSection>
 
-        {/* Warning Box */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex gap-3">
-            <svg
-              className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <div className="text-sm text-yellow-800">
-              <p className="font-medium mb-1">Attention</p>
-              <p>
-                La modification d'un CRA existant remplacera les informations
-                actuelles.
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Actions */}
         <div className="flex justify-between">
           <Button
             type="button"
-            variant="danger"
+            variant="outline"
             onClick={handleDelete}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLoading}
+            className="text-red-600 border-red-300 hover:bg-red-50"
           >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
             Supprimer
           </Button>
+
           <div className="flex gap-3">
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate(`/cra/${id}/preview`)}
-              disabled={isSubmitting}
+              onClick={() => navigate('/')}
+              disabled={isSubmitting || isLoading}
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+            <Button type="submit" disabled={isSubmitting || isLoading}>
+              {isSubmitting || isLoading
+                ? 'Enregistrement...'
+                : 'Enregistrer les modifications'}
             </Button>
           </div>
         </div>

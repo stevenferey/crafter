@@ -1,16 +1,18 @@
 /**
  * Type définissant les statuts possibles d'un CRA
  */
-export type CRAStatus = 'draft' | 'completed' | 'submitted' | 'approved' | 'rejected';
+export type CRAStatus = 'draft' | 'submitted' | 'approved' | 'rejected';
 
 /**
  * Interface représentant une activité dans un CRA
  */
 export interface Activity {
   id: string;
-  date: string; // Format ISO 8601 (YYYY-MM-DD)
+  cra_id?: string; // Optionnel car pas présent lors de la création
   description: string;
   hours: number;
+  category: string;
+  created_at?: string; // Format ISO 8601
 }
 
 /**
@@ -18,40 +20,48 @@ export interface Activity {
  */
 export interface CRA {
   id: string;
-  month: string;
-  year: string;
+  date: string; // Format ISO 8601 (YYYY-MM-DD)
   client: string;
-  consultant: string;
-  days: number;
+  total_hours: number;
   activities: Activity[];
   status: CRAStatus;
-  createdAt: string; // Format ISO 8601
-  updatedAt?: string; // Format ISO 8601
+  created_at: string; // Format ISO 8601
+  updated_at: string; // Format ISO 8601
 }
 
 /**
- * Type pour la création d'un nouveau CRA (sans id, createdAt, updatedAt)
+ * Type pour la création d'un nouveau CRA (sans id, createdAt, updatedAt, total_hours)
  */
-export type CreateCRAInput = Omit<CRA, 'id' | 'createdAt' | 'updatedAt' | 'activities'> & {
+export type CreateCRAInput = {
+  date: string;
+  client: string;
+  status?: CRAStatus;
   activities: CreateActivityInput[];
 };
 
 /**
- * Type pour la mise à jour d'un CRA (tous les champs optionnels sauf id)
+ * Type pour la mise à jour d'un CRA
  */
-export type UpdateCRAInput = Partial<Omit<CRA, 'id' | 'createdAt'>> & {
-  id: string;
+export type UpdateCRAInput = {
+  date?: string;
+  client?: string;
+  status?: CRAStatus;
+  activities?: CreateActivityInput[];
 };
 
 /**
- * Type pour la création d'une nouvelle activité (sans id)
+ * Type pour la création d'une nouvelle activité (sans id, cra_id, created_at)
  */
-export type CreateActivityInput = Omit<Activity, 'id'>;
+export type CreateActivityInput = {
+  description: string;
+  hours: number;
+  category: string;
+};
 
 /**
  * Type pour la mise à jour d'une activité
  */
-export type UpdateActivityInput = Partial<Omit<Activity, 'id'>> & {
+export type UpdateActivityInput = Partial<CreateActivityInput> & {
   id: string;
 };
 
@@ -60,16 +70,17 @@ export type UpdateActivityInput = Partial<Omit<Activity, 'id'>> & {
  */
 export interface CRAFilters {
   client?: string;
-  consultant?: string;
   status?: CRAStatus;
-  year?: string;
-  month?: string;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+  offset?: number;
 }
 
 /**
  * Interface pour les options de tri de CRA
  */
 export interface CRASortOptions {
-  field: keyof CRA;
+  field: 'date' | 'client' | 'created_at' | 'total_hours';
   direction: 'asc' | 'desc';
 }

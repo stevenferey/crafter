@@ -7,33 +7,31 @@ export function Dashboard() {
   const cras = useCRAStore((state) => state.cras);
   const fetchCRAs = useCRAStore((state) => state.fetchCRAs);
   const isLoading = useCRAStore((state) => state.isLoading);
+  const error = useCRAStore((state) => state.error);
+  const clearError = useCRAStore((state) => state.clearError);
 
   // Charger les CRAs au montage du composant
   useEffect(() => {
+    console.log('📊 [Dashboard] Component mounted, fetching CRAs...');
     fetchCRAs();
   }, [fetchCRAs]);
 
   // Calculer les statistiques à partir des CRAs
-  const today = new Date();
-  const currentMonth = today.getMonth() + 1;
-  const currentYear = today.getFullYear();
+  const totalHours = cras.reduce((sum, cra) => sum + Number(cra.total_hours), 0);
+  const totalClients = new Set(cras.map((cra) => cra.client)).size;
 
   // CRAs du mois en cours
-  const currentMonthCRAs = cras.filter(
-    (cra) =>
-      parseInt(cra.month) === currentMonth &&
-      parseInt(cra.year) === currentYear
-  );
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
 
-  // Total de tous les jours travaillés
-  const totalDays = cras.reduce((sum, cra) => sum + cra.days, 0);
-
-  // Total de toutes les heures travaillées
-  const totalHours = cras.reduce(
-    (sum, cra) =>
-      sum + cra.activities.reduce((actSum, activity) => actSum + activity.hours, 0),
-    0
-  );
+  const currentMonthCRAs = cras.filter((cra) => {
+    const craDate = new Date(cra.date);
+    return (
+      craDate.getMonth() === currentMonth &&
+      craDate.getFullYear() === currentYear
+    );
+  });
 
   const stats = [
     {
@@ -45,17 +43,17 @@ export function Dashboard() {
       label: 'CRA ce mois',
       value: currentMonthCRAs.length.toString(),
       icon: '📅',
-      subtext: `${currentMonthCRAs.reduce((sum, cra) => sum + cra.days, 0)} jours`,
+      subtext: `${currentMonthCRAs.reduce((sum, cra) => sum + Number(cra.total_hours), 0)}h`,
     },
     {
-      label: 'Jours totaux',
-      value: totalDays.toString(),
+      label: 'Total heures',
+      value: totalHours.toFixed(1),
       icon: '⏱️',
-      subtext: `${totalHours}h enregistrées`,
+      subtext: `${cras.reduce((sum, cra) => sum + cra.activities.length, 0)} activités`,
     },
     {
       label: 'Clients actifs',
-      value: new Set(cras.map((cra) => cra.client)).size.toString(),
+      value: totalClients.toString(),
       icon: '👥',
     },
   ];
@@ -65,10 +63,6 @@ export function Dashboard() {
       draft: {
         label: 'Brouillon',
         className: 'text-gray-700 bg-gray-50',
-      },
-      completed: {
-        label: 'Complété',
-        className: 'text-green-700 bg-green-50',
       },
       submitted: {
         label: 'Soumis',
@@ -84,38 +78,32 @@ export function Dashboard() {
       },
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
 
     return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${config.className}`}>
+      <span
+        className={`px-2 py-1 text-xs font-medium rounded-full ${config.className}`}
+      >
         {config.label}
       </span>
     );
   };
 
-  const getMonthName = (month: string) => {
-    const months = [
-      'Janvier',
-      'Février',
-      'Mars',
-      'Avril',
-      'Mai',
-      'Juin',
-      'Juillet',
-      'Août',
-      'Septembre',
-      'Octobre',
-      'Novembre',
-      'Décembre',
-    ];
-    return months[parseInt(month) - 1] || month;
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   };
 
   // Trier les CRAs par date décroissante
   const sortedCRAs = [...cras].sort((a, b) => {
-    const dateA = new Date(parseInt(a.year), parseInt(a.month) - 1);
-    const dateB = new Date(parseInt(b.year), parseInt(b.month) - 1);
-    return dateB.getTime() - dateA.getTime();
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+    return dateB - dateA;
   });
 
   // Prendre les 10 CRAs les plus récents
@@ -139,6 +127,43 @@ export function Dashboard() {
         </Link>
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              <svg
+                className="w-5 h-5 text-red-600 mt-0.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <div>
+                <h3 className="text-sm font-medium text-red-800">Erreur</h3>
+                <p className="text-sm text-red-700 mt-1">{error}</p>
+              </div>
+            </div>
+            <button
+              onClick={clearError}
+              className="text-red-600 hover:text-red-800"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
@@ -150,6 +175,9 @@ export function Dashboard() {
               <div>
                 <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
                 <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                {stat.subtext && (
+                  <p className="text-xs text-gray-500 mt-1">{stat.subtext}</p>
+                )}
               </div>
               <div className="text-4xl">{stat.icon}</div>
             </div>
@@ -202,7 +230,7 @@ export function Dashboard() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
                       <h3 className="text-lg font-medium text-gray-900">
-                        {getMonthName(cra.month)} {cra.year}
+                        {formatDate(cra.date)}
                       </h3>
                       {getStatusBadge(cra.status)}
                     </div>
@@ -234,10 +262,10 @@ export function Dashboard() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                         </svg>
-                        {cra.days} jours
+                        {Number(cra.total_hours).toFixed(1)}h
                       </span>
                       {cra.activities.length > 0 && (
                         <span className="flex items-center gap-1">
@@ -279,7 +307,7 @@ export function Dashboard() {
       </div>
 
       {/* Quick Actions */}
-      {cras.length === 0 && !isLoading && (
+      {cras.length === 0 && !isLoading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">

@@ -58,7 +58,7 @@ Le projet utilise des variables d'environnement pour la configuration. Copier `.
 
 ```bash
 # API Backend URL
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:3001/api
 
 # AI API Key (optionnel, pour fonctionnalités d'aide IA)
 VITE_AI_API_KEY=
@@ -290,6 +290,188 @@ function DeleteUserButton({ userId }: { userId: string }) {
   );
 }
 ```
+
+## 📝 Maintenance de la Documentation
+
+### Principe : Documentation Vivante
+
+La documentation doit **toujours refléter l'état actuel du code**. Après chaque développement significatif, analyser et mettre à jour la documentation.
+
+### Quand mettre à jour la documentation
+
+Mettre à jour la documentation dans les cas suivants :
+
+1. **Changement d'architecture majeur**
+   - Migration de localStorage vers API backend
+   - Changement de structure de données
+   - Ajout/suppression de couches (backend, microservices, etc.)
+
+2. **Nouvelles fonctionnalités**
+   - Nouveaux endpoints API
+   - Nouveaux composants majeurs
+   - Nouvelles dépendances importantes
+
+3. **Modifications de configuration**
+   - Changement de ports
+   - Nouvelles variables d'environnement
+   - Modifications de Docker Compose
+
+4. **Refactoring significatif**
+   - Changement de conventions de nommage
+   - Réorganisation des dossiers
+   - Migration de bibliothèques
+
+### Procédure de mise à jour
+
+#### 1. Identifier les fichiers markdown
+
+```bash
+# Lister tous les fichiers .md du projet (hors node_modules)
+find . -name "*.md" -not -path "*/node_modules/*"
+```
+
+Fichiers à vérifier systématiquement :
+- `README.md` - Documentation principale du projet
+- `CLAUDE.md` - Ce fichier (instructions pour Claude Code)
+- `PROJECT.md` - Architecture et conventions
+- `backend/README.md` - Documentation du backend (si applicable)
+- Tout autre fichier `.md` à la racine ou dans les sous-dossiers
+
+#### 2. Analyser chaque fichier
+
+Pour chaque fichier markdown, vérifier :
+
+**Questions à se poser** :
+- ✅ Les exemples de code sont-ils à jour ?
+- ✅ Les noms de fichiers/dossiers existent-ils toujours ?
+- ✅ Les ports/URLs sont-ils corrects ?
+- ✅ La structure de données correspond-elle au code actuel ?
+- ✅ Les commandes fonctionnent-elles encore ?
+- ✅ Les dépendances listées sont-elles installées ?
+
+**Signes d'obsolescence** :
+- ❌ Mention de technologies/services supprimés
+- ❌ Références à des fichiers qui n'existent plus
+- ❌ Instructions qui ne fonctionnent plus
+- ❌ Architecture décrite différente de l'implémentation
+- ❌ Ports/URLs incorrects
+
+#### 3. Actions possibles
+
+**Option A - Mettre à jour**
+Si le fichier reste pertinent mais contient des informations obsolètes :
+```typescript
+// Corriger les sections obsolètes
+Edit(filePath, oldContent, newContent)
+```
+
+**Option B - Supprimer**
+Si le fichier décrit une architecture complètement abandonnée :
+```bash
+# Supprimer les fichiers obsolètes
+rm path/to/obsolete.md
+```
+
+**Option C - Créer**
+Si un nouveau composant majeur manque de documentation :
+```typescript
+// Créer une nouvelle documentation
+Write('docs/NEW_FEATURE.md', content)
+```
+
+### Exemples de maintenance
+
+#### Exemple 1 : Migration localStorage → API Backend
+
+**Avant** (LOCALSTORAGE_PERSISTENCE.md) :
+```markdown
+# Persistance LocalStorage Implémentée ✅
+Le store CRA utilise le middleware `persist` de Zustand...
+```
+
+**Action** : 🗑️ **SUPPRIMER** - L'architecture localStorage n'existe plus
+```bash
+rm LOCALSTORAGE_PERSISTENCE.md
+```
+
+**Raison** : Le projet utilise maintenant PostgreSQL + API REST
+
+#### Exemple 2 : Changement de port
+
+**Avant** (CLAUDE.md) :
+```bash
+VITE_API_URL=http://localhost:3000/api
+```
+
+**Action** : ✏️ **CORRIGER**
+```bash
+VITE_API_URL=http://localhost:3001/api
+```
+
+**Raison** : Le backend écoute sur le port 3001
+
+#### Exemple 3 : Nouveau backend
+
+**Avant** : Pas de documentation backend
+
+**Action** : ✨ **CRÉER** `backend/README.md`
+```markdown
+# Backend API Documentation
+## Endpoints
+- GET /api/cras
+- POST /api/cras
+...
+```
+
+### Workflow automatique recommandé
+
+Après chaque développement significatif, suivre ces étapes :
+
+```bash
+# 1. Lister tous les fichiers markdown
+find . -name "*.md" -not -path "*/node_modules/*"
+
+# 2. Lire chaque fichier
+Read("README.md")
+Read("CLAUDE.md")
+Read("backend/README.md")
+# ...
+
+# 3. Analyser et identifier les obsolescences
+# - Comparer avec le code actuel
+# - Vérifier les références aux fichiers
+# - Tester les commandes mentionnées
+
+# 4. Appliquer les corrections
+# - Supprimer les fichiers obsolètes
+# - Mettre à jour les informations incorrectes
+# - Ajouter la documentation manquante
+
+# 5. Vérifier la cohérence
+# - Tous les README pointent vers les bons fichiers
+# - Les ports/URLs sont cohérents partout
+# - Les exemples de code fonctionnent
+```
+
+### Checklist de vérification
+
+Avant de finaliser une session de développement :
+
+- [ ] Lire tous les fichiers `.md` du projet
+- [ ] Vérifier que les exemples de code sont à jour
+- [ ] Confirmer que les ports/URLs sont corrects
+- [ ] Valider que la structure décrite correspond au code
+- [ ] Supprimer toute documentation d'architecture abandonnée
+- [ ] Ajouter la documentation des nouvelles fonctionnalités majeures
+- [ ] Vérifier la cohérence entre tous les fichiers markdown
+
+### Principes de documentation
+
+1. **Précision** : Préférer supprimer que laisser une doc incorrecte
+2. **Minimalisme** : Ne documenter que l'essentiel, le code doit être auto-documenté
+3. **Cohérence** : Les mêmes informations doivent être identiques partout
+4. **Actualité** : Mieux vaut pas de doc qu'une doc obsolète
+5. **Clarté** : Utiliser des exemples concrets et des commandes testées
 
 ## Notes Importantes
 

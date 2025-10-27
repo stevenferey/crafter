@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { craService } from '@/services/cra.service';
 import type {
   CRA,
   CreateCRAInput,
@@ -48,254 +48,208 @@ const initialState = {
   error: null,
   filters: {},
   sort: {
-    field: 'createdAt' as const,
+    field: 'date' as const,
     direction: 'desc' as const,
   },
 };
 
 /**
- * Génère un ID unique pour un CRA
+ * Store Zustand pour la gestion des CRAs avec API backend
  */
-const generateId = (): string => {
-  return `cra-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
+export const useCRAStore = create<CRAState>()((set, get) => ({
+  ...initialState,
 
-/**
- * Génère un timestamp ISO pour createdAt/updatedAt
- */
-const generateTimestamp = (): string => {
-  return new Date().toISOString();
-};
-
-/**
- * Store Zustand pour la gestion des CRAs avec persistance localStorage
- */
-export const useCRAStore = create<CRAState>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
-
-      /**
-       * Récupère la liste des CRAs avec les filtres et le tri actuels
-       * Mode localStorage : les données sont déjà chargées, on simule juste un délai
-       */
-      fetchCRAs: async () => {
-        set({ isLoading: true, error: null });
-        try {
-          // Simuler un délai réseau
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          // En mode localStorage, les données sont déjà chargées
-          // On ne fait que retirer le flag isLoading
-          set({ isLoading: false });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Erreur lors de la récupération des CRAs',
-            isLoading: false,
-          });
-        }
-      },
-
-      /**
-       * Récupère un CRA par son ID et le définit comme sélectionné
-       * Mode localStorage : cherche dans le state
-       */
-      fetchCRAById: async (id: string) => {
-        set({ isLoading: true, error: null });
-        try {
-          // Simuler un délai réseau
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          const { cras } = get();
-          const cra = cras.find((c) => c.id === id);
-
-          if (!cra) {
-            throw new Error('CRA introuvable');
-          }
-
-          set({ selectedCRA: cra, isLoading: false });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Erreur lors de la récupération du CRA',
-            isLoading: false,
-          });
-        }
-      },
-
-      /**
-       * Recherche des CRAs par texte
-       * Mode localStorage : recherche dans le state
-       */
-      searchCRAs: async (query: string) => {
-        set({ isLoading: true, error: null });
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          const { cras } = get();
-          const lowercaseQuery = query.toLowerCase();
-
-          const results = cras.filter((cra) =>
-            cra.client.toLowerCase().includes(lowercaseQuery) ||
-            cra.consultant.toLowerCase().includes(lowercaseQuery) ||
-            cra.activities.some((activity) =>
-              activity.description.toLowerCase().includes(lowercaseQuery)
-            )
-          );
-
-          set({ cras: results, isLoading: false });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Erreur lors de la recherche',
-            isLoading: false,
-          });
-        }
-      },
-
-      /**
-       * Crée un nouveau CRA
-       * Mode localStorage : ajoute au state et persiste automatiquement
-       */
-      createCRA: async (data: CreateCRAInput) => {
-        set({ isLoading: true, error: null });
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          const newCRA: CRA = {
-            id: generateId(),
-            ...data,
-            activities: data.activities.map((activity) => ({
-              ...activity,
-              id: generateId(),
-            })),
-            createdAt: generateTimestamp(),
-          };
-
-          set((state) => ({
-            cras: [newCRA, ...state.cras],
-            isLoading: false,
-          }));
-
-          return newCRA;
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Erreur lors de la création du CRA',
-            isLoading: false,
-          });
-          throw error;
-        }
-      },
-
-      /**
-       * Met à jour un CRA existant
-       * Mode localStorage : met à jour dans le state et persiste automatiquement
-       */
-      updateCRA: async (id: string, data: Partial<UpdateCRAInput>) => {
-        set({ isLoading: true, error: null });
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          const { cras } = get();
-          const existingCRA = cras.find((c) => c.id === id);
-
-          if (!existingCRA) {
-            throw new Error('CRA introuvable');
-          }
-
-          const updatedCRA: CRA = {
-            ...existingCRA,
-            ...data,
-            id, // Préserver l'ID
-            activities: data.activities
-              ? data.activities.map((activity) => ({
-                  ...activity,
-                  id: activity.id || generateId(),
-                }))
-              : existingCRA.activities,
-            updatedAt: generateTimestamp(),
-          };
-
-          set((state) => ({
-            cras: state.cras.map((cra) => (cra.id === id ? updatedCRA : cra)),
-            selectedCRA: state.selectedCRA?.id === id ? updatedCRA : state.selectedCRA,
-            isLoading: false,
-          }));
-
-          return updatedCRA;
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Erreur lors de la mise à jour du CRA',
-            isLoading: false,
-          });
-          throw error;
-        }
-      },
-
-      /**
-       * Supprime un CRA
-       * Mode localStorage : supprime du state et persiste automatiquement
-       */
-      deleteCRA: async (id: string) => {
-        set({ isLoading: true, error: null });
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          set((state) => ({
-            cras: state.cras.filter((cra) => cra.id !== id),
-            selectedCRA: state.selectedCRA?.id === id ? null : state.selectedCRA,
-            isLoading: false,
-          }));
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Erreur lors de la suppression du CRA',
-            isLoading: false,
-          });
-          throw error;
-        }
-      },
-
-      /**
-       * Définit les filtres et recharge les CRAs
-       */
-      setFilters: (filters: CRAFilters) => {
-        set({ filters });
-        get().fetchCRAs();
-      },
-
-      /**
-       * Définit le tri et recharge les CRAs
-       */
-      setSort: (sort: CRASortOptions) => {
-        set({ sort });
-        get().fetchCRAs();
-      },
-
-      /**
-       * Définit le CRA sélectionné
-       */
-      setSelectedCRA: (cra: CRA | null) => {
-        set({ selectedCRA: cra });
-      },
-
-      /**
-       * Efface l'erreur courante
-       */
-      clearError: () => {
-        set({ error: null });
-      },
-
-      /**
-       * Réinitialise le store à son état initial
-       */
-      reset: () => {
-        set(initialState);
-      },
-    }),
-    {
-      name: 'crafter-cra-storage', // Nom de la clé dans localStorage
-      partialize: (state) => ({
-        // Persister uniquement les CRAs, pas les états temporaires
-        cras: state.cras,
-      }),
+  /**
+   * Récupère la liste des CRAs depuis l'API avec les filtres et le tri actuels
+   */
+  fetchCRAs: async () => {
+    console.log('🔄 [CRA Store] Fetching CRAs from API...');
+    set({ isLoading: true, error: null });
+    try {
+      const { filters, sort } = get();
+      const cras = await craService.getCRAs(filters, sort);
+      console.log('✅ [CRA Store] CRAs loaded:', cras.length);
+      set({ cras, isLoading: false });
+    } catch (error) {
+      console.error('❌ [CRA Store] Error fetching CRAs:', error);
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Erreur lors de la récupération des CRAs',
+        isLoading: false,
+      });
     }
-  )
-);
+  },
+
+  /**
+   * Récupère un CRA par son ID depuis l'API et le définit comme sélectionné
+   */
+  fetchCRAById: async (id: string) => {
+    console.log('🔄 [CRA Store] Fetching CRA by ID:', id);
+    set({ isLoading: true, error: null });
+    try {
+      const cra = await craService.getCRAById(id);
+      console.log('✅ [CRA Store] CRA loaded:', cra.id);
+      set({ selectedCRA: cra, isLoading: false });
+    } catch (error) {
+      console.error('❌ [CRA Store] Error fetching CRA:', error);
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Erreur lors de la récupération du CRA',
+        isLoading: false,
+      });
+    }
+  },
+
+  /**
+   * Recherche des CRAs par texte via l'API
+   */
+  searchCRAs: async (query: string) => {
+    console.log('🔍 [CRA Store] Searching CRAs:', query);
+    set({ isLoading: true, error: null });
+    try {
+      const cras = await craService.searchCRAs(query);
+      console.log('✅ [CRA Store] Search results:', cras.length);
+      set({ cras, isLoading: false });
+    } catch (error) {
+      console.error('❌ [CRA Store] Error searching CRAs:', error);
+      set({
+        error:
+          error instanceof Error ? error.message : 'Erreur lors de la recherche',
+        isLoading: false,
+      });
+    }
+  },
+
+  /**
+   * Crée un nouveau CRA via l'API puis recharge la liste
+   */
+  createCRA: async (data: CreateCRAInput) => {
+    console.log('📝 [CRA Store] Creating CRA...');
+    set({ isLoading: true, error: null });
+    try {
+      const newCRA = await craService.createCRA(data);
+      console.log('✅ [CRA Store] CRA created:', newCRA.id);
+
+      // Recharger la liste des CRAs pour avoir les données à jour
+      await get().fetchCRAs();
+
+      return newCRA;
+    } catch (error) {
+      console.error('❌ [CRA Store] Error creating CRA:', error);
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Erreur lors de la création du CRA',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  /**
+   * Met à jour un CRA existant via l'API puis recharge la liste
+   */
+  updateCRA: async (id: string, data: Partial<UpdateCRAInput>) => {
+    console.log('✏️ [CRA Store] Updating CRA:', id);
+    set({ isLoading: true, error: null });
+    try {
+      const updatedCRA = await craService.updateCRA(id, data);
+      console.log('✅ [CRA Store] CRA updated:', updatedCRA.id);
+
+      // Recharger la liste des CRAs pour avoir les données à jour
+      await get().fetchCRAs();
+
+      // Si c'était le CRA sélectionné, le mettre à jour aussi
+      if (get().selectedCRA?.id === id) {
+        set({ selectedCRA: updatedCRA });
+      }
+
+      return updatedCRA;
+    } catch (error) {
+      console.error('❌ [CRA Store] Error updating CRA:', error);
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Erreur lors de la mise à jour du CRA',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  /**
+   * Supprime un CRA via l'API puis recharge la liste
+   */
+  deleteCRA: async (id: string) => {
+    console.log('🗑️ [CRA Store] Deleting CRA:', id);
+    set({ isLoading: true, error: null });
+    try {
+      await craService.deleteCRA(id);
+      console.log('✅ [CRA Store] CRA deleted');
+
+      // Recharger la liste des CRAs
+      await get().fetchCRAs();
+
+      // Si c'était le CRA sélectionné, le désélectionner
+      if (get().selectedCRA?.id === id) {
+        set({ selectedCRA: null });
+      }
+    } catch (error) {
+      console.error('❌ [CRA Store] Error deleting CRA:', error);
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Erreur lors de la suppression du CRA',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  /**
+   * Définit les filtres et recharge les CRAs
+   */
+  setFilters: (filters: CRAFilters) => {
+    console.log('🔧 [CRA Store] Setting filters:', filters);
+    set({ filters });
+    get().fetchCRAs();
+  },
+
+  /**
+   * Définit le tri et recharge les CRAs
+   */
+  setSort: (sort: CRASortOptions) => {
+    console.log('🔧 [CRA Store] Setting sort:', sort);
+    set({ sort });
+    get().fetchCRAs();
+  },
+
+  /**
+   * Définit le CRA sélectionné
+   */
+  setSelectedCRA: (cra: CRA | null) => {
+    set({ selectedCRA: cra });
+  },
+
+  /**
+   * Efface l'erreur courante
+   */
+  clearError: () => {
+    set({ error: null });
+  },
+
+  /**
+   * Réinitialise le store à son état initial
+   */
+  reset: () => {
+    console.log('🔄 [CRA Store] Resetting store');
+    set(initialState);
+  },
+}));

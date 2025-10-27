@@ -10,10 +10,12 @@ export function PreviewCRA() {
   const selectedCRA = useCRAStore((state) => state.selectedCRA);
   const fetchCRAById = useCRAStore((state) => state.fetchCRAById);
   const isLoading = useCRAStore((state) => state.isLoading);
+  const error = useCRAStore((state) => state.error);
 
   // Charger le CRA au montage du composant
   useEffect(() => {
     if (id) {
+      console.log('👁️ [PreviewCRA] Loading CRA:', id);
       fetchCRAById(id);
     }
   }, [id, fetchCRAById]);
@@ -39,14 +41,38 @@ export function PreviewCRA() {
   }
 
   // Afficher une erreur si le CRA n'existe pas
-  if (!selectedCRA && !isLoading) {
+  if (error || (!isLoading && !selectedCRA)) {
     return (
       <div className="max-w-5xl mx-auto">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <p className="text-red-800">CRA introuvable</p>
-          <Button variant="outline" onClick={() => navigate('/')} className="mt-4">
-            Retour au dashboard
-          </Button>
+          <div className="flex items-start gap-3">
+            <svg
+              className="w-6 h-6 text-red-600 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <div>
+              <h3 className="text-lg font-medium text-red-800">
+                CRA introuvable
+              </h3>
+              <p className="text-sm text-red-700 mt-1">
+                {error || "Le CRA demandé n'existe pas ou n'a pas pu être chargé."}
+              </p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => navigate('/')}
+              >
+                Retour au dashboard
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -55,18 +81,16 @@ export function PreviewCRA() {
   if (!selectedCRA) return null;
 
   // Calculer les statistiques
-  const totalHours = selectedCRA.activities.reduce(
-    (sum, activity) => sum + activity.hours,
-    0,
-  );
+  const totalHours = Number(selectedCRA.total_hours);
 
-  // Convertir le mois en nom
-  const getMonthName = (month: string) => {
-    const months = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-    ];
-    return months[parseInt(month) - 1] || month;
+  // Formater la date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   };
 
   // Badge de statut
@@ -108,7 +132,7 @@ export function PreviewCRA() {
               {getStatusBadge(selectedCRA.status)}
             </div>
             <p className="text-gray-600 mt-1">
-              {getMonthName(selectedCRA.month)} {selectedCRA.year} - {selectedCRA.client}
+              {formatDate(selectedCRA.date)} - {selectedCRA.client}
             </p>
           </div>
           <div className="flex gap-3">
@@ -142,13 +166,13 @@ export function PreviewCRA() {
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
         {/* Header du CRA */}
         <div className="border-b border-gray-200 p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <h3 className="text-sm font-medium text-gray-600 mb-1">
-                Période
+                Date
               </h3>
               <p className="text-lg font-semibold text-gray-900">
-                {getMonthName(selectedCRA.month)} {selectedCRA.year}
+                {formatDate(selectedCRA.date)}
               </p>
             </div>
             <div>
@@ -159,18 +183,10 @@ export function PreviewCRA() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-600 mb-1">
-                Consultant
+                Heures totales
               </h3>
               <p className="text-lg font-semibold text-gray-900">
-                {selectedCRA.consultant}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">
-                Jours travaillés
-              </h3>
-              <p className="text-lg font-semibold text-gray-900">
-                {selectedCRA.days} jours
+                {totalHours.toFixed(1)}h
               </p>
             </div>
           </div>
@@ -212,7 +228,7 @@ export function PreviewCRA() {
                 <thead>
                   <tr className="bg-gray-50">
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
+                      Catégorie
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Description
@@ -225,12 +241,10 @@ export function PreviewCRA() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {selectedCRA.activities.map((activity) => (
                     <tr key={activity.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
-                        {new Date(activity.date).toLocaleDateString('fr-FR', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                        })}
+                      <td className="px-4 py-3 text-sm whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {activity.category}
+                        </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {activity.description}
@@ -247,7 +261,7 @@ export function PreviewCRA() {
                       Total
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900 text-right">
-                      {totalHours}h
+                      {totalHours.toFixed(1)}h
                     </td>
                   </tr>
                 </tfoot>
@@ -261,18 +275,20 @@ export function PreviewCRA() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="text-center">
               <p className="text-sm text-gray-600 mb-1">Heures totales</p>
-              <p className="text-2xl font-bold text-gray-900">{totalHours}h</p>
+              <p className="text-2xl font-bold text-gray-900">{totalHours.toFixed(1)}h</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-1">Moyenne par jour</p>
+              <p className="text-sm text-gray-600 mb-1">Nombre d'activités</p>
               <p className="text-2xl font-bold text-gray-900">
-                {selectedCRA.days > 0 ? (totalHours / selectedCRA.days).toFixed(1) : '0'}h
+                {selectedCRA.activities.length}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-1">Activités</p>
+              <p className="text-sm text-gray-600 mb-1">Moyenne par activité</p>
               <p className="text-2xl font-bold text-gray-900">
-                {selectedCRA.activities.length}
+                {selectedCRA.activities.length > 0
+                  ? (totalHours / selectedCRA.activities.length).toFixed(1)
+                  : '0'}h
               </p>
             </div>
           </div>

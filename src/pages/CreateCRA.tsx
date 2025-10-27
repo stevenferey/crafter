@@ -5,7 +5,6 @@ import { useCRAStore } from '@/stores/cra.store';
 import { useAppStore } from '@/stores/app.store';
 import {
   Input,
-  Select,
   DatePicker,
   Textarea,
   Button,
@@ -18,6 +17,7 @@ import type { CRAFormData } from '@/schemas/cra.schema';
 export function CreateCRA() {
   const navigate = useNavigate();
   const createCRA = useCRAStore((state) => state.createCRA);
+  const isLoading = useCRAStore((state) => state.isLoading);
   const addNotification = useAppStore((state) => state.addNotification);
 
   // Formulaire avec react-hook-form + zod
@@ -34,40 +34,31 @@ export function CreateCRA() {
     name: 'activities',
   });
 
-  // Données pour les sélecteurs
-  const months = [
-    { value: '1', label: 'Janvier' },
-    { value: '2', label: 'Février' },
-    { value: '3', label: 'Mars' },
-    { value: '4', label: 'Avril' },
-    { value: '5', label: 'Mai' },
-    { value: '6', label: 'Juin' },
-    { value: '7', label: 'Juillet' },
-    { value: '8', label: 'Août' },
-    { value: '9', label: 'Septembre' },
-    { value: '10', label: 'Octobre' },
-    { value: '11', label: 'Novembre' },
-    { value: '12', label: 'Décembre' },
+  // Catégories prédéfinies
+  const categories = [
+    'Développement',
+    'Réunion',
+    'Documentation',
+    'Tests',
+    'Code Review',
+    'Support',
+    'Formation',
+    'Analyse',
+    'Conception',
+    'DevOps',
+    'Autre',
   ];
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => ({
-    value: (currentYear - 2 + i).toString(),
-    label: (currentYear - 2 + i).toString(),
-  }));
 
   // Soumission du formulaire
   const onSubmit = async (data: CRAFormData) => {
+    console.log('📝 [CreateCRA] Submitting form data:', data);
     try {
       // Retirer les IDs des activités (générés côté serveur)
       const activities = data.activities.map(({ id, ...activity }) => activity);
 
       await createCRA({
-        month: data.month,
-        year: data.year,
+        date: data.date,
         client: data.client,
-        consultant: data.consultant,
-        days: data.days,
         activities,
         status: 'draft',
       });
@@ -75,9 +66,12 @@ export function CreateCRA() {
       addNotification('CRA créé avec succès', 'success');
       navigate('/');
     } catch (error) {
+      console.error('❌ [CreateCRA] Error:', error);
       addNotification(
-        error instanceof Error ? error.message : 'Erreur lors de la création du CRA',
-        'error',
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la création du CRA',
+        'error'
       );
     }
   };
@@ -85,9 +79,9 @@ export function CreateCRA() {
   // Ajouter une nouvelle activité
   const handleAddActivity = () => {
     append({
-      date: datePickerUtils.getToday(),
       description: '',
-      hours: 8,
+      hours: 4,
+      category: 'Développement',
     });
   };
 
@@ -106,27 +100,16 @@ export function CreateCRA() {
         {/* Informations générales */}
         <FormSection
           title="Informations générales"
-          description="Période et contexte du CRA"
+          description="Date et client du CRA"
         >
           <FormGroup columns={2}>
-            <Select
-              label="Mois"
-              placeholder="Sélectionner un mois"
-              options={months}
-              error={errors.month?.message}
+            <DatePicker
+              label="Date"
+              error={errors.date?.message}
               required
               fullWidth
-              {...register('month')}
-            />
-
-            <Select
-              label="Année"
-              placeholder="Sélectionner une année"
-              options={years}
-              error={errors.year?.message}
-              required
-              fullWidth
-              {...register('year')}
+              {...(register('date') as any)}
+              max={datePickerUtils.getToday()}
             />
 
             <Input
@@ -138,35 +121,13 @@ export function CreateCRA() {
               fullWidth
               {...register('client')}
             />
-
-            <Input
-              label="Consultant"
-              placeholder="Nom du consultant"
-              error={errors.consultant?.message}
-              required
-              fullWidth
-              {...register('consultant')}
-            />
-
-            <Input
-              label="Jours travaillés"
-              type="number"
-              min={1}
-              max={31}
-              placeholder="20"
-              error={errors.days?.message}
-              helperText="Nombre de jours travaillés dans le mois"
-              required
-              fullWidth
-              {...register('days', { valueAsNumber: true })}
-            />
           </FormGroup>
         </FormSection>
 
         {/* Activités */}
         <FormSection
           title="Détail des activités"
-          description="Ajoutez les activités réalisées pendant la période"
+          description="Ajoutez les activités réalisées"
         >
           <div className="space-y-4">
             {fields.length === 0 && (
@@ -223,23 +184,14 @@ export function CreateCRA() {
                   </button>
                 </div>
 
-                <FormGroup columns={3}>
-                  <DatePicker
-                    label="Date"
-                    error={errors.activities?.[index]?.date?.message}
-                    required
-                    fullWidth
-                    {...(register(`activities.${index}.date`) as any)}
-                    max={datePickerUtils.getToday()}
-                  />
-
+                <FormGroup columns={2}>
                   <Input
                     label="Heures"
                     type="number"
                     step="0.25"
                     min="0.25"
                     max="24"
-                    placeholder="8"
+                    placeholder="4"
                     error={errors.activities?.[index]?.hours?.message}
                     helperText="Multiple de 0.25"
                     required
@@ -249,7 +201,28 @@ export function CreateCRA() {
                     })}
                   />
 
-                  <div className="md:col-span-3">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Catégorie <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      {...register(`activities.${index}.category`)}
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.activities?.[index]?.category && (
+                      <p className="text-sm text-red-600">
+                        {errors.activities[index]?.category?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2">
                     <Textarea
                       label="Description"
                       rows={3}
@@ -323,8 +296,8 @@ export function CreateCRA() {
             <div className="text-sm text-blue-800">
               <p className="font-medium mb-1">À propos du CRA</p>
               <p>
-                Le CRA sera créé en mode brouillon. Vous pourrez le compléter et
-                l'exporter en PDF depuis la page de prévisualisation.
+                Le CRA sera créé en mode brouillon. Le total d'heures sera calculé
+                automatiquement à partir des activités.
               </p>
             </div>
           </div>
@@ -336,12 +309,12 @@ export function CreateCRA() {
             type="button"
             variant="outline"
             onClick={() => navigate('/')}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLoading}
           >
             Annuler
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Création...' : 'Créer le CRA'}
+          <Button type="submit" disabled={isSubmitting || isLoading}>
+            {isSubmitting || isLoading ? 'Création...' : 'Créer le CRA'}
           </Button>
         </div>
       </form>

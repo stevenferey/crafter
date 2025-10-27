@@ -2,7 +2,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   craFormSchema,
-  craFormWithPeriodValidation,
   craFormDraftSchema,
   CRAFormData,
   CRAFormDraftData,
@@ -20,10 +19,6 @@ interface UseCRAFormOptions {
    * Mode brouillon (validation partielle)
    */
   isDraft?: boolean;
-  /**
-   * Valider la période (empêcher les CRA futurs)
-   */
-  validatePeriod?: boolean;
 }
 
 /**
@@ -31,15 +26,14 @@ interface UseCRAFormOptions {
  */
 const getDefaultCRAValues = (): Partial<CRAFormData> => {
   const today = new Date();
-  const currentMonth = (today.getMonth() + 1).toString();
-  const currentYear = today.getFullYear().toString();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const dateString = `${year}-${month}-${day}`;
 
   return {
-    month: currentMonth,
-    year: currentYear,
+    date: dateString,
     client: '',
-    consultant: '',
-    days: 0,
     activities: [],
     status: 'draft',
   };
@@ -73,17 +67,12 @@ export function useCRAForm(
   const {
     defaultValues,
     isDraft = false,
-    validatePeriod = true,
   } = options;
 
-  // Sélectionner le schéma approprié
-  let schema = craFormSchema;
-  if (validatePeriod && !isDraft) {
-    schema = craFormWithPeriodValidation;
-  }
-  if (isDraft) {
-    schema = craFormDraftSchema as unknown as typeof craFormSchema;
-  }
+  // Sélectionner le schéma approprié (la validation de période est maintenant dans craFormSchema)
+  const schema = isDraft
+    ? (craFormDraftSchema as unknown as typeof craFormSchema)
+    : craFormSchema;
 
   // Fusionner les valeurs par défaut
   const finalDefaultValues = {
@@ -105,7 +94,6 @@ export function useCRAForm(
 export function useEditCRAForm(existingCRA: Partial<CRAFormData>) {
   return useCRAForm({
     defaultValues: existingCRA,
-    validatePeriod: false, // Ne pas valider la période pour l'édition
   });
 }
 
@@ -113,9 +101,7 @@ export function useEditCRAForm(existingCRA: Partial<CRAFormData>) {
  * Hook pour créer un nouveau CRA
  */
 export function useCreateCRAForm() {
-  return useCRAForm({
-    validatePeriod: true,
-  });
+  return useCRAForm({});
 }
 
 /**
@@ -127,6 +113,5 @@ export function useDraftCRAForm(
   return useCRAForm({
     defaultValues: existingDraft,
     isDraft: true,
-    validatePeriod: false,
   });
 }
