@@ -114,8 +114,8 @@ export function Dashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">Dashboard</h1>
+          <p className="text-[rgb(var(--color-text-secondary))] mt-1">
             Gérez vos comptes rendus d'activité
           </p>
         </div>
@@ -169,14 +169,14 @@ export function Dashboard() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
+            className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))] p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold text-[rgb(var(--color-text))]">{stat.value}</p>
                 {stat.subtext && (
-                  <p className="text-xs text-gray-500 mt-1">{stat.subtext}</p>
+                  <p className="text-xs text-[rgb(var(--color-text-muted))] mt-1">{stat.subtext}</p>
                 )}
               </div>
               <div className="text-4xl">{stat.icon}</div>
@@ -186,20 +186,20 @@ export function Dashboard() {
       </div>
 
       {/* Recent CRAs */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">CRA récents</h2>
+      <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))]">
+        <div className="px-6 py-4 border-b border-[rgb(var(--color-border))]">
+          <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">CRA récents</h2>
         </div>
 
         {isLoading && cras.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-4 text-gray-600">Chargement des CRAs...</p>
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement des CRAs...</p>
           </div>
         ) : recentCRAs.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-12 w-12 text-[rgb(var(--color-text-muted))]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -211,8 +211,8 @@ export function Dashboard() {
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            <p className="mt-4 text-gray-600">Aucun CRA disponible</p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Aucun CRA disponible</p>
+            <p className="text-sm text-[rgb(var(--color-text-muted))] mt-2">
               Créez votre premier CRA pour commencer
             </p>
             <Link to="/cra/new">
@@ -220,21 +220,21 @@ export function Dashboard() {
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-[rgb(var(--color-border))]">
             {recentCRAs.map((cra) => (
               <div
                 key={cra.id}
-                className="px-6 py-4 hover:bg-gray-50 transition-colors"
+                className="px-6 py-4 hover:bg-[rgb(var(--color-surface-hover))] transition-colors"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-medium text-gray-900">
+                      <h3 className="text-lg font-medium text-[rgb(var(--color-text))]">
                         {formatDate(cra.date)}
                       </h3>
                       {getStatusBadge(cra.status)}
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-4 mt-2 text-sm text-[rgb(var(--color-text-secondary))]">
                       <span className="flex items-center gap-1">
                         <svg
                           className="w-4 h-4"
@@ -309,22 +309,22 @@ export function Dashboard() {
       {/* Quick Actions */}
       {cras.length === 0 && !isLoading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800 p-6">
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text))] mb-2">
               Démarrage rapide
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-[rgb(var(--color-text-secondary))] mb-4">
               Créez votre premier CRA en quelques clics
             </p>
             <Link to="/cra/new">
               <Button variant="primary">Créer un CRA</Button>
             </Link>
           </div>
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800 p-6">
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text))] mb-2">
               Besoin d'aide ?
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-[rgb(var(--color-text-secondary))] mb-4">
               Consultez notre documentation pour plus d'informations
             </p>
             <Button variant="outline">Voir la documentation</Button>

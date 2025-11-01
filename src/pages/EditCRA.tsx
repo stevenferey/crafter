@@ -167,7 +167,7 @@ export function EditCRA() {
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col items-center justify-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Chargement du CRA...</p>
+          <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement du CRA...</p>
         </div>
       </div>
     );
@@ -215,8 +215,8 @@ export function EditCRA() {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Éditer le CRA</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">Éditer le CRA</h1>
+        <p className="text-[rgb(var(--color-text-secondary))] mt-1">
           Modifiez les informations du compte rendu d'activité
         </p>
       </div>
@@ -257,9 +257,9 @@ export function EditCRA() {
         >
           <div className="space-y-4">
             {fields.length === 0 && (
-              <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <div className="text-center py-8 bg-[rgb(var(--color-surface-hover))] rounded-lg border-2 border-dashed border-[rgb(var(--color-border))]">
                 <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
+                  className="mx-auto h-12 w-12 text-[rgb(var(--color-text-muted))]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -271,10 +271,10 @@ export function EditCRA() {
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-[rgb(var(--color-text-secondary))]">
                   Aucune activité ajoutée
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[rgb(var(--color-text-muted))] mt-1">
                   Cliquez sur "Ajouter une activité" pour commencer
                 </p>
               </div>
@@ -283,10 +283,10 @@ export function EditCRA() {
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                className="bg-[rgb(var(--color-surface-hover))] rounded-lg p-4 border border-[rgb(var(--color-border))]"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <h4 className="text-sm font-medium text-gray-900">
+                  <h4 className="text-sm font-medium text-[rgb(var(--color-text))]">
                     Activité {index + 1}
                   </h4>
                   <button
@@ -328,11 +328,11 @@ export function EditCRA() {
                   />
 
                   <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))]">
                       Catégorie <span className="text-red-500">*</span>
                     </label>
                     <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-[rgb(var(--color-border))] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))]"
                       {...register(`activities.${index}.category`)}
                     >
                       {categories.map((cat) => (

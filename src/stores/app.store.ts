@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -180,16 +181,21 @@ export const useAppStore = create<AppState>()(
  * Hook pour écouter les changements de préférence de thème système
  */
 export const useSystemThemeListener = () => {
-  const { theme, setTheme } = useAppStore();
+  const theme = useAppStore((state) => state.theme);
+  const setTheme = useAppStore((state) => state.setTheme);
 
-  // Écouter les changements de préférence système
-  if (theme === 'system') {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      setTheme('system'); // Réappliquer le thème système
-    };
+  // Utiliser useEffect pour gérer l'écouteur d'événements
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    // Écouter les changements de préférence système uniquement en mode 'system'
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = () => {
+        setTheme('system'); // Réappliquer le thème système
+      };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+  }, [theme, setTheme]);
 };

@@ -11,15 +11,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 active:bg-blue-800',
+    'bg-[rgb(var(--color-primary))] text-white hover:bg-[rgb(var(--color-primary-hover))] focus:ring-blue-500 active:bg-[rgb(var(--color-primary-hover))]',
   secondary:
-    'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500 active:bg-gray-800',
+    'bg-[rgb(var(--color-surface-hover))] text-[rgb(var(--color-text))] hover:bg-[rgb(var(--color-border))] focus:ring-gray-500 border border-[rgb(var(--color-border))]',
   outline:
-    'border-2 border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-gray-500 active:bg-gray-200',
+    'border-2 border-[rgb(var(--color-border))] text-[rgb(var(--color-text))] hover:bg-[rgb(var(--color-surface-hover))] focus:ring-gray-500',
   ghost:
-    'text-gray-700 hover:bg-gray-100 focus:ring-gray-500 active:bg-gray-200',
+    'text-[rgb(var(--color-text))] hover:bg-[rgb(var(--color-surface-hover))] focus:ring-gray-500',
   danger:
-    'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:bg-red-800',
+    'bg-[rgb(var(--color-error))] text-white hover:bg-red-700 focus:ring-red-500 active:bg-red-800',
 };
 
 const buttonSizes: Record<ButtonSize, string> = {

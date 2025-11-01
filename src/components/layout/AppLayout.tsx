@@ -1,15 +1,31 @@
+import { useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import {
+  useAppStore,
+  useSystemThemeListener,
+} from '@/stores/app.store';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export function AppLayout() {
   const location = useLocation();
+  const theme = useAppStore((state) => state.theme);
+  const setTheme = useAppStore((state) => state.setTheme);
+
+  // Initialiser le thème au démarrage
+  useEffect(() => {
+    setTheme(theme);
+  }, [theme, setTheme]);
+
+  // Écouter les changements de préférence système
+  useSystemThemeListener();
 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[rgb(var(--color-bg))]">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-[rgb(var(--color-surface))] border-b border-[rgb(var(--color-border))] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -18,7 +34,7 @@ export function AppLayout() {
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">C</span>
                 </div>
-                <span className="text-xl font-bold text-gray-900">Crafter</span>
+                <span className="text-xl font-bold text-[rgb(var(--color-text))]">Crafter</span>
               </Link>
             </div>
 
@@ -29,8 +45,8 @@ export function AppLayout() {
                 className={cn(
                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                   isActive('/')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                    ? 'bg-[rgb(var(--color-primary-light))] text-blue-700'
+                    : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-hover))] hover:text-[rgb(var(--color-text))]',
                 )}
               >
                 Dashboard
@@ -40,8 +56,8 @@ export function AppLayout() {
                 className={cn(
                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                   isActive('/cra/new')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                    ? 'bg-[rgb(var(--color-primary-light))] text-blue-700'
+                    : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-hover))] hover:text-[rgb(var(--color-text))]',
                 )}
               >
                 Nouveau CRA
@@ -49,7 +65,8 @@ export function AppLayout() {
             </nav>
 
             {/* Actions */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <ThemeToggle />
               <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
                 <svg
                   className="w-5 h-5"
@@ -79,24 +96,24 @@ export function AppLayout() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      <footer className="bg-[rgb(var(--color-surface))] border-t border-[rgb(var(--color-border))] mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-[rgb(var(--color-text-muted))]">
               © 2025 DiscoData. Tous droits réservés.
             </div>
-            <div className="flex space-x-6 text-sm text-gray-500">
-              <a href="#" className="hover:text-gray-900 transition-colors">
+            <div className="flex space-x-6 text-sm text-[rgb(var(--color-text-muted))]">
+              <a href="#" className="hover:text-[rgb(var(--color-text))] transition-colors">
                 Documentation
               </a>
-              <a href="#" className="hover:text-gray-900 transition-colors">
+              <a href="#" className="hover:text-[rgb(var(--color-text))] transition-colors">
                 Support
               </a>
               <a
                 href="https://github.com/stevenferey/crafter"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-gray-900 transition-colors"
+                className="hover:text-[rgb(var(--color-text))] transition-colors"
               >
                 GitHub
               </a>
