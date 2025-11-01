@@ -1,1 +1,63 @@
 @import 'tailwindcss';
+
+/* Variables CSS pour le mode clair */
+:root {
+  /* Backgrounds */
+  --color-bg: 249 250 251; /* gray-50 */
+  --color-surface: 255 255 255; /* white */
+  --color-surface-hover: 249 250 251; /* gray-50 */
+
+  /* Text */
+  --color-text: 17 24 39; /* gray-900 */
+  --color-text-secondary: 75 85 99; /* gray-600 */
+  --color-text-muted: 107 114 128; /* gray-500 */
+
+  /* Borders */
+  --color-border: 229 231 235; /* gray-200 */
+  --color-border-light: 243 244 246; /* gray-100 */
+
+  /* Primary (blue) */
+  --color-primary: 37 99 235; /* blue-600 */
+  --color-primary-hover: 29 78 216; /* blue-700 */
+  --color-primary-light: 239 246 255; /* blue-50 */
+
+  /* Status colors */
+  --color-success: 22 163 74; /* green-600 */
+  --color-warning: 234 179 8; /* yellow-500 */
+  --color-error: 220 38 38; /* red-600 */
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Variables CSS pour le mode sombre */
+.dark {
+  /* Backgrounds */
+  --color-bg: 17 24 39; /* gray-900 */
+  --color-surface: 31 41 55; /* gray-800 */
+  --color-surface-hover: 55 65 81; /* gray-700 */
+
+  /* Text */
+  --color-text: 243 244 246; /* gray-100 */
+  --color-text-secondary: 209 213 219; /* gray-300 */
+  --color-text-muted: 156 163 175; /* gray-400 */
+
+  /* Borders */
+  --color-border: 55 65 81; /* gray-700 */
+  --color-border-light: 75 85 99; /* gray-600 */
+
+  /* Primary (blue) - plus clair en mode sombre */
+  --color-primary: 59 130 246; /* blue-500 */
+  --color-primary-hover: 37 99 235; /* blue-600 */
+  --color-primary-light: 30 58 138; /* blue-900 */
+
+  /* Status colors - adaptés pour le mode sombre */
+  --color-success: 34 197 94; /* green-500 */
+  --color-warning: 250 204 21; /* yellow-400 */
+  --color-error: 239 68 68; /* red-500 */
+
+  /* Shadows - plus subtiles en mode sombre */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+}

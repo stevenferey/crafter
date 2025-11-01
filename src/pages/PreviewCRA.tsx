@@ -33,7 +33,7 @@ export function PreviewCRA() {
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-4 text-gray-600">Chargement du CRA...</p>
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement du CRA...</p>
           </div>
         </div>
       </div>
@@ -116,22 +116,22 @@ export function PreviewCRA() {
     <div className="max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-          <button onClick={() => navigate('/')} className="hover:text-gray-900">
+        <div className="flex items-center gap-2 text-sm text-[rgb(var(--color-text-secondary))] mb-2">
+          <button onClick={() => navigate('/')} className="hover:text-[rgb(var(--color-text))]">
             Dashboard
           </button>
           <span>/</span>
-          <span className="text-gray-900">CRA #{id}</span>
+          <span className="text-[rgb(var(--color-text))]">CRA #{id}</span>
         </div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">
                 Prévisualisation du CRA
               </h1>
               {getStatusBadge(selectedCRA.status)}
             </div>
-            <p className="text-gray-600 mt-1">
+            <p className="text-[rgb(var(--color-text-secondary))] mt-1">
               {formatDate(selectedCRA.date)} - {selectedCRA.client}
             </p>
           </div>
@@ -163,29 +163,29 @@ export function PreviewCRA() {
       </div>
 
       {/* CRA Preview */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+      <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))] shadow-sm">
         {/* Header du CRA */}
-        <div className="border-b border-gray-200 p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="border-b border-[rgb(var(--color-border))] p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">
+              <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
                 Date
               </h3>
-              <p className="text-lg font-semibold text-gray-900">
+              <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
                 {formatDate(selectedCRA.date)}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">Client</h3>
-              <p className="text-lg font-semibold text-gray-900">
+              <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">Client</h3>
+              <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
                 {selectedCRA.client}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">
+              <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
                 Heures totales
               </h3>
-              <p className="text-lg font-semibold text-gray-900">
+              <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
                 {totalHours.toFixed(1)}h
               </p>
             </div>
@@ -194,14 +194,14 @@ export function PreviewCRA() {
 
         {/* Activités */}
         <div className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-text))] mb-4">
             Détail des activités
           </h3>
 
           {selectedCRA.activities.length === 0 ? (
-            <div className="text-center py-8 bg-gray-50 rounded-lg">
+            <div className="text-center py-8 bg-[rgb(var(--color-surface-hover))] rounded-lg">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="mx-auto h-12 w-12 text-[rgb(var(--color-text-muted))]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -213,7 +213,7 @@ export function PreviewCRA() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <p className="mt-4 text-gray-600">Aucune activité enregistrée</p>
+              <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Aucune activité enregistrée</p>
               <Button
                 variant="outline"
                 onClick={() => navigate(`/cra/${id}/edit`)}
@@ -224,43 +224,43 @@ export function PreviewCRA() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-[rgb(var(--color-border))]">
                 <thead>
-                  <tr className="bg-gray-50">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <tr className="bg-[rgb(var(--color-surface-hover))]">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-muted))] uppercase tracking-wider">
                       Catégorie
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-muted))] uppercase tracking-wider">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-[rgb(var(--color-text-muted))] uppercase tracking-wider">
                       Heures
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-[rgb(var(--color-surface))] divide-y divide-[rgb(var(--color-border))]">
                   {selectedCRA.activities.map((activity) => (
-                    <tr key={activity.id} className="hover:bg-gray-50">
+                    <tr key={activity.id} className="hover:bg-[rgb(var(--color-surface-hover))]">
                       <td className="px-4 py-3 text-sm whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           {activity.category}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-sm text-[rgb(var(--color-text))]">
                         {activity.description}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-[rgb(var(--color-text))] text-right whitespace-nowrap">
                         {activity.hours}h
                       </td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="bg-gray-50 font-semibold">
-                    <td className="px-4 py-3 text-sm text-gray-900" colSpan={2}>
+                  <tr className="bg-[rgb(var(--color-surface-hover))] font-semibold">
+                    <td className="px-4 py-3 text-sm text-[rgb(var(--color-text))]" colSpan={2}>
                       Total
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900 text-right">
+                    <td className="px-4 py-3 text-sm text-[rgb(var(--color-text))] text-right">
                       {totalHours.toFixed(1)}h
                     </td>
                   </tr>
@@ -271,21 +271,21 @@ export function PreviewCRA() {
         </div>
 
         {/* Stats */}
-        <div className="border-t border-gray-200 p-6 bg-gray-50">
+        <div className="border-t border-[rgb(var(--color-border))] p-6 bg-[rgb(var(--color-surface-hover))]">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-1">Heures totales</p>
-              <p className="text-2xl font-bold text-gray-900">{totalHours.toFixed(1)}h</p>
+              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">Heures totales</p>
+              <p className="text-2xl font-bold text-[rgb(var(--color-text))]">{totalHours.toFixed(1)}h</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-1">Nombre d'activités</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">Nombre d'activités</p>
+              <p className="text-2xl font-bold text-[rgb(var(--color-text))]">
                 {selectedCRA.activities.length}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-1">Moyenne par activité</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">Moyenne par activité</p>
+              <p className="text-2xl font-bold text-[rgb(var(--color-text))]">
                 {selectedCRA.activities.length > 0
                   ? (totalHours / selectedCRA.activities.length).toFixed(1)
                   : '0'}h

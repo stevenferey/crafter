@@ -51,8 +51,8 @@ export const FormField = ({
         <label
           htmlFor={fieldId}
           className={cn(
-            'block text-sm font-medium text-gray-700',
-            disabled && 'text-gray-500',
+            'block text-sm font-medium text-[rgb(var(--color-text))]',
+            disabled && 'text-[rgb(var(--color-text-muted))]',
           )}
         >
           {label}
@@ -89,7 +89,7 @@ export const FormField = ({
       )}
 
       {helperText && !error && (
-        <p id={helperId} className="text-sm text-gray-500">
+        <p id={helperId} className="text-sm text-[rgb(var(--color-text-muted))]">
           {helperText}
         </p>
       )}
@@ -160,18 +160,18 @@ export const FormSection = ({
   return (
     <div
       className={cn(
-        'bg-white rounded-lg border border-gray-200 p-6 space-y-6',
+        'bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))] p-6 space-y-6',
         className,
       )}
       {...props}
     >
       {(title || description) && (
-        <div className="border-b border-gray-200 pb-4">
+        <div className="border-b border-[rgb(var(--color-border))] pb-4">
           {title && (
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <h2 className="text-lg font-semibold text-[rgb(var(--color-text))]">{title}</h2>
           )}
           {description && (
-            <p className="text-sm text-gray-600 mt-1">{description}</p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">{description}</p>
           )}
         </div>
       )}
