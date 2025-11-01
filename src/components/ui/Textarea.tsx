@@ -47,14 +47,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     // Classes pour le textarea
     const textareaClasses = cn(
       // Styles de base
-      'block px-4 py-2 text-sm text-gray-900 bg-white border rounded-lg transition-colors',
+      'block px-4 py-2 text-sm text-[rgb(var(--color-text))] bg-[rgb(var(--color-surface))] border rounded-lg transition-colors',
       // Focus
       'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
       // États
       error
         ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-        : 'border-gray-300',
-      disabled && 'bg-gray-50 text-gray-500 cursor-not-allowed opacity-60',
+        : 'border-[rgb(var(--color-border))]',
+      disabled && 'bg-[rgb(var(--color-surface-hover))] text-[rgb(var(--color-text-muted))] cursor-not-allowed opacity-60',
       // Resize
       resizeClasses[resize],
       // Largeur
@@ -69,8 +69,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           <label
             htmlFor={textareaId}
             className={cn(
-              'block text-sm font-medium text-gray-700',
-              disabled && 'text-gray-500',
+              'block text-sm font-medium text-[rgb(var(--color-text))]',
+              disabled && 'text-[rgb(var(--color-text-muted))]',
             )}
           >
             {label}
@@ -115,7 +115,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
 
         {helperText && !error && (
-          <p id={helperId} className="text-sm text-gray-500">
+          <p id={helperId} className="text-sm text-[rgb(var(--color-text-muted))]">
             {helperText}
           </p>
         )}
