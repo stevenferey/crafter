@@ -4,11 +4,14 @@ import { Dashboard } from '@/pages/Dashboard';
 import { CreateCRA } from '@/pages/CreateCRA';
 import { EditCRA } from '@/pages/EditCRA';
 import { PreviewCRA } from '@/pages/PreviewCRA';
+import { NotFound } from '@/pages/NotFound';
+import { ErrorBoundary } from '@/pages/ErrorBoundary';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <AppLayout />,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
@@ -25,6 +28,10 @@ export const router = createBrowserRouter([
       {
         path: 'cra/:id/preview',
         element: <PreviewCRA />,
+      },
+      {
+        path: '*',
+        element: <NotFound />,
       },
     ],
   },

@@ -48,7 +48,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     // Classes pour le select
     const selectClasses = cn(
       // Styles de base
-      'block px-4 py-2 pr-10 text-sm text-gray-900 bg-white border rounded-lg transition-colors',
+      'block px-4 py-2 pr-10 text-sm text-[rgb(var(--color-text))] bg-[rgb(var(--color-surface))] border rounded-lg transition-colors',
       // Apparence du select
       'appearance-none bg-no-repeat bg-right',
       // Focus
@@ -56,8 +56,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       // États
       error
         ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-        : 'border-gray-300',
-      disabled && 'bg-gray-50 text-gray-500 cursor-not-allowed opacity-60',
+        : 'border-[rgb(var(--color-border))]',
+      disabled && 'bg-[rgb(var(--color-surface-hover))] text-[rgb(var(--color-text-muted))] cursor-not-allowed opacity-60',
       // Largeur
       fullWidth ? 'w-full' : 'w-auto',
       className,
@@ -70,8 +70,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           <label
             htmlFor={selectId}
             className={cn(
-              'block text-sm font-medium text-gray-700',
-              disabled && 'text-gray-500',
+              'block text-sm font-medium text-[rgb(var(--color-text))]',
+              disabled && 'text-[rgb(var(--color-text-muted))]',
             )}
           >
             {label}
@@ -115,7 +115,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           </select>
 
           {/* Icône dropdown */}
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[rgb(var(--color-text-muted))]">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -155,7 +155,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         )}
 
         {helperText && !error && (
-          <p id={helperId} className="text-sm text-gray-500">
+          <p id={helperId} className="text-sm text-[rgb(var(--color-text-muted))]">
             {helperText}
           </p>
         )}

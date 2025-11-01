@@ -12,11 +12,13 @@ interface ApiState<T> {
 
 /**
  * Hook personnalisé pour gérer les requêtes API avec état
+ * Utilise AbortController pour annuler les requêtes en cours lors du démontage du composant
  *
  * @example
  * ```tsx
  * const { data, loading, error } = useApi(
- *   () => api.get<User[]>('/users')
+ *   (signal) => api.get<User[]>('/users', { signal }),
+ *   []
  * );
  *
  * if (loading) return <div>Chargement...</div>;
@@ -25,7 +27,7 @@ interface ApiState<T> {
  * ```
  */
 export function useApi<T>(
-  apiFunction: () => Promise<T>,
+  apiFunction: (signal: AbortSignal) => Promise<T>,
   dependencies: unknown[] = [],
 ): ApiState<T> {
   const [state, setState] = useState<ApiState<T>>({
@@ -35,19 +37,25 @@ export function useApi<T>(
   });
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     const fetchData = async () => {
       setState((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
-        const result = await apiFunction();
+        const result = await apiFunction(controller.signal);
 
-        if (!cancelled) {
+        // Ne mettre à jour l'état que si la requête n'a pas été annulée
+        if (!controller.signal.aborted) {
           setState({ data: result, loading: false, error: null });
         }
       } catch (error) {
-        if (!cancelled) {
+        // Ignorer les erreurs d'annulation (AbortError)
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+
+        if (!controller.signal.aborted) {
           setState({
             data: null,
             loading: false,
@@ -63,8 +71,11 @@ export function useApi<T>(
     fetchData();
 
     return () => {
-      cancelled = true;
+      // Annuler la requête en cours lors du démontage
+      controller.abort();
     };
+    // Note: On utilise dependencies fourni par l'utilisateur pour contrôler quand refetch
+    // La fonction apiFunction ne doit pas être dans les dépendances car elle change à chaque render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 

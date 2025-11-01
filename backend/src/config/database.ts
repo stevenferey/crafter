@@ -28,9 +28,9 @@ pool.on('error', (err) => {
 });
 
 // Fonction utilitaire pour exécuter des requêtes
-export const query = async <T = any>(
+export const query = async <T = unknown>(
   text: string,
-  params?: any[]
+  params?: unknown[]
 ): Promise<pg.QueryResult<T>> => {
   const start = Date.now();
   try {

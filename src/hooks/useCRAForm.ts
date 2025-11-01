@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   craFormSchema,
@@ -81,7 +81,7 @@ export function useCRAForm(
   };
 
   return useForm<CRAFormData>({
-    resolver: zodResolver(schema) as any,
+    resolver: zodResolver(schema) as Resolver<CRAFormData>,
     defaultValues: finalDefaultValues as CRAFormData,
     mode: 'onBlur', // Valider au blur pour une meilleure UX
   });

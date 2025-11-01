@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { useCRAStore } from '@/stores/cra.store';
 
+// Nombre maximum de CRAs récents à afficher
+const MAX_RECENT_CRAS = 10;
+
 export function Dashboard() {
   const cras = useCRAStore((state) => state.cras);
   const fetchCRAs = useCRAStore((state) => state.fetchCRAs);
@@ -106,8 +109,8 @@ export function Dashboard() {
     return dateB - dateA;
   });
 
-  // Prendre les 10 CRAs les plus récents
-  const recentCRAs = sortedCRAs.slice(0, 10);
+  // Prendre les CRAs les plus récents
+  const recentCRAs = sortedCRAs.slice(0, MAX_RECENT_CRAS);
 
   return (
     <div className="space-y-8">
