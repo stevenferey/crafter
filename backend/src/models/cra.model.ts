@@ -44,7 +44,7 @@ export class CRAModel {
       WHERE 1=1
     `;
 
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramIndex = 1;
 
     if (status) {
@@ -187,7 +187,7 @@ export class CRAModel {
 
       // Construire la requête de mise à jour dynamiquement
       const updates: string[] = [];
-      const params: any[] = [];
+      const params: unknown[] = [];
       let paramIndex = 1;
 
       if (data.date !== undefined) {
@@ -298,7 +298,7 @@ export class CRAModel {
     const { status, client, startDate, endDate } = filters;
 
     let queryText = 'SELECT COUNT(*) as count FROM cras WHERE 1=1';
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramIndex = 1;
 
     if (status) {

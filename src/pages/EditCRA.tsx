@@ -12,7 +12,7 @@ import {
   FormGroup,
   FormSection,
 } from '@/components/ui';
-import { datePickerUtils } from '@/components/ui/DatePicker';
+import { datePickerUtils } from '@/lib/datePicker';
 import type { CRAFormData } from '@/schemas/cra.schema';
 
 export function EditCRA() {
@@ -104,7 +104,8 @@ export function EditCRA() {
     console.log('✏️ [EditCRA] Submitting update:', data);
     try {
       // Retirer les IDs des activités (gérés côté serveur)
-      const activities = data.activities.map(({ id, ...activity }) => activity);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const activities = data.activities.map(({ id: _id, ...activity }) => activity);
 
       await updateCRA(id, {
         date: data.date,
@@ -234,7 +235,7 @@ export function EditCRA() {
               error={errors.date?.message}
               required
               fullWidth
-              {...(register('date') as any)}
+              {...register('date')}
               max={datePickerUtils.getToday()}
             />
 

@@ -185,7 +185,6 @@ export const useSystemThemeListener = () => {
   const setTheme = useAppStore((state) => state.setTheme);
 
   // Utiliser useEffect pour gérer l'écouteur d'événements
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     // Écouter les changements de préférence système uniquement en mode 'system'
     if (theme === 'system') {

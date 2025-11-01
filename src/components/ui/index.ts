@@ -15,8 +15,11 @@ export type { TextareaProps } from './Textarea';
 export { Select } from './Select';
 export type { SelectProps, SelectOption } from './Select';
 
-export { DatePicker, datePickerUtils } from './DatePicker';
+export { DatePicker } from './DatePicker';
 export type { DatePickerProps } from './DatePicker';
+
+export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card';
+export type { CardProps } from './Card';
 
 export { FormField, FormGroup, FormSection } from './FormField';
 export type { FormFieldProps, FormGroupProps, FormSectionProps } from './FormField';
