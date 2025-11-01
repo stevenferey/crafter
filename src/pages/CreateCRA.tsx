@@ -1,8 +1,10 @@
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFieldArray } from 'react-hook-form';
 import { useCreateCRAForm } from '@/hooks/useCRAForm';
 import { useCRAStore } from '@/stores/cra.store';
 import { useAppStore } from '@/stores/app.store';
+import { logger } from '@/lib/logger';
 import {
   Input,
   DatePicker,
@@ -12,6 +14,7 @@ import {
   FormSection,
 } from '@/components/ui';
 import { datePickerUtils } from '@/lib/datePicker';
+import { ACTIVITY_CATEGORIES } from '@/constants/cra.constants';
 import type { CRAFormData } from '@/schemas/cra.schema';
 
 export function CreateCRA() {
@@ -34,24 +37,9 @@ export function CreateCRA() {
     name: 'activities',
   });
 
-  // Catégories prédéfinies
-  const categories = [
-    'Développement',
-    'Réunion',
-    'Documentation',
-    'Tests',
-    'Code Review',
-    'Support',
-    'Formation',
-    'Analyse',
-    'Conception',
-    'DevOps',
-    'Autre',
-  ];
-
   // Soumission du formulaire
   const onSubmit = async (data: CRAFormData) => {
-    console.log('📝 [CreateCRA] Submitting form data:', data);
+    logger.log('📝 [CreateCRA] Submitting form data:', data);
     try {
       // Retirer les IDs des activités (générés côté serveur)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -67,7 +55,7 @@ export function CreateCRA() {
       addNotification('CRA créé avec succès', 'success');
       navigate('/');
     } catch (error) {
-      console.error('❌ [CreateCRA] Error:', error);
+      logger.error('❌ [CreateCRA] Error:', error);
       addNotification(
         error instanceof Error
           ? error.message
@@ -78,13 +66,13 @@ export function CreateCRA() {
   };
 
   // Ajouter une nouvelle activité
-  const handleAddActivity = () => {
+  const handleAddActivity = useCallback(() => {
     append({
       description: '',
       hours: 4,
       category: 'Développement',
     });
-  };
+  }, [append]);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -210,7 +198,7 @@ export function CreateCRA() {
                       className="w-full px-3 py-2 border border-[rgb(var(--color-border))] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))]"
                       {...register(`activities.${index}.category`)}
                     >
-                      {categories.map((cat) => (
+                      {ACTIVITY_CATEGORIES.map((cat) => (
                         <option key={cat} value={cat}>
                           {cat}
                         </option>
@@ -281,10 +269,10 @@ export function CreateCRA() {
         </FormSection>
 
         {/* Info Box */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
           <div className="flex gap-3">
             <svg
-              className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+              className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -294,9 +282,9 @@ export function CreateCRA() {
                 clipRule="evenodd"
               />
             </svg>
-            <div className="text-sm text-blue-800 dark:text-blue-200">
-              <p className="font-medium mb-1">À propos du CRA</p>
-              <p>
+            <div className="text-sm">
+              <p className="font-bold mb-1 text-blue-800">À propos du CRA</p>
+              <p className="text-blue-700">
                 Le CRA sera créé en mode brouillon. Le total d'heures sera calculé
                 automatiquement à partir des activités.
               </p>

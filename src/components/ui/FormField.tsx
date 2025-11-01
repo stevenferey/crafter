@@ -1,4 +1,4 @@
-import { ReactNode, HTMLAttributes } from 'react';
+import { useId, ReactNode, HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface FormFieldProps extends HTMLAttributes<HTMLDivElement> {
@@ -37,7 +37,8 @@ export const FormField = ({
   ...props
 }: FormFieldProps) => {
   // Générer un ID unique si non fourni
-  const fieldId = htmlFor || `field-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const fieldId = htmlFor || generatedId;
   const errorId = error ? `${fieldId}-error` : undefined;
   const helperId = helperText ? `${fieldId}-helper` : undefined;
 

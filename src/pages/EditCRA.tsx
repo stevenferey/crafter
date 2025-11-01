@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFieldArray } from 'react-hook-form';
 import { useEditCRAForm } from '@/hooks/useCRAForm';
 import { useCRAStore } from '@/stores/cra.store';
 import { useAppStore } from '@/stores/app.store';
+import { logger } from '@/lib/logger';
 import {
   Input,
   DatePicker,
@@ -11,8 +12,10 @@ import {
   Button,
   FormGroup,
   FormSection,
+  Spinner,
 } from '@/components/ui';
 import { datePickerUtils } from '@/lib/datePicker';
+import { ACTIVITY_CATEGORIES } from '@/constants/cra.constants';
 import type { CRAFormData } from '@/schemas/cra.schema';
 
 export function EditCRA() {
@@ -30,7 +33,7 @@ export function EditCRA() {
   // Charger le CRA au montage du composant
   useEffect(() => {
     if (id) {
-      console.log('✏️ [EditCRA] Loading CRA:', id);
+      logger.log('✏️ [EditCRA] Loading CRA:', id);
       fetchCRAById(id);
     }
   }, [id, fetchCRAById]);
@@ -61,7 +64,7 @@ export function EditCRA() {
   // Réinitialiser le formulaire quand les données sont chargées
   useEffect(() => {
     if (selectedCRA) {
-      console.log('✏️ [EditCRA] Resetting form with data:', selectedCRA);
+      logger.log('✏️ [EditCRA] Resetting form with data:', selectedCRA);
       reset({
         date: selectedCRA.date,
         client: selectedCRA.client,
@@ -82,26 +85,11 @@ export function EditCRA() {
     name: 'activities',
   });
 
-  // Catégories prédéfinies
-  const categories = [
-    'Développement',
-    'Réunion',
-    'Documentation',
-    'Tests',
-    'Code Review',
-    'Support',
-    'Formation',
-    'Analyse',
-    'Conception',
-    'DevOps',
-    'Autre',
-  ];
-
   // Soumission du formulaire
   const onSubmit = async (data: CRAFormData) => {
     if (!id) return;
 
-    console.log('✏️ [EditCRA] Submitting update:', data);
+    logger.log('✏️ [EditCRA] Submitting update:', data);
     try {
       // Retirer les IDs des activités (gérés côté serveur)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -117,7 +105,7 @@ export function EditCRA() {
       addNotification('CRA mis à jour avec succès', 'success');
       navigate('/');
     } catch (error) {
-      console.error('❌ [EditCRA] Error:', error);
+      logger.error('❌ [EditCRA] Error:', error);
       addNotification(
         error instanceof Error
           ? error.message
@@ -137,13 +125,13 @@ export function EditCRA() {
 
     if (!confirmed) return;
 
-    console.log('🗑️ [EditCRA] Deleting CRA:', id);
+    logger.log('🗑️ [EditCRA] Deleting CRA:', id);
     try {
       await deleteCRA(id);
       addNotification('CRA supprimé avec succès', 'success');
       navigate('/');
     } catch (error) {
-      console.error('❌ [EditCRA] Error deleting:', error);
+      logger.error('❌ [EditCRA] Error deleting:', error);
       addNotification(
         error instanceof Error
           ? error.message
@@ -154,20 +142,20 @@ export function EditCRA() {
   };
 
   // Ajouter une nouvelle activité
-  const handleAddActivity = () => {
+  const handleAddActivity = useCallback(() => {
     append({
       description: '',
       hours: 4,
       category: 'Développement',
     });
-  };
+  }, [append]);
 
   // Afficher un loader pendant le chargement
   if (isLoading && !selectedCRA) {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col items-center justify-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <Spinner />
           <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement du CRA...</p>
         </div>
       </div>
@@ -336,7 +324,7 @@ export function EditCRA() {
                       className="w-full px-3 py-2 border border-[rgb(var(--color-border))] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))]"
                       {...register(`activities.${index}.category`)}
                     >
-                      {categories.map((cat) => (
+                      {ACTIVITY_CATEGORIES.map((cat) => (
                         <option key={cat} value={cat}>
                           {cat}
                         </option>

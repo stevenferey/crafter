@@ -34,4 +34,18 @@ export const datePickerUtils = {
     date.setDate(date.getDate() + days);
     return datePickerUtils.formatDate(date);
   },
+
+  /**
+   * Formate une date au format français long
+   * @param dateString - Date au format YYYY-MM-DD
+   * @returns Date formatée (ex: "15 janvier 2025")
+   */
+  formatDateLong: (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  },
 };

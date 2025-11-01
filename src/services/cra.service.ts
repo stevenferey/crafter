@@ -1,4 +1,5 @@
 import { api, env } from './api';
+import { logger } from '@/lib/logger';
 import type {
   CRA,
   CreateCRAInput,
@@ -8,7 +9,7 @@ import type {
 } from '@/types/cra.types';
 
 // Log de l'URL de l'API au chargement
-console.log('🌐 [CRA Service] API_URL:', env.apiUrl);
+logger.log('🌐 [CRA Service] API_URL:', env.apiUrl);
 
 /**
  * Format de réponse de l'API backend
@@ -37,7 +38,7 @@ export const craService = {
     filters?: CRAFilters,
     sort?: CRASortOptions,
   ): Promise<CRA[]> {
-    console.log('🔍 [CRA Service] Fetching CRAs...', { filters, sort });
+    logger.log('🔍 [CRA Service] Fetching CRAs...', { filters, sort });
 
     const params = new URLSearchParams();
 
@@ -58,7 +59,7 @@ export const craService = {
     const url = `/cras${query ? `?${query}` : ''}`;
 
     const response = await api.get<ApiResponse<CRA[]>>(url);
-    console.log('✅ [CRA Service] CRAs fetched:', response.data?.length || 0);
+    logger.log('✅ [CRA Service] CRAs fetched:', response.data?.length || 0);
     return response.data || [];
   },
 
@@ -66,13 +67,13 @@ export const craService = {
    * Récupère un CRA par son ID
    */
   async getCRAById(id: string): Promise<CRA> {
-    console.log('🔍 [CRA Service] Fetching CRA by ID:', id);
+    logger.log('🔍 [CRA Service] Fetching CRA by ID:', id);
     const response = await api.get<ApiResponse<CRA>>(`/cras/${id}`);
     if (!response.success || !response.data) {
-      console.error('❌ [CRA Service] Failed to fetch CRA:', response.error);
+      logger.error('❌ [CRA Service] Failed to fetch CRA:', response.error);
       throw new Error(response.error || 'Failed to fetch CRA');
     }
-    console.log('✅ [CRA Service] CRA fetched:', response.data.id);
+    logger.log('✅ [CRA Service] CRA fetched:', response.data.id);
     return response.data;
   },
 
@@ -80,13 +81,13 @@ export const craService = {
    * Crée un nouveau CRA
    */
   async createCRA(data: CreateCRAInput): Promise<CRA> {
-    console.log('📝 [CRA Service] Creating CRA...', data);
+    logger.log('📝 [CRA Service] Creating CRA...', data);
     const response = await api.post<ApiResponse<CRA>>('/cras', data);
     if (!response.success || !response.data) {
-      console.error('❌ [CRA Service] Failed to create CRA:', response.error);
+      logger.error('❌ [CRA Service] Failed to create CRA:', response.error);
       throw new Error(response.error || 'Failed to create CRA');
     }
-    console.log('✅ [CRA Service] CRA created:', response.data.id);
+    logger.log('✅ [CRA Service] CRA created:', response.data.id);
     return response.data;
   },
 
@@ -94,13 +95,13 @@ export const craService = {
    * Met à jour un CRA existant
    */
   async updateCRA(id: string, data: Partial<UpdateCRAInput>): Promise<CRA> {
-    console.log('✏️ [CRA Service] Updating CRA:', id, data);
+    logger.log('✏️ [CRA Service] Updating CRA:', id, data);
     const response = await api.put<ApiResponse<CRA>>(`/cras/${id}`, data);
     if (!response.success || !response.data) {
-      console.error('❌ [CRA Service] Failed to update CRA:', response.error);
+      logger.error('❌ [CRA Service] Failed to update CRA:', response.error);
       throw new Error(response.error || 'Failed to update CRA');
     }
-    console.log('✅ [CRA Service] CRA updated:', response.data.id);
+    logger.log('✅ [CRA Service] CRA updated:', response.data.id);
     return response.data;
   },
 
@@ -108,13 +109,13 @@ export const craService = {
    * Supprime un CRA
    */
   async deleteCRA(id: string): Promise<void> {
-    console.log('🗑️ [CRA Service] Deleting CRA:', id);
+    logger.log('🗑️ [CRA Service] Deleting CRA:', id);
     const response = await api.delete<ApiResponse<void>>(`/cras/${id}`);
     if (!response.success) {
-      console.error('❌ [CRA Service] Failed to delete CRA:', response.error);
+      logger.error('❌ [CRA Service] Failed to delete CRA:', response.error);
       throw new Error(response.error || 'Failed to delete CRA');
     }
-    console.log('✅ [CRA Service] CRA deleted');
+    logger.log('✅ [CRA Service] CRA deleted');
   },
 
   /**

@@ -1,4 +1,4 @@
-import { forwardRef, InputHTMLAttributes } from 'react';
+import { forwardRef, useId, InputHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface DatePickerProps
@@ -34,7 +34,8 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
     ref,
   ) => {
     // Générer un ID unique si non fourni
-    const inputId = id || `datepicker-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = useId();
+    const inputId = id || generatedId;
     const errorId = error ? `${inputId}-error` : undefined;
     const helperId = helperText ? `${inputId}-helper` : undefined;
 

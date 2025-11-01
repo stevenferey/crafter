@@ -128,6 +128,34 @@ export const api = {
 };
 
 /**
+ * Interface pour les réponses API standard
+ */
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+/**
+ * Fonction utilitaire pour extraire les données d'une réponse API
+ * Lance une erreur si la réponse n'est pas valide
+ *
+ * @param response - Réponse API à traiter
+ * @param defaultError - Message d'erreur par défaut
+ * @returns Les données extraites
+ * @throws {Error} Si la réponse n'est pas valide
+ */
+export function unwrapApiResponse<T>(
+  response: ApiResponse<T>,
+  defaultError: string
+): T {
+  if (!response.success || !response.data) {
+    throw new Error(response.error || defaultError);
+  }
+  return response.data;
+}
+
+/**
  * Variables d'environnement exportées
  */
 export const env = {

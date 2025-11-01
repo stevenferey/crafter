@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/Button';
+import { Button, StatusBadge, Spinner } from '@/components/ui';
 import { useCRAStore } from '@/stores/cra.store';
-
-// Nombre maximum de CRAs récents à afficher
-const MAX_RECENT_CRAS = 10;
+import { CRA_CONSTRAINTS, type CRAStatus } from '@/constants/cra.constants';
+import { datePickerUtils } from '@/lib/datePicker';
+import { logger } from '@/lib/logger';
 
 export function Dashboard() {
   const cras = useCRAStore((state) => state.cras);
@@ -15,7 +15,7 @@ export function Dashboard() {
 
   // Charger les CRAs au montage du composant
   useEffect(() => {
-    console.log('📊 [Dashboard] Component mounted, fetching CRAs...');
+    logger.log('📊 [Dashboard] Component mounted, fetching CRAs...');
     fetchCRAs();
   }, [fetchCRAs]);
 
@@ -61,47 +61,6 @@ export function Dashboard() {
     },
   ];
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      draft: {
-        label: 'Brouillon',
-        className: 'text-gray-700 bg-gray-50',
-      },
-      submitted: {
-        label: 'Soumis',
-        className: 'text-blue-700 bg-blue-50',
-      },
-      approved: {
-        label: 'Approuvé',
-        className: 'text-emerald-700 bg-emerald-50',
-      },
-      rejected: {
-        label: 'Rejeté',
-        className: 'text-red-700 bg-red-50',
-      },
-    };
-
-    const config =
-      statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
-
-    return (
-      <span
-        className={`px-2 py-1 text-xs font-medium rounded-full ${config.className}`}
-      >
-        {config.label}
-      </span>
-    );
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
   // Trier les CRAs par date décroissante
   const sortedCRAs = [...cras].sort((a, b) => {
     const dateA = new Date(a.date).getTime();
@@ -110,7 +69,7 @@ export function Dashboard() {
   });
 
   // Prendre les CRAs les plus récents
-  const recentCRAs = sortedCRAs.slice(0, MAX_RECENT_CRAS);
+  const recentCRAs = sortedCRAs.slice(0, CRA_CONSTRAINTS.MAX_RECENT_CRAS);
 
   return (
     <div className="space-y-8">
@@ -196,7 +155,7 @@ export function Dashboard() {
 
         {isLoading && cras.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <Spinner />
             <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement des CRAs...</p>
           </div>
         ) : recentCRAs.length === 0 ? (
@@ -233,9 +192,9 @@ export function Dashboard() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
                       <h3 className="text-lg font-medium text-[rgb(var(--color-text))]">
-                        {formatDate(cra.date)}
+                        {datePickerUtils.formatDateLong(cra.date)}
                       </h3>
-                      {getStatusBadge(cra.status)}
+                      <StatusBadge status={cra.status as CRAStatus} />
                     </div>
                     <div className="flex items-center gap-4 mt-2 text-sm text-[rgb(var(--color-text-secondary))]">
                       <span className="flex items-center gap-1">
