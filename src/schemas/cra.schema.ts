@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CRA_STATUSES, CRA_CONSTRAINTS } from '@/constants/cra.constants';
 
 /**
  * Schéma de validation pour une activité
@@ -13,14 +14,14 @@ export const activitySchema = z.object({
   hours: z
     .number({ message: "Le nombre d'heures doit être un nombre" })
     .positive("Le nombre d'heures doit être positif")
-    .max(24, "Le nombre d'heures ne peut pas dépasser 24h")
+    .max(CRA_CONSTRAINTS.MAX_HOURS_PER_ACTIVITY, `Le nombre d'heures ne peut pas dépasser ${CRA_CONSTRAINTS.MAX_HOURS_PER_ACTIVITY}h`)
     .refine(
       (hours) => {
-        // Vérifier que c'est un multiple de 0.25 (15 minutes)
-        return hours % 0.25 === 0;
+        // Vérifier que c'est un multiple de l'incrément (15 minutes)
+        return hours % CRA_CONSTRAINTS.HOUR_INCREMENT === 0;
       },
       {
-        message: "Le nombre d'heures doit être un multiple de 0.25 (15 minutes)",
+        message: `Le nombre d'heures doit être un multiple de ${CRA_CONSTRAINTS.HOUR_INCREMENT} (15 minutes)`,
       }
     ),
   category: z
@@ -64,14 +65,14 @@ export const craFormSchema = z.object({
     .min(1, 'Au moins une activité est requise')
     .refine(
       (activities) => {
-        // Vérifier que le total des heures ne dépasse pas 24h
+        // Vérifier que le total des heures ne dépasse pas le maximum
         const totalHours = activities.reduce((sum, a) => sum + a.hours, 0);
-        return totalHours <= 24;
+        return totalHours <= CRA_CONSTRAINTS.MAX_HOURS_PER_CRA;
       },
-      { message: 'Le total des heures ne peut pas dépasser 24h' }
+      { message: `Le total des heures ne peut pas dépasser ${CRA_CONSTRAINTS.MAX_HOURS_PER_CRA}h` }
     ),
   status: z
-    .enum(['draft', 'submitted', 'approved', 'rejected'])
+    .enum(CRA_STATUSES)
     .optional()
     .default('draft'),
 });
@@ -94,7 +95,7 @@ export const simpleActivitySchema = z.object({
   hours: z.coerce
     .number()
     .positive("Le nombre d'heures doit être positif")
-    .max(24, 'Maximum 24 heures'),
+    .max(CRA_CONSTRAINTS.MAX_HOURS_PER_ACTIVITY, `Maximum ${CRA_CONSTRAINTS.MAX_HOURS_PER_ACTIVITY} heures`),
   category: z.string().min(1, 'La catégorie est requise'),
 });
 

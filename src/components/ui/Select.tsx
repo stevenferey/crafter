@@ -1,4 +1,4 @@
-import { forwardRef, SelectHTMLAttributes, ReactNode } from 'react';
+import { forwardRef, useId, SelectHTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface SelectOption {
@@ -41,7 +41,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     ref,
   ) => {
     // Générer un ID unique si non fourni
-    const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = useId();
+    const selectId = id || generatedId;
     const errorId = error ? `${selectId}-error` : undefined;
     const helperId = helperText ? `${selectId}-helper` : undefined;
 

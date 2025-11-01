@@ -1,28 +1,19 @@
-import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/Button';
-import { useCRAStore } from '@/stores/cra.store';
+import { Button, StatusBadge, Spinner } from '@/components/ui';
+import { type CRAStatus } from '@/constants/cra.constants';
+import { datePickerUtils } from '@/lib/datePicker';
+import { useCRA } from '@/hooks/useCRA';
+import { logger } from '@/lib/logger';
 
 export function PreviewCRA() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const selectedCRA = useCRAStore((state) => state.selectedCRA);
-  const fetchCRAById = useCRAStore((state) => state.fetchCRAById);
-  const isLoading = useCRAStore((state) => state.isLoading);
-  const error = useCRAStore((state) => state.error);
-
-  // Charger le CRA au montage du composant
-  useEffect(() => {
-    if (id) {
-      console.log('👁️ [PreviewCRA] Loading CRA:', id);
-      fetchCRAById(id);
-    }
-  }, [id, fetchCRAById]);
+  const { cra: selectedCRA, isLoading, error } = useCRA(id);
 
   const handleExportPDF = () => {
     // TODO: Implémenter l'export PDF
-    console.log('Export PDF du CRA:', id);
+    logger.log('Export PDF du CRA:', id);
     alert('Export PDF en cours de développement...');
   };
 
@@ -32,7 +23,7 @@ export function PreviewCRA() {
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <Spinner />
             <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement du CRA...</p>
           </div>
         </div>
@@ -83,35 +74,6 @@ export function PreviewCRA() {
   // Calculer les statistiques
   const totalHours = Number(selectedCRA.total_hours);
 
-  // Formater la date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  // Badge de statut
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      draft: { label: 'Brouillon', className: 'text-gray-700 bg-gray-100' },
-      completed: { label: 'Complété', className: 'text-green-700 bg-green-100' },
-      submitted: { label: 'Soumis', className: 'text-blue-700 bg-blue-100' },
-      approved: { label: 'Approuvé', className: 'text-emerald-700 bg-emerald-100' },
-      rejected: { label: 'Rejeté', className: 'text-red-700 bg-red-100' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
-
-    return (
-      <span className={`px-3 py-1 text-sm font-medium rounded-full ${config.className}`}>
-        {config.label}
-      </span>
-    );
-  };
-
   return (
     <div className="max-w-5xl mx-auto">
       {/* Header */}
@@ -129,10 +91,10 @@ export function PreviewCRA() {
               <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">
                 Prévisualisation du CRA
               </h1>
-              {getStatusBadge(selectedCRA.status)}
+              <StatusBadge status={selectedCRA.status as CRAStatus} />
             </div>
             <p className="text-[rgb(var(--color-text-secondary))] mt-1">
-              {formatDate(selectedCRA.date)} - {selectedCRA.client}
+              {datePickerUtils.formatDateLong(selectedCRA.date)} - {selectedCRA.client}
             </p>
           </div>
           <div className="flex gap-3">
@@ -172,7 +134,7 @@ export function PreviewCRA() {
                 Date
               </h3>
               <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
-                {formatDate(selectedCRA.date)}
+                {datePickerUtils.formatDateLong(selectedCRA.date)}
               </p>
             </div>
             <div>

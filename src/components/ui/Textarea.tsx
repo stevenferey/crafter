@@ -1,4 +1,4 @@
-import { forwardRef, TextareaHTMLAttributes } from 'react';
+import { forwardRef, useId, TextareaHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface TextareaProps
@@ -32,7 +32,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     ref,
   ) => {
     // Générer un ID unique si non fourni
-    const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = useId();
+    const textareaId = id || generatedId;
     const errorId = error ? `${textareaId}-error` : undefined;
     const helperId = helperText ? `${textareaId}-helper` : undefined;
 
