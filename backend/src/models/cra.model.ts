@@ -1,47 +1,34 @@
-import { pool, query } from '../config/database.js';
+import { query } from '../config/database.js';
 import {
   CRA,
-  Activity,
   CreateCRAInput,
   UpdateCRAInput,
   CRAFilters,
 } from '../types/cra.types.js';
 
 /**
- * Model pour les opérations CRUD sur les CRA
+ * Model pour les opérations CRUD sur les CRA mensuels
  */
 export class CRAModel {
   /**
    * Récupère tous les CRA avec filtres optionnels
    */
   static async findAll(filters: CRAFilters = {}): Promise<CRA[]> {
-    const { status, client, startDate, endDate, limit = 50, offset = 0 } = filters;
+    const { status, client, provider, year, month, limit = 50, offset = 0 } = filters;
 
     let queryText = `
       SELECT
-        c.id,
-        c.date,
-        c.client_id,
-        c.provider_id,
-        c.total_hours,
-        c.status,
-        c.created_at,
-        c.updated_at,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', a.id,
-              'cra_id', a.cra_id,
-              'description', a.description,
-              'hours', a.hours,
-              'category', a.category,
-              'created_at', a.created_at
-            ) ORDER BY a.created_at
-          ) FILTER (WHERE a.id IS NOT NULL),
-          '[]'::json
-        ) as activities
-      FROM cras c
-      LEFT JOIN activities a ON c.id = a.cra_id
+        id,
+        month,
+        year,
+        worked_days,
+        comment,
+        client_id,
+        provider_id,
+        status,
+        created_at,
+        updated_at
+      FROM cras
       WHERE 1=1
     `;
 
@@ -49,32 +36,37 @@ export class CRAModel {
     let paramIndex = 1;
 
     if (status) {
-      queryText += ` AND c.status = $${paramIndex}`;
+      queryText += ` AND status = $${paramIndex}`;
       params.push(status);
       paramIndex++;
     }
 
     if (client) {
-      queryText += ` AND c.client_id = $${paramIndex}`;
+      queryText += ` AND client_id = $${paramIndex}`;
       params.push(client);
       paramIndex++;
     }
 
-    if (startDate) {
-      queryText += ` AND c.date >= $${paramIndex}`;
-      params.push(startDate);
+    if (provider) {
+      queryText += ` AND provider_id = $${paramIndex}`;
+      params.push(provider);
       paramIndex++;
     }
 
-    if (endDate) {
-      queryText += ` AND c.date <= $${paramIndex}`;
-      params.push(endDate);
+    if (year !== undefined) {
+      queryText += ` AND year = $${paramIndex}`;
+      params.push(year);
+      paramIndex++;
+    }
+
+    if (month !== undefined) {
+      queryText += ` AND month = $${paramIndex}`;
+      params.push(month);
       paramIndex++;
     }
 
     queryText += `
-      GROUP BY c.id, c.date, c.client_id, c.provider_id, c.total_hours, c.status, c.created_at, c.updated_at
-      ORDER BY c.date DESC, c.created_at DESC
+      ORDER BY year DESC, month DESC, created_at DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
     params.push(limit, offset);
@@ -89,31 +81,18 @@ export class CRAModel {
   static async findById(id: string): Promise<CRA | null> {
     const queryText = `
       SELECT
-        c.id,
-        c.date,
-        c.client_id,
-        c.provider_id,
-        c.total_hours,
-        c.status,
-        c.created_at,
-        c.updated_at,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', a.id,
-              'cra_id', a.cra_id,
-              'description', a.description,
-              'hours', a.hours,
-              'category', a.category,
-              'created_at', a.created_at
-            ) ORDER BY a.created_at
-          ) FILTER (WHERE a.id IS NOT NULL),
-          '[]'::json
-        ) as activities
-      FROM cras c
-      LEFT JOIN activities a ON c.id = a.cra_id
-      WHERE c.id = $1
-      GROUP BY c.id, c.date, c.client_id, c.provider_id, c.total_hours, c.status, c.created_at, c.updated_at
+        id,
+        month,
+        year,
+        worked_days,
+        comment,
+        client_id,
+        provider_id,
+        status,
+        created_at,
+        updated_at
+      FROM cras
+      WHERE id = $1
     `;
 
     const result = await query<CRA>(queryText, [id]);
@@ -121,190 +100,143 @@ export class CRAModel {
   }
 
   /**
-   * Crée un nouveau CRA avec ses activités
+   * Crée un nouveau CRA mensuel
    */
   static async create(data: CreateCRAInput): Promise<CRA> {
-    const client = await pool.connect();
+    const queryText = `
+      INSERT INTO cras (
+        month,
+        year,
+        worked_days,
+        comment,
+        client_id,
+        provider_id,
+        status
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING
+        id,
+        month,
+        year,
+        worked_days,
+        comment,
+        client_id,
+        provider_id,
+        status,
+        created_at,
+        updated_at
+    `;
 
-    try {
-      await client.query('BEGIN');
+    const result = await query<CRA>(queryText, [
+      data.month,
+      data.year,
+      data.worked_days,
+      data.comment || null,
+      data.client_id,
+      data.provider_id,
+      data.status || 'draft',
+    ]);
 
-      // Calculer le total d'heures
-      const totalHours = data.activities.reduce((sum, act) => sum + act.hours, 0);
-
-      // Créer le CRA
-      const craQuery = `
-        INSERT INTO cras (date, client_id, provider_id, total_hours, status)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, date, client_id, provider_id, total_hours, status, created_at, updated_at
-      `;
-      const craResult = await client.query(craQuery, [
-        data.date,
-        data.client_id,
-        data.provider_id,
-        totalHours,
-        data.status || 'draft',
-      ]);
-
-      const cra = craResult.rows[0];
-
-      // Créer les activités
-      const activities: Activity[] = [];
-      for (const activity of data.activities) {
-        const activityQuery = `
-          INSERT INTO activities (cra_id, description, hours, category)
-          VALUES ($1, $2, $3, $4)
-          RETURNING id, cra_id, description, hours, category, created_at
-        `;
-        const activityResult = await client.query(activityQuery, [
-          cra.id,
-          activity.description,
-          activity.hours,
-          activity.category,
-        ]);
-        activities.push(activityResult.rows[0]);
-      }
-
-      await client.query('COMMIT');
-
-      return {
-        ...cra,
-        activities,
-      };
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+    return result.rows[0];
   }
 
   /**
    * Met à jour un CRA existant
    */
   static async update(id: string, data: UpdateCRAInput): Promise<CRA | null> {
-    const client = await pool.connect();
+    // Construire la requête de mise à jour dynamiquement
+    const updates: string[] = [];
+    const params: unknown[] = [];
+    let paramIndex = 1;
 
-    try {
-      await client.query('BEGIN');
-
-      // Construire la requête de mise à jour dynamiquement
-      const updates: string[] = [];
-      const params: unknown[] = [];
-      let paramIndex = 1;
-
-      if (data.date !== undefined) {
-        updates.push(`date = $${paramIndex}`);
-        params.push(data.date);
-        paramIndex++;
-      }
-
-      if (data.client_id !== undefined) {
-        updates.push(`client_id = $${paramIndex}`);
-        params.push(data.client_id);
-        paramIndex++;
-      }
-
-      if (data.provider_id !== undefined) {
-        updates.push(`provider_id = $${paramIndex}`);
-        params.push(data.provider_id);
-        paramIndex++;
-      }
-
-      if (data.status !== undefined) {
-        updates.push(`status = $${paramIndex}`);
-        params.push(data.status);
-        paramIndex++;
-      }
-
-      // Si des activités sont fournies, supprimer les anciennes et créer les nouvelles
-      if (data.activities !== undefined) {
-        // Calculer le nouveau total d'heures
-        const totalHours = data.activities.reduce((sum, act) => sum + act.hours, 0);
-        updates.push(`total_hours = $${paramIndex}`);
-        params.push(totalHours);
-        paramIndex++;
-
-        // Supprimer les anciennes activités
-        await client.query('DELETE FROM activities WHERE cra_id = $1', [id]);
-
-        // Créer les nouvelles activités
-        for (const activity of data.activities) {
-          await client.query(
-            'INSERT INTO activities (cra_id, description, hours, category) VALUES ($1, $2, $3, $4)',
-            [id, activity.description, activity.hours, activity.category]
-          );
-        }
-      }
-
-      // Toujours mettre à jour updated_at
-      updates.push(`updated_at = CURRENT_TIMESTAMP`);
-
-      // Ajouter l'ID à la fin des paramètres
-      params.push(id);
-
-      if (updates.length === 1) {
-        // Seulement updated_at, pas besoin de mise à jour
-        await client.query('COMMIT');
-        return this.findById(id);
-      }
-
-      const updateQuery = `
-        UPDATE cras
-        SET ${updates.join(', ')}
-        WHERE id = $${paramIndex}
-        RETURNING id, date, client_id, provider_id, total_hours, status, created_at, updated_at
-      `;
-
-      const result = await client.query(updateQuery, params);
-
-      await client.query('COMMIT');
-
-      if (result.rows.length === 0) {
-        return null;
-      }
-
-      // Récupérer le CRA complet avec les activités
-      return this.findById(id);
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
+    if (data.month !== undefined) {
+      updates.push(`month = $${paramIndex}`);
+      params.push(data.month);
+      paramIndex++;
     }
+
+    if (data.year !== undefined) {
+      updates.push(`year = $${paramIndex}`);
+      params.push(data.year);
+      paramIndex++;
+    }
+
+    if (data.worked_days !== undefined) {
+      updates.push(`worked_days = $${paramIndex}`);
+      params.push(data.worked_days);
+      paramIndex++;
+    }
+
+    if (data.comment !== undefined) {
+      updates.push(`comment = $${paramIndex}`);
+      params.push(data.comment);
+      paramIndex++;
+    }
+
+    if (data.client_id !== undefined) {
+      updates.push(`client_id = $${paramIndex}`);
+      params.push(data.client_id);
+      paramIndex++;
+    }
+
+    if (data.provider_id !== undefined) {
+      updates.push(`provider_id = $${paramIndex}`);
+      params.push(data.provider_id);
+      paramIndex++;
+    }
+
+    if (data.status !== undefined) {
+      updates.push(`status = $${paramIndex}`);
+      params.push(data.status);
+      paramIndex++;
+    }
+
+    // Toujours mettre à jour updated_at
+    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+
+    if (updates.length === 1) {
+      // Seulement updated_at, récupérer le CRA existant
+      return this.findById(id);
+    }
+
+    // Ajouter l'ID à la fin des paramètres
+    params.push(id);
+
+    const updateQuery = `
+      UPDATE cras
+      SET ${updates.join(', ')}
+      WHERE id = $${paramIndex}
+      RETURNING
+        id,
+        month,
+        year,
+        worked_days,
+        comment,
+        client_id,
+        provider_id,
+        status,
+        created_at,
+        updated_at
+    `;
+
+    const result = await query<CRA>(updateQuery, params);
+    return result.rows[0] || null;
   }
 
   /**
-   * Supprime un CRA et ses activités
+   * Supprime un CRA
    */
   static async delete(id: string): Promise<boolean> {
-    const client = await pool.connect();
-
-    try {
-      await client.query('BEGIN');
-
-      // Supprimer les activités associées
-      await client.query('DELETE FROM activities WHERE cra_id = $1', [id]);
-
-      // Supprimer le CRA
-      const result = await client.query('DELETE FROM cras WHERE id = $1', [id]);
-
-      await client.query('COMMIT');
-
-      return result.rowCount !== null && result.rowCount > 0;
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+    const queryText = 'DELETE FROM cras WHERE id = $1';
+    const result = await query(queryText, [id]);
+    return result.rowCount !== null && result.rowCount > 0;
   }
 
   /**
    * Compte le nombre total de CRA avec filtres
    */
   static async count(filters: CRAFilters = {}): Promise<number> {
-    const { status, client, startDate, endDate } = filters;
+    const { status, client, provider, year, month } = filters;
 
     let queryText = 'SELECT COUNT(*) as count FROM cras WHERE 1=1';
     const params: unknown[] = [];
@@ -322,15 +254,21 @@ export class CRAModel {
       paramIndex++;
     }
 
-    if (startDate) {
-      queryText += ` AND date >= $${paramIndex}`;
-      params.push(startDate);
+    if (provider) {
+      queryText += ` AND provider_id = $${paramIndex}`;
+      params.push(provider);
       paramIndex++;
     }
 
-    if (endDate) {
-      queryText += ` AND date <= $${paramIndex}`;
-      params.push(endDate);
+    if (year !== undefined) {
+      queryText += ` AND year = $${paramIndex}`;
+      params.push(year);
+      paramIndex++;
+    }
+
+    if (month !== undefined) {
+      queryText += ` AND month = $${paramIndex}`;
+      params.push(month);
       paramIndex++;
     }
 

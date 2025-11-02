@@ -3,7 +3,7 @@ import { CRAModel } from '../models/cra.model.js';
 import { CreateCRAInput, UpdateCRAInput, CRAFilters } from '../types/cra.types.js';
 
 /**
- * Controller pour gérer les requêtes HTTP liées aux CRA
+ * Controller pour gérer les requêtes HTTP liées aux CRA mensuels
  */
 export class CRAController {
   /**
@@ -15,8 +15,9 @@ export class CRAController {
       const filters: CRAFilters = {
         status: req.query.status as string,
         client: req.query.client as string,
-        startDate: req.query.startDate as string,
-        endDate: req.query.endDate as string,
+        provider: req.query.provider as string,
+        year: req.query.year ? parseInt(req.query.year as string) : undefined,
+        month: req.query.month ? parseInt(req.query.month as string) : undefined,
         limit: req.query.limit ? parseInt(req.query.limit as string) : 50,
         offset: req.query.offset ? parseInt(req.query.offset as string) : 0,
       };
@@ -78,18 +79,58 @@ export class CRAController {
 
   /**
    * POST /api/cras
-   * Crée un nouveau CRA
+   * Crée un nouveau CRA mensuel
    */
   static async create(req: Request, res: Response): Promise<void> {
     try {
       // Validation basique
-      const { date, client_id, provider_id, activities } = req.body;
+      const { month, year, worked_days, client_id, provider_id } = req.body;
 
-      if (!date || !client_id || !provider_id || !activities || !Array.isArray(activities)) {
+      if (!month || !year || !worked_days || !client_id || !provider_id) {
         res.status(400).json({
           success: false,
           error: 'Invalid input',
-          message: 'date, client_id, provider_id, and activities (array) are required',
+          message: 'month, year, worked_days, client_id, and provider_id are required',
+        });
+        return;
+      }
+
+      // Validation: month entre 1 et 12
+      if (typeof month !== 'number' || month < 1 || month > 12) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid month',
+          message: 'Month must be a number between 1 and 12',
+        });
+        return;
+      }
+
+      // Validation: year valide
+      if (typeof year !== 'number' || year < 2000 || year > 2100) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid year',
+          message: 'Year must be a number between 2000 and 2100',
+        });
+        return;
+      }
+
+      // Validation: worked_days est un tableau
+      if (!Array.isArray(worked_days)) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid worked_days',
+          message: 'worked_days must be an array of numbers',
+        });
+        return;
+      }
+
+      // Validation: au moins un jour travaillé
+      if (worked_days.length === 0) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid worked_days',
+          message: 'At least one worked day is required',
         });
         return;
       }
@@ -104,41 +145,13 @@ export class CRAController {
         return;
       }
 
-      if (activities.length === 0) {
-        res.status(400).json({
-          success: false,
-          error: 'Invalid input',
-          message: 'At least one activity is required',
-        });
-        return;
-      }
-
-      // Valider chaque activité
-      for (const activity of activities) {
-        if (!activity.description || typeof activity.hours !== 'number' || !activity.category) {
-          res.status(400).json({
-            success: false,
-            error: 'Invalid activity',
-            message: 'Each activity must have description, hours (number), and category',
-          });
-          return;
-        }
-
-        if (activity.hours <= 0 || activity.hours > 24) {
-          res.status(400).json({
-            success: false,
-            error: 'Invalid hours',
-            message: 'Hours must be between 0 and 24',
-          });
-          return;
-        }
-      }
-
       const craData: CreateCRAInput = {
-        date,
+        month,
+        year,
+        worked_days,
+        comment: req.body.comment,
         client_id,
         provider_id,
-        activities,
         status: req.body.status || 'draft',
       };
 
@@ -181,44 +194,50 @@ export class CRAController {
         return;
       }
 
-      // Construire les données de mise à jour à partir du body
-      if (req.body.date !== undefined) updateData.date = req.body.date;
-      if (req.body.client_id !== undefined) updateData.client_id = req.body.client_id;
-      if (req.body.provider_id !== undefined) updateData.provider_id = req.body.provider_id;
-      if (req.body.status !== undefined) updateData.status = req.body.status;
-      if (req.body.activities !== undefined) {
-        // Valider les activités si présentes
-        if (!Array.isArray(req.body.activities)) {
+      // Validation du mois si présent
+      if (req.body.month !== undefined) {
+        if (typeof req.body.month !== 'number' || req.body.month < 1 || req.body.month > 12) {
           res.status(400).json({
             success: false,
-            error: 'Invalid input',
-            message: 'activities must be an array',
+            error: 'Invalid month',
+            message: 'Month must be a number between 1 and 12',
           });
           return;
         }
-
-        for (const activity of req.body.activities) {
-          if (!activity.description || typeof activity.hours !== 'number' || !activity.category) {
-            res.status(400).json({
-              success: false,
-              error: 'Invalid activity',
-              message: 'Each activity must have description, hours (number), and category',
-            });
-            return;
-          }
-
-          if (activity.hours <= 0 || activity.hours > 24) {
-            res.status(400).json({
-              success: false,
-              error: 'Invalid hours',
-              message: 'Hours must be between 0 and 24',
-            });
-            return;
-          }
-        }
-
-        updateData.activities = req.body.activities;
+        updateData.month = req.body.month;
       }
+
+      // Validation de l'année si présente
+      if (req.body.year !== undefined) {
+        if (typeof req.body.year !== 'number' || req.body.year < 2000 || req.body.year > 2100) {
+          res.status(400).json({
+            success: false,
+            error: 'Invalid year',
+            message: 'Year must be a number between 2000 and 2100',
+          });
+          return;
+        }
+        updateData.year = req.body.year;
+      }
+
+      // Validation des jours travaillés si présents
+      if (req.body.worked_days !== undefined) {
+        if (!Array.isArray(req.body.worked_days)) {
+          res.status(400).json({
+            success: false,
+            error: 'Invalid worked_days',
+            message: 'worked_days must be an array of numbers',
+          });
+          return;
+        }
+        updateData.worked_days = req.body.worked_days;
+      }
+
+      // Construire les données de mise à jour à partir du body
+      if (req.body.comment !== undefined) updateData.comment = req.body.comment;
+      if (req.body.client_id !== undefined) updateData.client_id = req.body.client_id;
+      if (req.body.provider_id !== undefined) updateData.provider_id = req.body.provider_id;
+      if (req.body.status !== undefined) updateData.status = req.body.status;
 
       const updatedCRA = await CRAModel.update(id, updateData);
 
