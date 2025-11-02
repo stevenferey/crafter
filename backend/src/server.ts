@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { testConnection, closePool } from './config/database.js';
 import craRoutes from './routes/cra.routes.js';
+import companyRoutes from './routes/company.routes.js';
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -23,16 +24,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware de logging
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, _res: Response, next: NextFunction) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
 
 // Routes
 app.use('/api/cras', craRoutes);
+app.use('/api/companies', companyRoutes);
 
 // Route de santé / health check
-app.get('/api/health', async (req: Request, res: Response) => {
+app.get('/api/health', async (_req: Request, res: Response) => {
   const dbConnected = await testConnection();
 
   res.json({
@@ -54,7 +56,7 @@ app.use((req: Request, res: Response) => {
 
 // Middleware de gestion des erreurs
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Error:', err);
 
   res.status(500).json({
@@ -89,11 +91,20 @@ async function startServer() {
       console.log('║                                               ║');
       console.log('║  📚 API Documentation:                        ║');
       console.log(`║     GET    /api/health                        ║`);
+      console.log('║                                               ║');
+      console.log('║  CRAs:                                        ║');
       console.log(`║     GET    /api/cras                          ║`);
       console.log(`║     GET    /api/cras/:id                      ║`);
       console.log(`║     POST   /api/cras                          ║`);
       console.log(`║     PUT    /api/cras/:id                      ║`);
       console.log(`║     DELETE /api/cras/:id                      ║`);
+      console.log('║                                               ║');
+      console.log('║  Companies:                                   ║');
+      console.log(`║     GET    /api/companies                     ║`);
+      console.log(`║     GET    /api/companies/:id                 ║`);
+      console.log(`║     POST   /api/companies                     ║`);
+      console.log(`║     PUT    /api/companies/:id                 ║`);
+      console.log(`║     DELETE /api/companies/:id                 ║`);
       console.log('║                                               ║');
       console.log('╚═══════════════════════════════════════════════╝');
       console.log('');

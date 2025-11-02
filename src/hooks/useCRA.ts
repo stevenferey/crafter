@@ -17,7 +17,7 @@ import type { CRA } from '@/types/cra.types';
  * if (error) return <div>Erreur: {error}</div>;
  * if (!cra) return <div>CRA introuvable</div>;
  *
- * return <div>{cra.client}</div>;
+ * return <div>Client ID: {cra.client_id}</div>;
  * ```
  */
 export function useCRA(id: string | undefined) {

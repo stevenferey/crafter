@@ -4,6 +4,9 @@ import { Dashboard } from '@/pages/Dashboard';
 import { CreateCRA } from '@/pages/CreateCRA';
 import { EditCRA } from '@/pages/EditCRA';
 import { PreviewCRA } from '@/pages/PreviewCRA';
+import { Companies } from '@/pages/Companies';
+import { CreateCompany } from '@/pages/CreateCompany';
+import { EditCompany } from '@/pages/EditCompany';
 import { NotFound } from '@/pages/NotFound';
 import { ErrorBoundary } from '@/pages/ErrorBoundary';
 
@@ -28,6 +31,18 @@ export const router = createBrowserRouter([
       {
         path: 'cra/:id/preview',
         element: <PreviewCRA />,
+      },
+      {
+        path: 'companies',
+        element: <Companies />,
+      },
+      {
+        path: 'companies/new',
+        element: <CreateCompany />,
+      },
+      {
+        path: 'companies/:id/edit',
+        element: <EditCompany />,
       },
       {
         path: '*',

@@ -102,15 +102,41 @@ Le serveur démarre sur **http://localhost:3001**
 
 ### Structure
 
+#### Table `companies`
+```sql
+- id (UUID, primary key)
+- designation (VARCHAR, required) - Nom de la société
+- address (VARCHAR, required) - Adresse
+- complement (VARCHAR, optional) - Complément d'adresse
+- city (VARCHAR, required) - Ville
+- postal_code (VARCHAR(5), required) - Code postal
+- country (VARCHAR, required) - Pays
+- email (VARCHAR, required) - Email
+- phone (VARCHAR(10), optional) - Téléphone
+- repertoire (ENUM: SIREN, SIRET) - Type de répertoire
+- repertoire_number (VARCHAR, required) - Numéro SIREN/SIRET
+- dispense (BOOLEAN) - Dispense d'immatriculation
+- registre (ENUM: RCS, RM, RSA, optional) - Type de registre
+- registre_number (VARCHAR, optional) - Numéro de registre
+- liste (ENUM: NAF, NACE) - Type de liste d'activité
+- code (VARCHAR, optional) - Code d'activité
+- exemption (BOOLEAN) - Exemption TVA (Art.293 B du CGI)
+- tva_number (VARCHAR, optional) - Numéro TVA intracommunautaire
+- created_at (TIMESTAMP)
+- updated_at (TIMESTAMP)
+```
+
 #### Table `cras`
 ```sql
 - id (UUID, primary key)
 - date (DATE)
-- client (VARCHAR)
+- client_id (UUID, foreign key → companies.id) - Société cliente
+- provider_id (UUID, foreign key → companies.id) - Société prestataire
 - total_hours (DECIMAL)
 - status (ENUM: draft, submitted, approved, rejected)
 - created_at (TIMESTAMP)
 - updated_at (TIMESTAMP)
+- CONSTRAINT: client_id <> provider_id (une société ne peut pas être à la fois client et prestataire)
 ```
 
 #### Table `activities`
@@ -197,7 +223,8 @@ GET /api/cras?status={status}&client={client}&startDate={date}&endDate={date}&li
     {
       "id": "uuid",
       "date": "2025-01-15",
-      "client": "Acme Corp",
+      "client_id": "uuid",
+      "provider_id": "uuid",
       "total_hours": 8.0,
       "status": "draft",
       "activities": [
@@ -234,7 +261,8 @@ GET /api/cras/:id
   "data": {
     "id": "uuid",
     "date": "2025-01-15",
-    "client": "Acme Corp",
+    "client_id": "uuid",
+    "provider_id": "uuid",
     "total_hours": 8.0,
     "status": "draft",
     "activities": [...],
@@ -254,7 +282,8 @@ POST /api/cras
 ```json
 {
   "date": "2025-01-15",
-  "client": "Acme Corp",
+  "client_id": "uuid",
+  "provider_id": "uuid",
   "status": "draft",
   "activities": [
     {
@@ -290,7 +319,8 @@ PUT /api/cras/:id
 ```json
 {
   "date": "2025-01-16",
-  "client": "New Client",
+  "client_id": "uuid",
+  "provider_id": "uuid",
   "status": "submitted",
   "activities": [...]
 }
@@ -319,26 +349,166 @@ DELETE /api/cras/:id
 }
 ```
 
+### Company Endpoints
+
+#### Liste des sociétés
+
+```
+GET /api/companies
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "designation": "Acme Corp",
+      "address": "123 Rue de la Paix",
+      "city": "Paris",
+      "postal_code": "75001",
+      "country": "France",
+      "email": "contact@acme.com",
+      "phone": "0123456789",
+      "repertoire": "SIREN",
+      "repertoire_number": "123456789",
+      "dispense": false,
+      "registre": "RCS",
+      "registre_number": "Paris B 123 456 789",
+      "liste": "NAF",
+      "code": "6201Z",
+      "exemption": false,
+      "tva_number": "FR12345678901",
+      "created_at": "2025-01-15T10:00:00Z",
+      "updated_at": "2025-01-15T10:00:00Z"
+    }
+  ]
+}
+```
+
+#### Récupérer une société
+
+```
+GET /api/companies/:id
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "designation": "Acme Corp",
+    ...
+  }
+}
+```
+
+#### Créer une société
+
+```
+POST /api/companies
+```
+
+**Body:**
+```json
+{
+  "designation": "Acme Corp",
+  "address": "123 Rue de la Paix",
+  "complement": "Bâtiment A",
+  "city": "Paris",
+  "postal_code": "75001",
+  "country": "France",
+  "email": "contact@acme.com",
+  "phone": "0123456789",
+  "repertoire": "SIREN",
+  "repertoire_number": "123456789",
+  "dispense": false,
+  "registre": "RCS",
+  "registre_number": "Paris B 123 456 789",
+  "liste": "NAF",
+  "code": "6201Z",
+  "exemption": false,
+  "tva_number": "FR12345678901"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "Company created successfully"
+}
+```
+
+#### Mettre à jour une société
+
+```
+PUT /api/companies/:id
+```
+
+**Body:** (tous les champs sont optionnels)
+```json
+{
+  "designation": "New Company Name",
+  "email": "newemail@acme.com",
+  ...
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "Company updated successfully"
+}
+```
+
+#### Supprimer une société
+
+```
+DELETE /api/companies/:id
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Company deleted successfully"
+}
+```
+
+**Note:** La suppression d'une société échouera si elle est référencée par des CRA existants (contrainte de clé étrangère).
+
 ## 🏗️ Architecture
 
 ```
 backend/
 ├── src/
 │   ├── config/
-│   │   └── database.ts       # Configuration PostgreSQL
+│   │   └── database.ts           # Configuration PostgreSQL
 │   ├── controllers/
-│   │   └── cra.controller.ts # Logique métier des CRA
+│   │   ├── cra.controller.ts     # Logique métier des CRA
+│   │   └── company.controller.ts # Logique métier des sociétés
 │   ├── models/
-│   │   └── cra.model.ts      # Modèle de données et requêtes SQL
+│   │   ├── cra.model.ts          # Modèle de données CRA et requêtes SQL
+│   │   └── company.model.ts      # Modèle de données Company et requêtes SQL
 │   ├── routes/
-│   │   └── cra.routes.ts     # Définition des routes Express
+│   │   ├── cra.routes.ts         # Routes Express pour CRA
+│   │   └── company.routes.ts     # Routes Express pour Companies
 │   ├── types/
-│   │   └── cra.types.ts      # Types TypeScript
-│   └── server.ts             # Point d'entrée Express
+│   │   ├── cra.types.ts          # Types TypeScript CRA
+│   │   └── company.types.ts      # Types TypeScript Company
+│   └── server.ts                 # Point d'entrée Express
 ├── migrations/
-│   └── init.sql              # Script d'initialisation de la DB
-├── .env                      # Variables d'environnement (non versionné)
-├── .env.example              # Template des variables d'environnement
+│   ├── init.sql                  # Script d'initialisation de la DB
+│   ├── 002_add_companies.sql     # Migration: ajout table companies
+│   └── 003_migrate_clients_to_companies.sql  # Migration: données existantes
+├── .env                          # Variables d'environnement (non versionné)
+├── .env.example                  # Template des variables d'environnement
 ├── package.json
 └── tsconfig.json
 ```
@@ -446,8 +616,11 @@ npm run db:migrate
 - Les UUID sont générés automatiquement par PostgreSQL (`gen_random_uuid()`)
 - Les timestamps utilisent `CURRENT_TIMESTAMP` avec timezone
 - Les transactions sont gérées pour les opérations complexes (create, update)
-- Un trigger met à jour automatiquement `updated_at` sur les CRA
+- Un trigger met à jour automatiquement `updated_at` sur les CRA et les Companies
 - La suppression d'un CRA supprime en cascade ses activités
+- La suppression d'une Company est protégée si elle est référencée par des CRA (contrainte FK)
+- Une société ne peut pas être à la fois client et prestataire sur un même CRA (contrainte CHECK)
+- Les champs `client_id` et `provider_id` sont requis pour tous les CRA
 
 ## 🔐 Sécurité
 

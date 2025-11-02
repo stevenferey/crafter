@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, StatusBadge, Spinner } from '@/components/ui';
 import { useCRAStore } from '@/stores/cra.store';
+import { useCompanyStore } from '@/stores/company.store';
 import { CRA_CONSTRAINTS, type CRAStatus } from '@/constants/cra.constants';
 import { datePickerUtils } from '@/lib/datePicker';
 import { logger } from '@/lib/logger';
@@ -13,15 +14,20 @@ export function Dashboard() {
   const error = useCRAStore((state) => state.error);
   const clearError = useCRAStore((state) => state.clearError);
 
-  // Charger les CRAs au montage du composant
+  const companies = useCompanyStore((state) => state.companies);
+  const fetchCompanies = useCompanyStore((state) => state.fetchCompanies);
+  const isLoadingCompanies = useCompanyStore((state) => state.isLoading);
+
+  // Charger les CRAs et les sociétés au montage du composant
   useEffect(() => {
-    logger.log('📊 [Dashboard] Component mounted, fetching CRAs...');
+    logger.log('📊 [Dashboard] Component mounted, fetching CRAs and Companies...');
     fetchCRAs();
-  }, [fetchCRAs]);
+    fetchCompanies();
+  }, [fetchCRAs, fetchCompanies]);
 
   // Calculer les statistiques à partir des CRAs
   const totalHours = cras.reduce((sum, cra) => sum + Number(cra.total_hours), 0);
-  const totalClients = new Set(cras.map((cra) => cra.client)).size;
+  const totalClients = new Set(cras.map((cra) => cra.client_id)).size;
 
   // CRAs du mois en cours
   const today = new Date();
@@ -70,6 +76,12 @@ export function Dashboard() {
 
   // Prendre les CRAs les plus récents
   const recentCRAs = sortedCRAs.slice(0, CRA_CONSTRAINTS.MAX_RECENT_CRAS);
+
+  // Fonction helper pour obtenir le nom d'une société
+  const getCompanyName = (companyId: string) => {
+    const company = companies.find((c) => c.id === companyId);
+    return company?.designation || 'N/A';
+  };
 
   return (
     <div className="space-y-8">
@@ -211,7 +223,7 @@ export function Dashboard() {
                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                           />
                         </svg>
-                        {cra.client}
+                        {getCompanyName(cra.client_id)}
                       </span>
                       <span className="flex items-center gap-1">
                         <svg
@@ -264,6 +276,123 @@ export function Dashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* Companies Section */}
+      <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))]">
+        <div className="px-6 py-4 border-b border-[rgb(var(--color-border))]">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">Sociétés</h2>
+            <Link to="/companies/new">
+              <Button size="sm">
+                <span className="mr-2">+</span>
+                Nouvelle société
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {isLoadingCompanies && companies.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <Spinner />
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement des sociétés...</p>
+          </div>
+        ) : companies.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-[rgb(var(--color-text-muted))]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
+            </svg>
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Aucune société disponible</p>
+            <p className="text-sm text-[rgb(var(--color-text-muted))] mt-2">
+              Créez votre première société pour commencer
+            </p>
+            <Link to="/companies/new">
+              <Button className="mt-4">Créer une société</Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-[rgb(var(--color-surface-hover))]">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+                    Désignation
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+                    Ville
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+                    Répertoire
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[rgb(var(--color-border))]">
+                {companies.slice(0, 5).map((company) => (
+                  <tr
+                    key={company.id}
+                    className="hover:bg-[rgb(var(--color-surface-hover))] transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-[rgb(var(--color-text))]">
+                        {company.designation}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                        {company.city}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                        {company.email}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
+                        {company.repertoire} - {company.repertoire_number}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link to={`/companies/${company.id}/edit`}>
+                          <Button variant="ghost" size="sm">
+                            Éditer
+                          </Button>
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {companies.length > 5 && (
+          <div className="px-6 py-3 border-t border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-hover))]">
+            <Link to="/companies">
+              <Button variant="ghost" size="sm" className="w-full">
+                Voir toutes les sociétés ({companies.length})
+              </Button>
+            </Link>
           </div>
         )}
       </div>

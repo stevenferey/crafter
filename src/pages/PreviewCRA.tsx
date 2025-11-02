@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, StatusBadge, Spinner } from '@/components/ui';
 import { type CRAStatus } from '@/constants/cra.constants';
 import { datePickerUtils } from '@/lib/datePicker';
 import { useCRA } from '@/hooks/useCRA';
+import { useCompanyStore } from '@/stores/company.store';
 import { logger } from '@/lib/logger';
 
 export function PreviewCRA() {
@@ -10,6 +12,19 @@ export function PreviewCRA() {
   const { id } = useParams<{ id: string }>();
 
   const { cra: selectedCRA, isLoading, error } = useCRA(id);
+  const companies = useCompanyStore((state) => state.companies);
+  const fetchCompanies = useCompanyStore((state) => state.fetchCompanies);
+
+  // Charger les sociétés au montage
+  useEffect(() => {
+    fetchCompanies();
+  }, [fetchCompanies]);
+
+  // Fonction helper pour obtenir le nom d'une société
+  const getCompanyName = (companyId: string) => {
+    const company = companies.find((c) => c.id === companyId);
+    return company?.designation || 'N/A';
+  };
 
   const handleExportPDF = () => {
     // TODO: Implémenter l'export PDF
@@ -94,7 +109,7 @@ export function PreviewCRA() {
               <StatusBadge status={selectedCRA.status as CRAStatus} />
             </div>
             <p className="text-[rgb(var(--color-text-secondary))] mt-1">
-              {datePickerUtils.formatDateLong(selectedCRA.date)} - {selectedCRA.client}
+              {datePickerUtils.formatDateLong(selectedCRA.date)} - {getCompanyName(selectedCRA.client_id)}
             </p>
           </div>
           <div className="flex gap-3">
@@ -140,7 +155,7 @@ export function PreviewCRA() {
             <div>
               <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">Client</h3>
               <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
-                {selectedCRA.client}
+                {getCompanyName(selectedCRA.client_id)}
               </p>
             </div>
             <div>

@@ -55,11 +55,14 @@ export const craFormSchema = z.object({
       },
       { message: 'La date ne peut pas être dans le futur' }
     ),
-  client: z
+  client_id: z
     .string()
     .min(1, 'Le client est requis')
-    .min(2, 'Le nom du client doit contenir au moins 2 caractères')
-    .max(100, 'Le nom du client ne peut pas dépasser 100 caractères'),
+    .uuid('Le client sélectionné est invalide'),
+  provider_id: z
+    .string()
+    .min(1, 'Le prestataire est requis')
+    .uuid('Le prestataire sélectionné est invalide'),
   activities: z
     .array(activitySchema)
     .min(1, 'Au moins une activité est requise')
@@ -75,7 +78,13 @@ export const craFormSchema = z.object({
     .enum(CRA_STATUSES)
     .optional()
     .default('draft'),
-});
+}).refine(
+  (data) => data.client_id !== data.provider_id,
+  {
+    message: 'Le client et le prestataire doivent être différents',
+    path: ['provider_id'],
+  }
+);
 
 /**
  * Type TypeScript inféré du schéma de formulaire
