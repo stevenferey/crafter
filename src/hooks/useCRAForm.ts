@@ -22,20 +22,20 @@ interface UseCRAFormOptions {
 }
 
 /**
- * Valeurs par défaut pour un nouveau CRA
+ * Valeurs par défaut pour un nouveau CRA mensuel
  */
 const getDefaultCRAValues = (): Partial<CRAFormData> => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  const dateString = `${year}-${month}-${day}`;
+  const month = today.getMonth() + 1; // getMonth() retourne 0-11, on veut 1-12
 
   return {
-    date: dateString,
+    month,
+    year,
+    worked_days: [],
+    comment: '',
     client_id: '',
     provider_id: '',
-    activities: [],
     status: 'draft',
   };
 };

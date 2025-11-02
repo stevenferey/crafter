@@ -4,7 +4,7 @@ import { Button, StatusBadge, Spinner } from '@/components/ui';
 import { useCRAStore } from '@/stores/cra.store';
 import { useCompanyStore } from '@/stores/company.store';
 import { CRA_CONSTRAINTS, type CRAStatus } from '@/constants/cra.constants';
-import { datePickerUtils } from '@/lib/datePicker';
+import { formatMonthYear } from '@/lib/monthUtils';
 import { logger } from '@/lib/logger';
 
 export function Dashboard() {
@@ -26,20 +26,16 @@ export function Dashboard() {
   }, [fetchCRAs, fetchCompanies]);
 
   // Calculer les statistiques à partir des CRAs
-  const totalHours = cras.reduce((sum, cra) => sum + Number(cra.total_hours), 0);
   const totalClients = new Set(cras.map((cra) => cra.client_id)).size;
+  const totalWorkedDays = cras.reduce((sum, cra) => sum + (cra.worked_days?.length || 0), 0);
 
   // CRAs du mois en cours
   const today = new Date();
-  const currentMonth = today.getMonth();
+  const currentMonth = today.getMonth() + 1; // getMonth() retourne 0-11, on veut 1-12
   const currentYear = today.getFullYear();
 
   const currentMonthCRAs = cras.filter((cra) => {
-    const craDate = new Date(cra.date);
-    return (
-      craDate.getMonth() === currentMonth &&
-      craDate.getFullYear() === currentYear
-    );
+    return cra.month === currentMonth && cra.year === currentYear;
   });
 
   const stats = [
@@ -52,13 +48,13 @@ export function Dashboard() {
       label: 'CRA ce mois',
       value: currentMonthCRAs.length.toString(),
       icon: '📅',
-      subtext: `${currentMonthCRAs.reduce((sum, cra) => sum + Number(cra.total_hours), 0)}h`,
+      subtext: `${currentMonthCRAs.reduce((sum, cra) => sum + (cra.worked_days?.length || 0), 0)} jours`,
     },
     {
-      label: 'Total heures',
-      value: totalHours.toFixed(1),
-      icon: '⏱️',
-      subtext: `${cras.reduce((sum, cra) => sum + cra.activities.length, 0)} activités`,
+      label: 'Total jours',
+      value: totalWorkedDays.toString(),
+      icon: '📅',
+      subtext: `${cras.length} CRA`,
     },
     {
       label: 'Clients actifs',
@@ -67,11 +63,12 @@ export function Dashboard() {
     },
   ];
 
-  // Trier les CRAs par date décroissante
+  // Trier les CRAs par année/mois décroissant
   const sortedCRAs = [...cras].sort((a, b) => {
-    const dateA = new Date(a.date).getTime();
-    const dateB = new Date(b.date).getTime();
-    return dateB - dateA;
+    if (b.year !== a.year) {
+      return b.year - a.year; // Année décroissante
+    }
+    return b.month - a.month; // Mois décroissant
   });
 
   // Prendre les CRAs les plus récents
@@ -204,7 +201,7 @@ export function Dashboard() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
                       <h3 className="text-lg font-medium text-[rgb(var(--color-text))]">
-                        {datePickerUtils.formatDateLong(cra.date)}
+                        {formatMonthYear(cra.month, cra.year)}
                       </h3>
                       <StatusBadge status={cra.status as CRAStatus} />
                     </div>
@@ -225,23 +222,7 @@ export function Dashboard() {
                         </svg>
                         {getCompanyName(cra.client_id)}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {Number(cra.total_hours).toFixed(1)}h
-                      </span>
-                      {cra.activities.length > 0 && (
+                      {cra.worked_days && cra.worked_days.length > 0 && (
                         <span className="flex items-center gap-1">
                           <svg
                             className="w-4 h-4"
@@ -253,10 +234,10 @@ export function Dashboard() {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth={2}
-                              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                             />
                           </svg>
-                          {cra.activities.length} activités
+                          {cra.worked_days.length} jours
                         </span>
                       )}
                     </div>

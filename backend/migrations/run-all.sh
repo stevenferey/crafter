@@ -47,6 +47,8 @@ run_migration "002_add_companies.sql" "Ajout de la table Companies"
 run_migration "003_migrate_clients_to_companies.sql" "Migration des données clients existantes"
 run_migration "004_remove_client_column.sql" "Suppression de la colonne client obsolète"
 run_migration "005_fix_check_constraint.sql" "Correction de la contrainte CHECK"
+run_migration "006_monthly_cra_refactor.sql" "Refactorisation CRA quotidien → mensuel"
+run_migration "007_remove_total_hours.sql" "Suppression du champ total_hours"
 
 echo -e "${GREEN}=== Toutes les migrations ont été appliquées avec succès ===${NC}"
 echo ""

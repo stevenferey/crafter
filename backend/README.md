@@ -126,28 +126,22 @@ Le serveur démarre sur **http://localhost:3001**
 - updated_at (TIMESTAMP)
 ```
 
-#### Table `cras`
+#### Table `cras` (Compte Rendu d'Activité Mensuel)
 ```sql
 - id (UUID, primary key)
-- date (DATE)
+- month (INTEGER) - Mois (1-12)
+- year (INTEGER) - Année
+- worked_days (INTEGER[]) - Tableau des jours travaillés dans le mois
+- comment (TEXT, optional) - Commentaire optionnel
 - client_id (UUID, foreign key → companies.id) - Société cliente
 - provider_id (UUID, foreign key → companies.id) - Société prestataire
-- total_hours (DECIMAL)
 - status (ENUM: draft, submitted, approved, rejected)
 - created_at (TIMESTAMP)
 - updated_at (TIMESTAMP)
 - CONSTRAINT: client_id <> provider_id (une société ne peut pas être à la fois client et prestataire)
 ```
 
-#### Table `activities`
-```sql
-- id (UUID, primary key)
-- cra_id (UUID, foreign key → cras.id)
-- description (TEXT)
-- hours (DECIMAL)
-- category (VARCHAR)
-- created_at (TIMESTAMP)
-```
+**Note:** La table `activities` a été supprimée. Les CRA sont maintenant mensuels avec un simple tableau de jours travaillés.
 
 ### Gestion de la base de données
 
@@ -204,14 +198,15 @@ Retourne l'état de santé du serveur et de la connexion à la base de données.
 #### Liste des CRA
 
 ```
-GET /api/cras?status={status}&client={client}&startDate={date}&endDate={date}&limit={n}&offset={n}
+GET /api/cras?status={status}&client={client}&provider={provider}&year={year}&month={month}&limit={n}&offset={n}
 ```
 
 **Query Parameters:**
 - `status` (optional) : Filtrer par statut (draft, submitted, approved, rejected)
-- `client` (optional) : Rechercher par nom de client
-- `startDate` (optional) : Date de début (YYYY-MM-DD)
-- `endDate` (optional) : Date de fin (YYYY-MM-DD)
+- `client` (optional) : Filtrer par ID de société cliente
+- `provider` (optional) : Filtrer par ID de société prestataire
+- `year` (optional) : Filtrer par année (ex: 2025)
+- `month` (optional) : Filtrer par mois (1-12)
 - `limit` (optional) : Nombre de résultats (défaut: 50)
 - `offset` (optional) : Décalage pour pagination (défaut: 0)
 
@@ -222,19 +217,13 @@ GET /api/cras?status={status}&client={client}&startDate={date}&endDate={date}&li
   "data": [
     {
       "id": "uuid",
-      "date": "2025-01-15",
+      "month": 1,
+      "year": 2025,
+      "worked_days": [2, 3, 4, 5, 8, 9, 10, 11, 12],
+      "comment": "Mois complet de développement",
       "client_id": "uuid",
       "provider_id": "uuid",
-      "total_hours": 8.0,
       "status": "draft",
-      "activities": [
-        {
-          "id": "uuid",
-          "description": "Développement",
-          "hours": 4.0,
-          "category": "Dev"
-        }
-      ],
       "created_at": "2025-01-15T10:00:00Z",
       "updated_at": "2025-01-15T10:00:00Z"
     }
@@ -260,12 +249,13 @@ GET /api/cras/:id
   "success": true,
   "data": {
     "id": "uuid",
-    "date": "2025-01-15",
+    "month": 1,
+    "year": 2025,
+    "worked_days": [2, 3, 4, 5, 8, 9, 10, 11, 12],
+    "comment": "Mois complet de développement",
     "client_id": "uuid",
     "provider_id": "uuid",
-    "total_hours": 8.0,
     "status": "draft",
-    "activities": [...],
     "created_at": "2025-01-15T10:00:00Z",
     "updated_at": "2025-01-15T10:00:00Z"
   }
@@ -281,22 +271,13 @@ POST /api/cras
 **Body:**
 ```json
 {
-  "date": "2025-01-15",
+  "month": 1,
+  "year": 2025,
+  "worked_days": [2, 3, 4, 5, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19],
+  "comment": "Mois complet de développement",
   "client_id": "uuid",
   "provider_id": "uuid",
-  "status": "draft",
-  "activities": [
-    {
-      "description": "Développement de fonctionnalité",
-      "hours": 4.0,
-      "category": "Développement"
-    },
-    {
-      "description": "Réunion client",
-      "hours": 1.0,
-      "category": "Réunion"
-    }
-  ]
+  "status": "draft"
 }
 ```
 
@@ -318,11 +299,13 @@ PUT /api/cras/:id
 **Body:** (tous les champs sont optionnels)
 ```json
 {
-  "date": "2025-01-16",
+  "month": 2,
+  "year": 2025,
+  "worked_days": [1, 2, 3, 4, 5, 8, 9, 10, 11, 12],
+  "comment": "Mise à jour du commentaire",
   "client_id": "uuid",
   "provider_id": "uuid",
-  "status": "submitted",
-  "activities": [...]
+  "status": "submitted"
 }
 ```
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, StatusBadge, Spinner } from '@/components/ui';
 import { type CRAStatus } from '@/constants/cra.constants';
-import { datePickerUtils } from '@/lib/datePicker';
+import { formatMonthYear, formatWorkedDays } from '@/lib/monthUtils';
 import { useCRA } from '@/hooks/useCRA';
 import { useCompanyStore } from '@/stores/company.store';
 import { logger } from '@/lib/logger';
@@ -87,7 +87,7 @@ export function PreviewCRA() {
   if (!selectedCRA) return null;
 
   // Calculer les statistiques
-  const totalHours = Number(selectedCRA.total_hours);
+  const workedDaysCount = selectedCRA.worked_days?.length || 0;
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -98,7 +98,7 @@ export function PreviewCRA() {
             Dashboard
           </button>
           <span>/</span>
-          <span className="text-[rgb(var(--color-text))]">CRA #{id}</span>
+          <span className="text-[rgb(var(--color-text))]\">CRA #{id?.slice(0, 8)}</span>
         </div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -109,7 +109,7 @@ export function PreviewCRA() {
               <StatusBadge status={selectedCRA.status as CRAStatus} />
             </div>
             <p className="text-[rgb(var(--color-text-secondary))] mt-1">
-              {datePickerUtils.formatDateLong(selectedCRA.date)} - {getCompanyName(selectedCRA.provider_id)} → {getCompanyName(selectedCRA.client_id)}
+              {formatMonthYear(selectedCRA.month, selectedCRA.year)} - {getCompanyName(selectedCRA.provider_id)} → {getCompanyName(selectedCRA.client_id)}
             </p>
           </div>
           <div className="flex gap-3">
@@ -143,13 +143,13 @@ export function PreviewCRA() {
       <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))] shadow-sm">
         {/* Header du CRA */}
         <div className="border-b border-[rgb(var(--color-border))] p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                Date
+                Période
               </h3>
               <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
-                {datePickerUtils.formatDateLong(selectedCRA.date)}
+                {formatMonthYear(selectedCRA.month, selectedCRA.year)}
               </p>
             </div>
             <div>
@@ -166,114 +166,54 @@ export function PreviewCRA() {
                 {getCompanyName(selectedCRA.client_id)}
               </p>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                Heures totales
-              </h3>
-              <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
-                {totalHours.toFixed(1)}h
-              </p>
-            </div>
           </div>
         </div>
 
-        {/* Activités */}
-        <div className="p-6">
+        {/* Jours travaillés */}
+        <div className="p-6 border-b border-[rgb(var(--color-border))]">
           <h3 className="text-lg font-semibold text-[rgb(var(--color-text))] mb-4">
-            Détail des activités
+            Jours travaillés
           </h3>
-
-          {selectedCRA.activities.length === 0 ? (
+          {!selectedCRA.worked_days || selectedCRA.worked_days.length === 0 ? (
             <div className="text-center py-8 bg-[rgb(var(--color-surface-hover))] rounded-lg">
-              <svg
-                className="mx-auto h-12 w-12 text-[rgb(var(--color-text-muted))]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Aucune activité enregistrée</p>
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/cra/${id}/edit`)}
-                className="mt-4"
-              >
-                Ajouter des activités
-              </Button>
+              <p className="text-[rgb(var(--color-text-secondary))]">Aucun jour travaillé renseigné</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-[rgb(var(--color-border))]">
-                <thead>
-                  <tr className="bg-[rgb(var(--color-surface-hover))]">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-muted))] uppercase tracking-wider">
-                      Catégorie
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-muted))] uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-[rgb(var(--color-text-muted))] uppercase tracking-wider">
-                      Heures
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-[rgb(var(--color-surface))] divide-y divide-[rgb(var(--color-border))]">
-                  {selectedCRA.activities.map((activity) => (
-                    <tr key={activity.id} className="hover:bg-[rgb(var(--color-surface-hover))]">
-                      <td className="px-4 py-3 text-sm whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {activity.category}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-[rgb(var(--color-text))]">
-                        {activity.description}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-[rgb(var(--color-text))] text-right whitespace-nowrap">
-                        {activity.hours}h
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr className="bg-[rgb(var(--color-surface-hover))] font-semibold">
-                    <td className="px-4 py-3 text-sm text-[rgb(var(--color-text))]" colSpan={2}>
-                      Total
-                    </td>
-                    <td className="px-4 py-3 text-sm text-[rgb(var(--color-text))] text-right">
-                      {totalHours.toFixed(1)}h
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
+            <div className="space-y-4">
+              <div className="bg-[rgb(var(--color-surface-hover))] rounded-lg p-4">
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                  <span className="font-semibold text-[rgb(var(--color-text))]">
+                    {workedDaysCount} jour{workedDaysCount > 1 ? 's' : ''} travaillé{workedDaysCount > 1 ? 's' : ''}
+                  </span>
+                  {' : '}
+                  {formatWorkedDays(selectedCRA.worked_days)}
+                </p>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Stats */}
-        <div className="border-t border-[rgb(var(--color-border))] p-6 bg-[rgb(var(--color-surface-hover))]">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">Heures totales</p>
-              <p className="text-2xl font-bold text-[rgb(var(--color-text))]">{totalHours.toFixed(1)}h</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">Nombre d'activités</p>
-              <p className="text-2xl font-bold text-[rgb(var(--color-text))]">
-                {selectedCRA.activities.length}
+        {/* Commentaire */}
+        {selectedCRA.comment && (
+          <div className="p-6 border-b border-[rgb(var(--color-border))]">
+            <h3 className="text-lg font-semibold text-[rgb(var(--color-text))] mb-4">
+              Commentaire
+            </h3>
+            <div className="bg-[rgb(var(--color-surface-hover))] rounded-lg p-4">
+              <p className="text-[rgb(var(--color-text))] whitespace-pre-wrap">
+                {selectedCRA.comment}
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="p-6 bg-[rgb(var(--color-surface-hover))]">
+          <div className="flex justify-center">
             <div className="text-center">
-              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">Moyenne par activité</p>
+              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">Jours travaillés</p>
               <p className="text-2xl font-bold text-[rgb(var(--color-text))]">
-                {selectedCRA.activities.length > 0
-                  ? (totalHours / selectedCRA.activities.length).toFixed(1)
-                  : '0'}h
+                {workedDaysCount}
               </p>
             </div>
           </div>
