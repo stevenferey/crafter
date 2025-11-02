@@ -1,14 +1,14 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useFieldArray, Controller } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { useEditCRAForm } from '@/hooks/useCRAForm';
+import { useCRA } from '@/hooks/useCRA';
 import { useCRAStore } from '@/stores/cra.store';
 import { useCompanyStore } from '@/stores/company.store';
 import { useAppStore } from '@/stores/app.store';
 import { logger } from '@/lib/logger';
 import {
   Input,
-  DatePicker,
   Textarea,
   Button,
   FormGroup,
@@ -16,58 +16,54 @@ import {
   Spinner,
   Select,
 } from '@/components/ui';
-import { datePickerUtils } from '@/lib/datePicker';
-import { ACTIVITY_CATEGORIES } from '@/constants/cra.constants';
+import {
+  MONTHS,
+  WEEKDAYS,
+  getCalendarGrid,
+  getCurrentMonthYear,
+  getAvailableYears,
+  formatMonthYear,
+} from '@/lib/monthUtils';
 import type { CRAFormData } from '@/schemas/cra.schema';
 
 export function EditCRA() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const selectedCRA = useCRAStore((state) => state.selectedCRA);
-  const fetchCRAById = useCRAStore((state) => state.fetchCRAById);
+  const { cra: selectedCRA, isLoading, error } = useCRA(id);
   const updateCRA = useCRAStore((state) => state.updateCRA);
   const deleteCRA = useCRAStore((state) => state.deleteCRA);
-  const isLoading = useCRAStore((state) => state.isLoading);
-  const error = useCRAStore((state) => state.error);
   const companies = useCompanyStore((state) => state.companies);
   const fetchCompanies = useCompanyStore((state) => state.fetchCompanies);
   const addNotification = useAppStore((state) => state.addNotification);
 
-  // Charger le CRA et les sociétés au montage du composant
-  useEffect(() => {
-    if (id) {
-      logger.log('✏️ [EditCRA] Loading CRA:', id);
-      fetchCRAById(id);
-    }
-    fetchCompanies();
-  }, [id, fetchCRAById, fetchCompanies]);
+  const { month: currentMonth, year: currentYear } = getCurrentMonthYear();
+  const [selectedMonth, setSelectedMonth] = useState(selectedCRA?.month || currentMonth);
+  const [selectedYear, setSelectedYear] = useState(selectedCRA?.year || currentYear);
 
-  // Créer les options pour les selects
-  const companyOptions = companies.map((company) => ({
-    value: company.id,
-    label: company.designation,
-  }));
+  // Charger les sociétés au montage du composant
+  useEffect(() => {
+    fetchCompanies();
+  }, [fetchCompanies]);
 
   // Formulaire avec react-hook-form + zod
   const {
     register,
     handleSubmit,
     control,
+    watch,
+    setValue,
     reset,
     formState: { errors, isSubmitting },
   } = useEditCRAForm(
     selectedCRA
       ? {
-          date: selectedCRA.date,
+          month: selectedCRA.month,
+          year: selectedCRA.year,
+          worked_days: selectedCRA.worked_days,
+          comment: selectedCRA.comment,
           client_id: selectedCRA.client_id || '',
           provider_id: selectedCRA.provider_id || '',
-          activities: selectedCRA.activities.map((act) => ({
-            id: act.id,
-            description: act.description,
-            hours: act.hours,
-            category: act.category,
-          })),
           status: selectedCRA.status,
         }
       : {}
@@ -78,25 +74,60 @@ export function EditCRA() {
     if (selectedCRA) {
       logger.log('✏️ [EditCRA] Resetting form with data:', selectedCRA);
       reset({
-        date: selectedCRA.date,
+        month: selectedCRA.month,
+        year: selectedCRA.year,
+        worked_days: selectedCRA.worked_days,
+        comment: selectedCRA.comment,
         client_id: selectedCRA.client_id || '',
         provider_id: selectedCRA.provider_id || '',
-        activities: selectedCRA.activities.map((act) => ({
-          id: act.id,
-          description: act.description,
-          hours: act.hours,
-          category: act.category,
-        })),
         status: selectedCRA.status,
       });
+      setSelectedMonth(selectedCRA.month);
+      setSelectedYear(selectedCRA.year);
     }
   }, [selectedCRA, reset]);
 
-  // Gestion dynamique des activités
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'activities',
-  });
+  // Observer les changements de mois/année dans le formulaire
+  const watchMonth = watch('month', selectedMonth);
+  const watchYear = watch('year', selectedYear);
+  const watchWorkedDays = watch('worked_days', []);
+
+  // Synchroniser les états locaux avec les valeurs du formulaire
+  useEffect(() => {
+    if (watchMonth) setSelectedMonth(watchMonth);
+  }, [watchMonth]);
+
+  useEffect(() => {
+    if (watchYear) setSelectedYear(watchYear);
+  }, [watchYear]);
+
+  // Créer les options pour les selects
+  const companyOptions = companies.map((company) => ({
+    value: company.id,
+    label: company.designation,
+  }));
+
+  const monthOptions = MONTHS.map((month, index) => ({
+    value: (index + 1).toString(),
+    label: month,
+  }));
+
+  const yearOptions = getAvailableYears().map((year) => ({
+    value: year.toString(),
+    label: year.toString(),
+  }));
+
+  // Générer la grille du calendrier
+  const calendarGrid = getCalendarGrid(selectedMonth, selectedYear);
+
+  // Gestion de la sélection des jours
+  const toggleDay = (day: number) => {
+    const currentDays = watchWorkedDays || [];
+    const newDays = currentDays.includes(day)
+      ? currentDays.filter((d) => d !== day)
+      : [...currentDays, day].sort((a, b) => a - b);
+    setValue('worked_days', newDays, { shouldValidate: true });
+  };
 
   // Soumission du formulaire
   const onSubmit = async (data: CRAFormData) => {
@@ -104,15 +135,13 @@ export function EditCRA() {
 
     logger.log('✏️ [EditCRA] Submitting update:', data);
     try {
-      // Retirer les IDs des activités (gérés côté serveur)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const activities = data.activities.map(({ id: _id, ...activity }) => activity);
-
       await updateCRA(id, {
-        date: data.date,
+        month: data.month,
+        year: data.year,
+        worked_days: data.worked_days,
+        comment: data.comment,
         client_id: data.client_id,
         provider_id: data.provider_id,
-        activities,
         status: data.status,
       });
 
@@ -155,19 +184,10 @@ export function EditCRA() {
     }
   };
 
-  // Ajouter une nouvelle activité
-  const handleAddActivity = useCallback(() => {
-    append({
-      description: '',
-      hours: 4,
-      category: 'Développement',
-    });
-  }, [append]);
-
   // Afficher un loader pendant le chargement
   if (isLoading && !selectedCRA) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="flex flex-col items-center justify-center py-12">
           <Spinner />
           <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement du CRA...</p>
@@ -179,7 +199,7 @@ export function EditCRA() {
   // Afficher une erreur si le CRA n'est pas trouvé
   if (error || (!isLoading && !selectedCRA)) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
           <div className="flex items-start gap-3">
             <svg
@@ -215,12 +235,12 @@ export function EditCRA() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">Éditer le CRA</h1>
         <p className="text-[rgb(var(--color-text-secondary))] mt-1">
-          Modifiez les informations du compte rendu d'activité
+          Modifiez les informations du compte rendu d'activité mensuel
         </p>
       </div>
 
@@ -229,25 +249,44 @@ export function EditCRA() {
         {/* Informations générales */}
         <FormSection
           title="Informations générales"
-          description="Date, client et prestataire du CRA"
+          description="Période, client et prestataire du CRA"
         >
-          <FormGroup columns={3}>
-            {(() => {
-              const { onChange, onBlur, name, ref } = register('date');
-              return (
-                <DatePicker
-                  label="Date"
-                  error={errors.date?.message}
+          <FormGroup columns={2}>
+            <Controller
+              name="month"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Mois"
+                  options={monthOptions}
+                  placeholder="Sélectionnez un mois"
+                  error={errors.month?.message}
                   required
                   fullWidth
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  name={name}
-                  ref={ref}
-                  max={datePickerUtils.getToday()}
+                  {...field}
+                  value={field.value?.toString()}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
                 />
-              );
-            })()}
+              )}
+            />
+
+            <Controller
+              name="year"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Année"
+                  options={yearOptions}
+                  placeholder="Sélectionnez une année"
+                  error={errors.year?.message}
+                  required
+                  fullWidth
+                  {...field}
+                  value={field.value?.toString()}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              )}
+            />
 
             <Controller
               name="client_id"
@@ -285,121 +324,73 @@ export function EditCRA() {
           </FormGroup>
         </FormSection>
 
-        {/* Activités */}
+        {/* Jours travaillés */}
         <FormSection
-          title="Détail des activités"
-          description="Modifiez ou ajoutez des activités"
+          title="Jours travaillés"
+          description={`Sélectionnez les jours travaillés en ${formatMonthYear(selectedMonth, selectedYear)}`}
         >
           <div className="space-y-4">
-            {fields.length === 0 && (
-              <div className="text-center py-8 bg-[rgb(var(--color-surface-hover))] rounded-lg border-2 border-dashed border-[rgb(var(--color-border))]">
-                <svg
-                  className="mx-auto h-12 w-12 text-[rgb(var(--color-text-muted))]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            {/* En-tête du calendrier */}
+            <div className="grid grid-cols-7 gap-2">
+              {WEEKDAYS.map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-sm font-semibold text-[rgb(var(--color-text-secondary))] py-2"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <p className="mt-2 text-sm text-[rgb(var(--color-text-secondary))]">
-                  Aucune activité ajoutée
-                </p>
-                <p className="text-xs text-[rgb(var(--color-text-muted))] mt-1">
-                  Cliquez sur "Ajouter une activité" pour commencer
-                </p>
-              </div>
-            )}
-
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="bg-[rgb(var(--color-surface-hover))] rounded-lg p-4 border border-[rgb(var(--color-border))]"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <h4 className="text-sm font-medium text-[rgb(var(--color-text))]">
-                    Activité {index + 1}
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="text-red-600 hover:text-red-800 text-sm"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </button>
+                  {day}
                 </div>
+              ))}
+            </div>
 
-                <FormGroup columns={2}>
-                  <Input
-                    label="Heures"
-                    type="number"
-                    step="0.25"
-                    min="0.25"
-                    max="24"
-                    placeholder="4"
-                    error={errors.activities?.[index]?.hours?.message}
-                    helperText="Multiple de 0.25"
-                    required
-                    fullWidth
-                    {...register(`activities.${index}.hours`, {
-                      valueAsNumber: true,
-                    })}
-                  />
+            {/* Grille du calendrier */}
+            <div className="grid grid-cols-7 gap-2">
+              {calendarGrid.map((dayInfo, index) => {
+                if (!dayInfo) {
+                  return <div key={`empty-${index}`} className="aspect-square" />;
+                }
 
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-[rgb(var(--color-text))]">
-                      Catégorie <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      className="w-full px-3 py-2 border border-[rgb(var(--color-border))] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))]"
-                      {...register(`activities.${index}.category`)}
-                    >
-                      {ACTIVITY_CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.activities?.[index]?.category && (
-                      <p className="text-sm text-red-600">
-                        {errors.activities[index]?.category?.message}
-                      </p>
-                    )}
-                  </div>
+                const isSelected = watchWorkedDays?.includes(dayInfo.day);
+                const isWeekend = dayInfo.isWeekend;
 
-                  <div className="md:col-span-2">
-                    <Textarea
-                      label="Description"
-                      rows={3}
-                      placeholder="Description de l'activité..."
-                      error={errors.activities?.[index]?.description?.message}
-                      required
-                      fullWidth
-                      {...register(`activities.${index}.description`)}
-                    />
-                  </div>
-                </FormGroup>
-              </div>
-            ))}
+                return (
+                  <button
+                    key={dayInfo.day}
+                    type="button"
+                    onClick={() => toggleDay(dayInfo.day)}
+                    className={`
+                      aspect-square rounded-lg border-2 text-sm font-medium transition-all
+                      ${
+                        isSelected
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                          : isWeekend
+                          ? 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300'
+                          : 'bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] border-[rgb(var(--color-border))] hover:border-blue-400'
+                      }
+                      ${isSelected ? 'scale-95' : 'hover:scale-105'}
+                    `}
+                  >
+                    {dayInfo.day}
+                  </button>
+                );
+              })}
+            </div>
 
-            {/* Erreur globale des activités */}
-            {errors.activities?.message && (
+            {/* Statistiques */}
+            <div className="bg-[rgb(var(--color-surface-hover))] rounded-lg p-4 border border-[rgb(var(--color-border))]">
+              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                <span className="font-semibold text-[rgb(var(--color-text))]">
+                  {watchWorkedDays?.length || 0} jour{watchWorkedDays?.length > 1 ? 's' : ''} sélectionné{watchWorkedDays?.length > 1 ? 's' : ''}
+                </span>
+                {watchWorkedDays && watchWorkedDays.length > 0 && (
+                  <span className="ml-2">
+                    ({watchWorkedDays.sort((a, b) => a - b).join(', ')})
+                  </span>
+                )}
+              </p>
+            </div>
+
+            {/* Erreur */}
+            {errors.worked_days && (
               <p className="text-sm text-red-600 flex items-center gap-1">
                 <svg
                   className="w-4 h-4 flex-shrink-0"
@@ -412,32 +403,28 @@ export function EditCRA() {
                     clipRule="evenodd"
                   />
                 </svg>
-                {errors.activities.message}
+                {errors.worked_days.message}
               </p>
             )}
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleAddActivity}
-              className="w-full"
-            >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Ajouter une activité
-            </Button>
           </div>
+        </FormSection>
+
+        {/* Commentaire */}
+        <FormSection
+          title="Commentaire"
+          description="Ajoutez un commentaire optionnel sur le mois"
+        >
+          <FormGroup columns={1}>
+            <Textarea
+              label="Commentaire"
+              rows={4}
+              placeholder="Commentaire optionnel sur le mois..."
+              error={errors.comment?.message}
+              helperText="Optionnel - Maximum 1000 caractères"
+              fullWidth
+              {...register('comment')}
+            />
+          </FormGroup>
         </FormSection>
 
         {/* Actions */}

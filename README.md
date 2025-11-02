@@ -244,22 +244,17 @@ Identifiants :
 - `tva_number` (VARCHAR) - Numéro TVA intracommunautaire (optionnel)
 - `created_at`, `updated_at` (TIMESTAMP)
 
-**Table `cras`**
+**Table `cras`** (Compte Rendu d'Activité Mensuel)
 - `id` (UUID) - Clé primaire
-- `date` (DATE) - Date du CRA
+- `month` (INTEGER) - Mois (1-12)
+- `year` (INTEGER) - Année
+- `worked_days` (INTEGER[]) - Tableau des jours travaillés dans le mois
+- `comment` (TEXT) - Commentaire optionnel
 - `client_id` (UUID) - Clé étrangère vers `companies` (société cliente)
 - `provider_id` (UUID) - Clé étrangère vers `companies` (société prestataire)
-- `total_hours` (DECIMAL) - Total d'heures
 - `status` (ENUM) - Statut : draft, submitted, approved, rejected
 - `created_at`, `updated_at` (TIMESTAMP)
-
-**Table `activities`**
-- `id` (UUID) - Clé primaire
-- `cra_id` (UUID) - Clé étrangère vers `cras`
-- `description` (TEXT) - Description de l'activité
-- `hours` (DECIMAL) - Nombre d'heures
-- `category` (VARCHAR) - Catégorie
-- `created_at` (TIMESTAMP)
+- CONSTRAINT: `client_id <> provider_id` (une société ne peut pas être à la fois client et prestataire)
 
 ### Commandes Utiles
 

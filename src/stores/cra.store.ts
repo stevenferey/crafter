@@ -49,7 +49,7 @@ const initialState = {
   error: null,
   filters: {},
   sort: {
-    field: 'date' as const,
+    field: 'year' as const,
     direction: 'desc' as const,
   },
 };
