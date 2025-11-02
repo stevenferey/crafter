@@ -109,7 +109,7 @@ export function PreviewCRA() {
               <StatusBadge status={selectedCRA.status as CRAStatus} />
             </div>
             <p className="text-[rgb(var(--color-text-secondary))] mt-1">
-              {datePickerUtils.formatDateLong(selectedCRA.date)} - {getCompanyName(selectedCRA.client_id)}
+              {datePickerUtils.formatDateLong(selectedCRA.date)} - {getCompanyName(selectedCRA.provider_id)} → {getCompanyName(selectedCRA.client_id)}
             </p>
           </div>
           <div className="flex gap-3">
@@ -143,13 +143,21 @@ export function PreviewCRA() {
       <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))] shadow-sm">
         {/* Header du CRA */}
         <div className="border-b border-[rgb(var(--color-border))] p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
               <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
                 Date
               </h3>
               <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
                 {datePickerUtils.formatDateLong(selectedCRA.date)}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
+                Prestataire
+              </h3>
+              <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
+                {getCompanyName(selectedCRA.provider_id)}
               </p>
             </div>
             <div>
