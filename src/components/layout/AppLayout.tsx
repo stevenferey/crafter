@@ -62,6 +62,17 @@ export function AppLayout() {
               >
                 Nouveau CRA
               </Link>
+              <Link
+                to="/companies"
+                className={cn(
+                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                  location.pathname.startsWith('/companies')
+                    ? 'bg-[rgb(var(--color-primary-light))] text-blue-700'
+                    : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-hover))] hover:text-[rgb(var(--color-text))]',
+                )}
+              >
+                Sociétés
+              </Link>
             </nav>
 
             {/* Actions */}

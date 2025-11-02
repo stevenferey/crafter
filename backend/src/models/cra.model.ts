@@ -21,7 +21,8 @@ export class CRAModel {
       SELECT
         c.id,
         c.date,
-        c.client,
+        c.client_id,
+        c.provider_id,
         c.total_hours,
         c.status,
         c.created_at,
@@ -54,8 +55,8 @@ export class CRAModel {
     }
 
     if (client) {
-      queryText += ` AND c.client ILIKE $${paramIndex}`;
-      params.push(`%${client}%`);
+      queryText += ` AND c.client_id = $${paramIndex}`;
+      params.push(client);
       paramIndex++;
     }
 
@@ -72,7 +73,7 @@ export class CRAModel {
     }
 
     queryText += `
-      GROUP BY c.id, c.date, c.client, c.total_hours, c.status, c.created_at, c.updated_at
+      GROUP BY c.id, c.date, c.client_id, c.provider_id, c.total_hours, c.status, c.created_at, c.updated_at
       ORDER BY c.date DESC, c.created_at DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
@@ -90,7 +91,8 @@ export class CRAModel {
       SELECT
         c.id,
         c.date,
-        c.client,
+        c.client_id,
+        c.provider_id,
         c.total_hours,
         c.status,
         c.created_at,
@@ -111,7 +113,7 @@ export class CRAModel {
       FROM cras c
       LEFT JOIN activities a ON c.id = a.cra_id
       WHERE c.id = $1
-      GROUP BY c.id, c.date, c.client, c.total_hours, c.status, c.created_at, c.updated_at
+      GROUP BY c.id, c.date, c.client_id, c.provider_id, c.total_hours, c.status, c.created_at, c.updated_at
     `;
 
     const result = await query<CRA>(queryText, [id]);
@@ -132,13 +134,14 @@ export class CRAModel {
 
       // Créer le CRA
       const craQuery = `
-        INSERT INTO cras (date, client, total_hours, status)
-        VALUES ($1, $2, $3, $4)
-        RETURNING id, date, client, total_hours, status, created_at, updated_at
+        INSERT INTO cras (date, client_id, provider_id, total_hours, status)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id, date, client_id, provider_id, total_hours, status, created_at, updated_at
       `;
       const craResult = await client.query(craQuery, [
         data.date,
-        data.client,
+        data.client_id,
+        data.provider_id,
         totalHours,
         data.status || 'draft',
       ]);
@@ -196,9 +199,15 @@ export class CRAModel {
         paramIndex++;
       }
 
-      if (data.client !== undefined) {
-        updates.push(`client = $${paramIndex}`);
-        params.push(data.client);
+      if (data.client_id !== undefined) {
+        updates.push(`client_id = $${paramIndex}`);
+        params.push(data.client_id);
+        paramIndex++;
+      }
+
+      if (data.provider_id !== undefined) {
+        updates.push(`provider_id = $${paramIndex}`);
+        params.push(data.provider_id);
         paramIndex++;
       }
 
@@ -244,7 +253,7 @@ export class CRAModel {
         UPDATE cras
         SET ${updates.join(', ')}
         WHERE id = $${paramIndex}
-        RETURNING id, date, client, total_hours, status, created_at, updated_at
+        RETURNING id, date, client_id, provider_id, total_hours, status, created_at, updated_at
       `;
 
       const result = await client.query(updateQuery, params);
@@ -308,8 +317,8 @@ export class CRAModel {
     }
 
     if (client) {
-      queryText += ` AND client ILIKE $${paramIndex}`;
-      params.push(`%${client}%`);
+      queryText += ` AND client_id = $${paramIndex}`;
+      params.push(client);
       paramIndex++;
     }
 

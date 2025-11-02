@@ -83,13 +83,23 @@ export class CRAController {
   static async create(req: Request, res: Response): Promise<void> {
     try {
       // Validation basique
-      const { date, client, activities } = req.body;
+      const { date, client_id, provider_id, activities } = req.body;
 
-      if (!date || !client || !activities || !Array.isArray(activities)) {
+      if (!date || !client_id || !provider_id || !activities || !Array.isArray(activities)) {
         res.status(400).json({
           success: false,
           error: 'Invalid input',
-          message: 'date, client, and activities (array) are required',
+          message: 'date, client_id, provider_id, and activities (array) are required',
+        });
+        return;
+      }
+
+      // Validation: client et prestataire doivent être différents
+      if (client_id === provider_id) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid input',
+          message: 'Le client et le prestataire doivent être différents',
         });
         return;
       }
@@ -126,7 +136,8 @@ export class CRAController {
 
       const craData: CreateCRAInput = {
         date,
-        client,
+        client_id,
+        provider_id,
         activities,
         status: req.body.status || 'draft',
       };
@@ -157,9 +168,23 @@ export class CRAController {
       const { id } = req.params;
       const updateData: UpdateCRAInput = {};
 
+      // Validation: si on met à jour client_id et provider_id, ils doivent être différents
+      if (
+        (req.body.client_id !== undefined && req.body.provider_id !== undefined) &&
+        req.body.client_id === req.body.provider_id
+      ) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid input',
+          message: 'Le client et le prestataire doivent être différents',
+        });
+        return;
+      }
+
       // Construire les données de mise à jour à partir du body
       if (req.body.date !== undefined) updateData.date = req.body.date;
-      if (req.body.client !== undefined) updateData.client = req.body.client;
+      if (req.body.client_id !== undefined) updateData.client_id = req.body.client_id;
+      if (req.body.provider_id !== undefined) updateData.provider_id = req.body.provider_id;
       if (req.body.status !== undefined) updateData.status = req.body.status;
       if (req.body.activities !== undefined) {
         // Valider les activités si présentes

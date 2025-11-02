@@ -12,7 +12,8 @@ export interface Activity {
 export interface CRA {
   id: string;
   date: string;
-  client: string;
+  client_id: string; // UUID de la société cliente
+  provider_id: string; // UUID de la société prestataire
   activities: Activity[];
   total_hours: number;
   status: 'draft' | 'submitted' | 'approved' | 'rejected';
@@ -22,21 +23,23 @@ export interface CRA {
 
 export interface CreateCRAInput {
   date: string;
-  client: string;
+  client_id: string; // UUID de la société cliente (obligatoire)
+  provider_id: string; // UUID de la société prestataire (obligatoire)
   activities: Omit<Activity, 'id' | 'cra_id' | 'created_at'>[];
   status?: 'draft' | 'submitted';
 }
 
 export interface UpdateCRAInput {
   date?: string;
-  client?: string;
+  client_id?: string; // UUID de la société cliente
+  provider_id?: string; // UUID de la société prestataire
   activities?: Omit<Activity, 'id' | 'cra_id' | 'created_at'>[];
   status?: 'draft' | 'submitted' | 'approved' | 'rejected';
 }
 
 export interface CRAFilters {
   status?: string;
-  client?: string;
+  client?: string; // UUID de la société cliente (client_id)
   startDate?: string;
   endDate?: string;
   limit?: number;

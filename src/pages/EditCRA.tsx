@@ -1,8 +1,9 @@
 import { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useFieldArray } from 'react-hook-form';
+import { useFieldArray, Controller } from 'react-hook-form';
 import { useEditCRAForm } from '@/hooks/useCRAForm';
 import { useCRAStore } from '@/stores/cra.store';
+import { useCompanyStore } from '@/stores/company.store';
 import { useAppStore } from '@/stores/app.store';
 import { logger } from '@/lib/logger';
 import {
@@ -13,6 +14,7 @@ import {
   FormGroup,
   FormSection,
   Spinner,
+  Select,
 } from '@/components/ui';
 import { datePickerUtils } from '@/lib/datePicker';
 import { ACTIVITY_CATEGORIES } from '@/constants/cra.constants';
@@ -28,15 +30,24 @@ export function EditCRA() {
   const deleteCRA = useCRAStore((state) => state.deleteCRA);
   const isLoading = useCRAStore((state) => state.isLoading);
   const error = useCRAStore((state) => state.error);
+  const companies = useCompanyStore((state) => state.companies);
+  const fetchCompanies = useCompanyStore((state) => state.fetchCompanies);
   const addNotification = useAppStore((state) => state.addNotification);
 
-  // Charger le CRA au montage du composant
+  // Charger le CRA et les sociétés au montage du composant
   useEffect(() => {
     if (id) {
       logger.log('✏️ [EditCRA] Loading CRA:', id);
       fetchCRAById(id);
     }
-  }, [id, fetchCRAById]);
+    fetchCompanies();
+  }, [id, fetchCRAById, fetchCompanies]);
+
+  // Créer les options pour les selects
+  const companyOptions = companies.map((company) => ({
+    value: company.id,
+    label: company.designation,
+  }));
 
   // Formulaire avec react-hook-form + zod
   const {
@@ -49,7 +60,8 @@ export function EditCRA() {
     selectedCRA
       ? {
           date: selectedCRA.date,
-          client: selectedCRA.client,
+          client_id: selectedCRA.client_id || '',
+          provider_id: selectedCRA.provider_id || '',
           activities: selectedCRA.activities.map((act) => ({
             id: act.id,
             description: act.description,
@@ -67,7 +79,8 @@ export function EditCRA() {
       logger.log('✏️ [EditCRA] Resetting form with data:', selectedCRA);
       reset({
         date: selectedCRA.date,
-        client: selectedCRA.client,
+        client_id: selectedCRA.client_id || '',
+        provider_id: selectedCRA.provider_id || '',
         activities: selectedCRA.activities.map((act) => ({
           id: act.id,
           description: act.description,
@@ -97,7 +110,8 @@ export function EditCRA() {
 
       await updateCRA(id, {
         date: data.date,
-        client: data.client,
+        client_id: data.client_id,
+        provider_id: data.provider_id,
         activities,
         status: data.status,
       });
@@ -215,26 +229,58 @@ export function EditCRA() {
         {/* Informations générales */}
         <FormSection
           title="Informations générales"
-          description="Date et client du CRA"
+          description="Date, client et prestataire du CRA"
         >
-          <FormGroup columns={2}>
-            <DatePicker
-              label="Date"
-              error={errors.date?.message}
-              required
-              fullWidth
-              {...register('date')}
-              max={datePickerUtils.getToday()}
+          <FormGroup columns={3}>
+            {(() => {
+              const { onChange, onBlur, name, ref } = register('date');
+              return (
+                <DatePicker
+                  label="Date"
+                  error={errors.date?.message}
+                  required
+                  fullWidth
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  name={name}
+                  ref={ref}
+                  max={datePickerUtils.getToday()}
+                />
+              );
+            })()}
+
+            <Controller
+              name="client_id"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Client"
+                  options={companyOptions}
+                  placeholder="Sélectionnez un client"
+                  error={errors.client_id?.message}
+                  helperText="Société cliente"
+                  required
+                  fullWidth
+                  {...field}
+                />
+              )}
             />
 
-            <Input
-              label="Client"
-              placeholder="Nom du client"
-              error={errors.client?.message}
-              helperText="Nom de l'entreprise ou du client"
-              required
-              fullWidth
-              {...register('client')}
+            <Controller
+              name="provider_id"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Prestataire"
+                  options={companyOptions}
+                  placeholder="Sélectionnez un prestataire"
+                  error={errors.provider_id?.message}
+                  helperText="Société prestataire"
+                  required
+                  fullWidth
+                  {...field}
+                />
+              )}
             />
           </FormGroup>
         </FormSection>

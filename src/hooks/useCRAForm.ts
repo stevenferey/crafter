@@ -33,7 +33,8 @@ const getDefaultCRAValues = (): Partial<CRAFormData> => {
 
   return {
     date: dateString,
-    client: '',
+    client_id: '',
+    provider_id: '',
     activities: [],
     status: 'draft',
   };

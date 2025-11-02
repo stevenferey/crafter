@@ -21,7 +21,8 @@ export interface Activity {
 export interface CRA {
   id: string;
   date: string; // Format ISO 8601 (YYYY-MM-DD)
-  client: string;
+  client_id: string; // UUID de la société cliente
+  provider_id: string; // UUID de la société prestataire
   total_hours: number;
   activities: Activity[];
   status: CRAStatus;
@@ -34,7 +35,8 @@ export interface CRA {
  */
 export type CreateCRAInput = {
   date: string;
-  client: string;
+  client_id: string; // UUID de la société cliente (obligatoire)
+  provider_id: string; // UUID de la société prestataire (obligatoire)
   status?: CRAStatus;
   activities: CreateActivityInput[];
 };
@@ -44,7 +46,8 @@ export type CreateCRAInput = {
  */
 export type UpdateCRAInput = {
   date?: string;
-  client?: string;
+  client_id?: string; // UUID de la société cliente
+  provider_id?: string; // UUID de la société prestataire
   status?: CRAStatus;
   activities?: CreateActivityInput[];
 };

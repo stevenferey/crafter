@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useFieldArray } from 'react-hook-form';
+import { useFieldArray, Controller } from 'react-hook-form';
 import { useCreateCRAForm } from '@/hooks/useCRAForm';
 import { useCRAStore } from '@/stores/cra.store';
+import { useCompanyStore } from '@/stores/company.store';
 import { useAppStore } from '@/stores/app.store';
 import { logger } from '@/lib/logger';
 import {
@@ -12,6 +13,7 @@ import {
   Button,
   FormGroup,
   FormSection,
+  Select,
 } from '@/components/ui';
 import { datePickerUtils } from '@/lib/datePicker';
 import { ACTIVITY_CATEGORIES } from '@/constants/cra.constants';
@@ -21,7 +23,14 @@ export function CreateCRA() {
   const navigate = useNavigate();
   const createCRA = useCRAStore((state) => state.createCRA);
   const isLoading = useCRAStore((state) => state.isLoading);
+  const companies = useCompanyStore((state) => state.companies);
+  const fetchCompanies = useCompanyStore((state) => state.fetchCompanies);
   const addNotification = useAppStore((state) => state.addNotification);
+
+  // Charger les sociétés au montage
+  useEffect(() => {
+    fetchCompanies();
+  }, [fetchCompanies]);
 
   // Formulaire avec react-hook-form + zod
   const {
@@ -30,6 +39,12 @@ export function CreateCRA() {
     control,
     formState: { errors, isSubmitting },
   } = useCreateCRAForm();
+
+  // Créer les options pour les selects
+  const companyOptions = companies.map((company) => ({
+    value: company.id,
+    label: company.designation,
+  }));
 
   // Gestion dynamique des activités
   const { fields, append, remove } = useFieldArray({
@@ -47,7 +62,8 @@ export function CreateCRA() {
 
       await createCRA({
         date: data.date,
-        client: data.client,
+        client_id: data.client_id,
+        provider_id: data.provider_id,
         activities,
         status: 'draft',
       });
@@ -89,26 +105,58 @@ export function CreateCRA() {
         {/* Informations générales */}
         <FormSection
           title="Informations générales"
-          description="Date et client du CRA"
+          description="Date, client et prestataire du CRA"
         >
-          <FormGroup columns={2}>
-            <DatePicker
-              label="Date"
-              error={errors.date?.message}
-              required
-              fullWidth
-              {...register('date')}
-              max={datePickerUtils.getToday()}
+          <FormGroup columns={3}>
+            {(() => {
+              const { onChange, onBlur, name, ref } = register('date');
+              return (
+                <DatePicker
+                  label="Date"
+                  error={errors.date?.message}
+                  required
+                  fullWidth
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  name={name}
+                  ref={ref}
+                  max={datePickerUtils.getToday()}
+                />
+              );
+            })()}
+
+            <Controller
+              name="client_id"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Client"
+                  options={companyOptions}
+                  placeholder="Sélectionnez un client"
+                  error={errors.client_id?.message}
+                  helperText="Société cliente"
+                  required
+                  fullWidth
+                  {...field}
+                />
+              )}
             />
 
-            <Input
-              label="Client"
-              placeholder="Nom du client"
-              error={errors.client?.message}
-              helperText="Nom de l'entreprise ou du client"
-              required
-              fullWidth
-              {...register('client')}
+            <Controller
+              name="provider_id"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Prestataire"
+                  options={companyOptions}
+                  placeholder="Sélectionnez un prestataire"
+                  error={errors.provider_id?.message}
+                  helperText="Société prestataire"
+                  required
+                  fullWidth
+                  {...field}
+                />
+              )}
             />
           </FormGroup>
         </FormSection>

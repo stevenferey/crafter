@@ -224,10 +224,31 @@ Identifiants :
 
 ### Structure des Tables
 
+**Table `companies`**
+- `id` (UUID) - Clé primaire
+- `designation` (VARCHAR) - Nom de la société
+- `address` (VARCHAR) - Adresse
+- `city` (VARCHAR) - Ville
+- `postal_code` (VARCHAR) - Code postal
+- `country` (VARCHAR) - Pays
+- `email` (VARCHAR) - Email
+- `phone` (VARCHAR) - Téléphone (optionnel)
+- `repertoire` (ENUM) - Type de répertoire : SIREN, SIRET
+- `repertoire_number` (VARCHAR) - Numéro d'identification
+- `dispense` (BOOLEAN) - Dispense d'immatriculation
+- `registre` (ENUM) - Type de registre (optionnel)
+- `registre_number` (VARCHAR) - Numéro de registre (optionnel)
+- `liste` (ENUM) - Type de liste : NAF, NACE
+- `code` (VARCHAR) - Code d'activité (optionnel)
+- `exemption` (BOOLEAN) - Exemption TVA
+- `tva_number` (VARCHAR) - Numéro TVA intracommunautaire (optionnel)
+- `created_at`, `updated_at` (TIMESTAMP)
+
 **Table `cras`**
 - `id` (UUID) - Clé primaire
 - `date` (DATE) - Date du CRA
-- `client` (VARCHAR) - Nom du client
+- `client_id` (UUID) - Clé étrangère vers `companies` (société cliente)
+- `provider_id` (UUID) - Clé étrangère vers `companies` (société prestataire)
 - `total_hours` (DECIMAL) - Total d'heures
 - `status` (ENUM) - Statut : draft, submitted, approved, rejected
 - `created_at`, `updated_at` (TIMESTAMP)
@@ -267,6 +288,17 @@ Base URL : `http://localhost:3001/api`
 - `POST /api/cras` - Crée un nouveau CRA
 - `PUT /api/cras/:id` - Met à jour un CRA
 - `DELETE /api/cras/:id` - Supprime un CRA
+
+### Endpoints Companies
+
+- `GET /api/companies` - Liste toutes les sociétés
+- `GET /api/companies/:id` - Récupère une société spécifique
+- `POST /api/companies` - Crée une nouvelle société
+- `PUT /api/companies/:id` - Met à jour une société
+- `DELETE /api/companies/:id` - Supprime une société
+
+### Health Check
+
 - `GET /api/health` - Health check du serveur
 
 Pour la documentation complète de l'API, voir [backend/README.md](backend/README.md)
