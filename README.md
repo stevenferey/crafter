@@ -138,7 +138,7 @@ crafter/
 │   │   ├── routes/        # Routes Express (cra.routes.ts)
 │   │   ├── types/         # Types TypeScript backend
 │   │   └── server.ts      # Point d'entrée Express
-│   ├── migrations/        # Scripts SQL (init.sql)
+│   ├── migrations/        # Schéma de base de données (schema.sql)
 │   ├── .env               # Variables d'environnement backend
 │   └── package.json
 │

@@ -1,106 +1,137 @@
-# Historique des Migrations
+# Schéma de Base de Données
 
-Ce document décrit l'historique des migrations de la base de données.
+Ce dossier contient le schéma de la base de données PostgreSQL.
 
-## Migrations Appliquées
+## Fichiers
 
-### 001 - init.sql (Initial)
-**Date:** 2025-01-02
-**Description:** Création initiale de la base de données
+- **`schema.sql`** : Schéma complet de la base de données incluant :
+  - Types ENUM (cra_status, repertoire_type, liste_type, registre_type)
+  - Tables (companies, cras)
+  - Contraintes et clés étrangères
+  - Index pour optimiser les performances
+  - Triggers pour la mise à jour automatique de `updated_at`
+  - Données de test (3 entreprises et 4 CRAs d'exemple)
 
-- Création de la table `cras`
-- Création de la table `activities`
-- Définition des types ENUM pour les statuts de CRA
-- Mise en place des triggers pour `updated_at`
-- Contraintes de clés étrangères et cascade
+- **`run-all.sh`** : Script bash pour initialiser la base de données
 
-### 002 - add_companies.sql
-**Date:** 2025-02-11
-**Description:** Ajout du système de gestion des sociétés
+## Initialisation de la Base de Données
 
-- Création des types ENUM : `repertoire_type`, `liste_type`, `registre_type`
-- Création de la table `companies` avec validation complète
-- Ajout des colonnes `client_id` et `provider_id` à la table `cras`
-- Contraintes de clés étrangères vers `companies`
-- Contrainte CHECK : `client_id <> provider_id`
-- Trigger `updated_at` pour la table `companies`
-
-### 003 - migrate_clients_to_companies.sql
-**Date:** 2025-02-11
-**Description:** Migration des données existantes
-
-- Création d'une société par défaut "Mon Entreprise" (ID: `00000000-0000-0000-0000-000000000000`)
-- Migration automatique des noms de clients existants vers la table `companies`
-- Association de tous les CRA aux nouvelles sociétés via `client_id` et `provider_id`
-
-### 004 - remove_client_column.sql
-**Date:** 2025-02-11
-**Description:** Nettoyage de la colonne obsolète
-
-- Suppression de la colonne `client` (VARCHAR) devenue obsolète
-- Suppression de l'index `idx_cras_client`
-- Passage de `client_id` et `provider_id` en NOT NULL
-
-### 005 - fix_check_constraint.sql
-**Date:** 2025-02-11
-**Description:** Optimisation de la contrainte CHECK
-
-- Simplification de la contrainte `chk_client_provider_different`
-- Suppression des vérifications NULL devenues inutiles (colonnes désormais NOT NULL)
-
-### 006 - monthly_cra_refactor.sql
-**Date:** 2025-11-02
-**Description:** Refactorisation CRA quotidien → mensuel
-
-- Suppression de la table `activities`
-- Remplacement de la colonne `date` (DATE) par `month` (INTEGER) et `year` (INTEGER)
-- Ajout de la colonne `worked_days` (INTEGER[]) pour stocker les jours travaillés du mois
-- Ajout de la colonne `comment` (TEXT) pour commentaires optionnels
-- Mise à jour des index et contraintes
-
-### 007 - remove_total_hours.sql
-**Date:** 2025-11-02
-**Description:** Suppression du champ total_hours
-
-- Suppression de la colonne `total_hours` devenue inutile
-- Suppression de la contrainte CHECK associée
-
-## Initialisation d'une Nouvelle Base de Données
-
-Pour initialiser une nouvelle base de données avec toutes les migrations :
+Pour initialiser la base de données :
 
 ```bash
-# Depuis le dossier backend
+# Option 1: Via npm (recommandé)
+cd backend
 npm run db:migrate
+
+# Option 2: Via le script bash directement
+cd backend/migrations
+./run-all.sh
+
+# Option 3: Via psql directement
+psql -h localhost -U cra_user -d cra_db -f backend/migrations/schema.sql
 ```
 
-Ce script exécute automatiquement toutes les migrations dans l'ordre.
+## Structure de la Base de Données
+
+### Types ENUM
+
+- **`cra_status`** : Statut d'un CRA
+  - `draft`, `submitted`, `approved`, `rejected`
+
+- **`repertoire_type`** : Type d'identification d'entreprise
+  - `SIREN`, `SIRET`
+
+- **`liste_type`** : Type de classification d'activité
+  - `NAF`, `APE`
+
+- **`registre_type`** : Type de registre d'immatriculation
+  - `RCS`, `RM`, `RCS/RM`, `RNE`, `RBE`, `RSAC`, `RNA`, `REE`, `RS`, `RCC`, `RAC`, `RMJPM`, `RMJLE`, `ROVS`, `ORIAS`, `RAI`, `RCT`, `TRM`, `LVIC`, `STP`, `REEP`, `ROF`, `IFP`, `ROA`, `RNROM`, `RA`, `RESS`, `CNAPS`, `RPI`
+
+### Table `companies`
+
+Gestion des sociétés (clients et prestataires).
+
+**Colonnes principales :**
+- `id` (UUID) - Identifiant unique
+- `designation` (VARCHAR) - Nom de l'entreprise
+- `address`, `complement`, `city`, `postal_code`, `country` - Siège social
+- `email`, `phone` - Coordonnées de contact
+- `repertoire`, `repertoire_number` - Identification (SIREN/SIRET obligatoire)
+- `dispense`, `registre`, `registre_number` - Immatriculation
+- `liste`, `code` - Classification d'activité
+- `exemption`, `tva_number` - Informations TVA
+- `created_at`, `updated_at` - Horodatage
+
+**Index :**
+- `idx_companies_designation`
+- `idx_companies_city`
+- `idx_companies_repertoire_number`
+- `idx_companies_created_at`
+
+### Table `cras`
+
+Comptes Rendus d'Activité à granularité **mensuelle**.
+
+**Colonnes principales :**
+- `id` (UUID) - Identifiant unique
+- `month` (INTEGER) - Mois (1-12)
+- `year` (INTEGER) - Année (2000-2100)
+- `worked_days` (INTEGER[]) - Tableau des jours travaillés du mois (ex: `{1,2,5,6,7}`)
+- `comment` (TEXT) - Commentaire optionnel
+- `client_id` (UUID) - Référence vers `companies` (entreprise cliente)
+- `provider_id` (UUID) - Référence vers `companies` (entreprise prestataire)
+- `status` (cra_status) - Statut du CRA
+- `created_at`, `updated_at` - Horodatage
+
+**Contraintes :**
+- `chk_different_client_provider` : Le client et le prestataire doivent être différents
+- `unique_month_client_provider` : Un seul CRA par mois/année/client/prestataire
+
+**Index :**
+- `idx_cras_month_year` (décroissant pour trier par récence)
+- `idx_cras_client_id`
+- `idx_cras_provider_id`
+- `idx_cras_status`
+- `idx_cras_created_at`
+
+## Données de Test
+
+Le schéma inclut des données de test pour faciliter le développement :
+
+1. **Entreprises** :
+   - Ma Société SARL (ID: `00000000-0000-0000-0000-000000000000`) - Prestataire par défaut
+   - Acme Corporation - Client exemple
+   - TechStart SAS - Client exemple
+
+2. **CRAs** :
+   - 4 CRAs d'exemple couvrant différents mois et statuts
 
 ## Notes Importantes
 
-- **⚠️ init.sql est obsolète**: Ce fichier contient l'ancienne structure (avec `activities` et `total_hours`). Il est conservé pour compatibilité avec le script `run-all.sh`, mais la structure finale est définie par l'ensemble des migrations 001-007.
-- La société par défaut (ID `00000000-0000-0000-0000-000000000000`) doit être mise à jour avec les vraies informations de votre entreprise
-- Les sociétés ne peuvent pas être supprimées si elles sont référencées par des CRA
-- Une société ne peut pas être à la fois client et prestataire sur un même CRA
+- **Société par défaut** : L'ID `00000000-0000-0000-0000-000000000000` est réservé pour la société prestataire par défaut. Vous devez mettre à jour ses informations via l'interface ou directement en base.
 
-## Structure Actuelle de la Base de Données
+- **Suppression de sociétés** : Une société ne peut pas être supprimée si elle est référencée par au moins un CRA (contrainte `ON DELETE RESTRICT`).
 
-Après application de toutes les migrations (001-007), voici la structure finale :
+- **Réinitialisation** : Pour réinitialiser complètement la base de données :
+  ```bash
+  # Supprimer et recréer la base
+  docker exec -it cra_postgres psql -U cra_user -c "DROP DATABASE IF EXISTS cra_db;"
+  docker exec -it cra_postgres psql -U cra_user -c "CREATE DATABASE cra_db;"
 
-### Table `companies`
-- Gestion complète des sociétés (clients et prestataires)
-- Identifiant SIREN/SIRET obligatoire
-- Informations TVA et immatriculation
+  # Réappliquer le schéma
+  docker exec -i cra_postgres psql -U cra_user -d cra_db < backend/migrations/schema.sql
+  ```
 
-### Table `cras` (Compte Rendu d'Activité Mensuel)
-- `id` (UUID)
-- `month` (INTEGER) - Mois (1-12)
-- `year` (INTEGER) - Année
-- `worked_days` (INTEGER[]) - Jours travaillés dans le mois
-- `comment` (TEXT) - Commentaire optionnel
-- `client_id` (UUID) → companies.id
-- `provider_id` (UUID) → companies.id
-- `status` (ENUM: draft, submitted, approved, rejected)
-- `created_at`, `updated_at` (TIMESTAMP)
+## Accès à la Base de Données
 
-**Tables supprimées**: `activities` (fusion dans `cras` avec système mensuel)
+- **Adminer** : http://localhost:8080
+  - Système : PostgreSQL
+  - Serveur : cra_postgres
+  - Utilisateur : cra_user
+  - Mot de passe : cra_password
+  - Base : cra_db
+
+- **Ligne de commande** :
+  ```bash
+  docker exec -it cra_postgres psql -U cra_user -d cra_db
+  ```

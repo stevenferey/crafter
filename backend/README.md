@@ -60,7 +60,7 @@ Depuis la racine du projet, utiliser le script de démarrage qui lance tout :
 Ce script :
 - Démarre Docker (PostgreSQL + Adminer)
 - Attend que PostgreSQL soit prêt
-- Exécute les migrations si nécessaire
+- Initialise le schéma de base de données si nécessaire
 - Démarre le backend sur le port 3001
 - Démarre le frontend sur le port 5173
 
@@ -78,11 +78,11 @@ docker-compose up -d
 Attendre que PostgreSQL soit prêt (environ 5-10 secondes), puis :
 
 ```bash
-# Méthode 1 : Via npm script
+# Méthode 1 : Via npm script (recommandé)
 npm run db:migrate
 
 # Méthode 2 : Via Docker exec
-docker exec -i cra_postgres psql -U cra_user -d cra_db < migrations/init.sql
+docker exec -i cra_postgres psql -U cra_user -d cra_db < migrations/schema.sql
 ```
 
 #### 3. Démarrer le serveur backend
@@ -487,9 +487,9 @@ backend/
 │   │   └── company.types.ts      # Types TypeScript Company
 │   └── server.ts                 # Point d'entrée Express
 ├── migrations/
-│   ├── init.sql                  # Script d'initialisation de la DB
-│   ├── 002_add_companies.sql     # Migration: ajout table companies
-│   └── 003_migrate_clients_to_companies.sql  # Migration: données existantes
+│   ├── schema.sql                # Schéma de la DB
+│   ├── run-all.sh                # Script d'initialisation
+│   └── README.md                 # Documentation du schéma
 ├── .env                          # Variables d'environnement (non versionné)
 ├── .env.example                  # Template des variables d'environnement
 ├── package.json
@@ -580,17 +580,18 @@ netstat -ano | findstr :3001
 taskkill /PID <PID> /F
 ```
 
-### Erreur de migration
+### Erreur d'initialisation de la base de données
 
 ```
 ERROR: relation "cras" already exists
 ```
 
-**Solution:** La base de données est déjà initialisée. Si vous voulez réinitialiser :
+**Solution:** Le schéma est déjà appliqué. Si vous voulez réinitialiser complètement :
 ```bash
 docker-compose down
 docker volume rm crafter_postgres_data
 docker-compose up -d
+sleep 5  # Attendre que PostgreSQL soit prêt
 npm run db:migrate
 ```
 
