@@ -61,8 +61,14 @@ async function fetchAPI<T>(
     }
 
     if (!response.ok) {
+      // Extraire le message d'erreur du backend si disponible
+      let errorMessage = `Erreur API: ${response.statusText}`;
+      if (data && typeof data === 'object' && 'message' in data) {
+        errorMessage = (data as { message: string }).message;
+      }
+
       throw new ApiError(
-        `Erreur API: ${response.statusText}`,
+        errorMessage,
         response.status,
         data,
       );

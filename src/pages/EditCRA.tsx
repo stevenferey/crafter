@@ -6,9 +6,7 @@ import { useCRA } from '@/hooks/useCRA';
 import { useCRAStore } from '@/stores/cra.store';
 import { useCompanyStore } from '@/stores/company.store';
 import { useAppStore } from '@/stores/app.store';
-import { logger } from '@/lib/logger';
 import {
-  Input,
   Textarea,
   Button,
   FormGroup,
@@ -24,6 +22,7 @@ import {
   getAvailableYears,
   formatMonthYear,
 } from '@/lib/monthUtils';
+import { STATUS_CONFIG } from '@/constants/cra.constants';
 import type { CRAFormData } from '@/schemas/cra.schema';
 
 export function EditCRA() {
@@ -40,6 +39,7 @@ export function EditCRA() {
   const { month: currentMonth, year: currentYear } = getCurrentMonthYear();
   const [selectedMonth, setSelectedMonth] = useState(selectedCRA?.month || currentMonth);
   const [selectedYear, setSelectedYear] = useState(selectedCRA?.year || currentYear);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Charger les sociétés au montage du composant
   useEffect(() => {
@@ -72,7 +72,6 @@ export function EditCRA() {
   // Réinitialiser le formulaire quand les données sont chargées
   useEffect(() => {
     if (selectedCRA) {
-      logger.log('✏️ [EditCRA] Resetting form with data:', selectedCRA);
       reset({
         month: selectedCRA.month,
         year: selectedCRA.year,
@@ -117,6 +116,11 @@ export function EditCRA() {
     label: year.toString(),
   }));
 
+  const statusOptions = Object.entries(STATUS_CONFIG).map(([value, config]) => ({
+    value,
+    label: config.label,
+  }));
+
   // Générer la grille du calendrier
   const calendarGrid = getCalendarGrid(selectedMonth, selectedYear);
 
@@ -133,7 +137,9 @@ export function EditCRA() {
   const onSubmit = async (data: CRAFormData) => {
     if (!id) return;
 
-    logger.log('✏️ [EditCRA] Submitting update:', data);
+    // Réinitialiser l'erreur avant la soumission
+    setSubmitError(null);
+
     try {
       await updateCRA(id, {
         month: data.month,
@@ -148,13 +154,14 @@ export function EditCRA() {
       addNotification('CRA mis à jour avec succès', 'success');
       navigate('/');
     } catch (error) {
-      logger.error('❌ [EditCRA] Error:', error);
-      addNotification(
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la mise à jour du CRA',
-        'error'
-      );
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Erreur lors de la mise à jour du CRA';
+
+      // Stocker l'erreur pour l'afficher dans l'interface
+      setSubmitError(errorMessage);
+
+      addNotification(errorMessage, 'error');
     }
   };
 
@@ -168,13 +175,11 @@ export function EditCRA() {
 
     if (!confirmed) return;
 
-    logger.log('🗑️ [EditCRA] Deleting CRA:', id);
     try {
       await deleteCRA(id);
       addNotification('CRA supprimé avec succès', 'success');
       navigate('/');
     } catch (error) {
-      logger.error('❌ [EditCRA] Error deleting:', error);
       addNotification(
         error instanceof Error
           ? error.message
@@ -246,6 +251,30 @@ export function EditCRA() {
 
       {/* Formulaire */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Statut du CRA */}
+        <FormSection
+          title="Statut du CRA"
+          description="Gérez le statut du compte rendu d'activité"
+        >
+          <FormGroup columns={1}>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Statut"
+                  options={statusOptions}
+                  error={errors.status?.message}
+                  helperText="Changez le statut du CRA (brouillon, soumis, approuvé, rejeté)"
+                  required
+                  fullWidth
+                  {...field}
+                />
+              )}
+            />
+          </FormGroup>
+        </FormSection>
+
         {/* Informations générales */}
         <FormSection
           title="Informations générales"
@@ -426,6 +455,29 @@ export function EditCRA() {
             />
           </FormGroup>
         </FormSection>
+
+        {/* Erreur de soumission */}
+        {submitError && (
+          <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+            <div className="flex gap-3">
+              <svg
+                className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <div className="flex-1">
+                <p className="font-bold mb-1 text-red-800">Erreur lors de la mise à jour</p>
+                <p className="text-sm text-red-700">{submitError}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex justify-between">

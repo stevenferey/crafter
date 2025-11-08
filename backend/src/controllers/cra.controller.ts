@@ -164,6 +164,17 @@ export class CRAController {
       });
     } catch (error) {
       console.error('Error creating CRA:', error);
+
+      // Gérer l'erreur de contrainte unique (code PostgreSQL 23505)
+      if (error instanceof Error && 'code' in error && error.code === '23505') {
+        res.status(409).json({
+          success: false,
+          error: 'Duplicate CRA',
+          message: 'Un CRA existe déjà pour ce mois, cette année et cette combinaison client/prestataire',
+        });
+        return;
+      }
+
       res.status(500).json({
         success: false,
         error: 'Failed to create CRA',
@@ -257,6 +268,17 @@ export class CRAController {
       });
     } catch (error) {
       console.error('Error updating CRA:', error);
+
+      // Gérer l'erreur de contrainte unique (code PostgreSQL 23505)
+      if (error instanceof Error && 'code' in error && error.code === '23505') {
+        res.status(409).json({
+          success: false,
+          error: 'Duplicate CRA',
+          message: 'Un CRA existe déjà pour ce mois, cette année et cette combinaison client/prestataire',
+        });
+        return;
+      }
+
       res.status(500).json({
         success: false,
         error: 'Failed to update CRA',

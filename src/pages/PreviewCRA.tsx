@@ -5,7 +5,6 @@ import { type CRAStatus } from '@/constants/cra.constants';
 import { formatMonthYear, formatWorkedDays } from '@/lib/monthUtils';
 import { useCRA } from '@/hooks/useCRA';
 import { useCompanyStore } from '@/stores/company.store';
-import { logger } from '@/lib/logger';
 
 export function PreviewCRA() {
   const navigate = useNavigate();
@@ -28,7 +27,6 @@ export function PreviewCRA() {
 
   const handleExportPDF = () => {
     // TODO: Implémenter l'export PDF
-    logger.log('Export PDF du CRA:', id);
     alert('Export PDF en cours de développement...');
   };
 
