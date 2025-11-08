@@ -82,17 +82,17 @@ log_info "Checking if database tables exist..."
 TABLE_EXISTS=$(docker exec cra_postgres psql -U cra_user -d cra_db -tAc "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name='cras');")
 
 if [ "$TABLE_EXISTS" = "f" ]; then
-    log_info "Tables not found. Running database migration..."
+    log_info "Tables not found. Initializing database schema..."
 
-    # Exécuter les migrations
-    if docker exec -i cra_postgres psql -U cra_user -d cra_db < backend/migrations/init.sql > /dev/null 2>&1; then
-        log_success "Database migrated successfully"
+    # Appliquer le schéma de la base de données
+    if docker exec -i cra_postgres psql -U cra_user -d cra_db < backend/migrations/schema.sql > /dev/null 2>&1; then
+        log_success "Database schema initialized successfully"
     else
-        log_error "Failed to migrate database"
+        log_error "Failed to initialize database schema"
         exit 1
     fi
 else
-    log_warning "Database tables already exist. Skipping migration."
+    log_warning "Database tables already exist. Skipping initialization."
 fi
 
 # Vérifier si node_modules existe dans backend
