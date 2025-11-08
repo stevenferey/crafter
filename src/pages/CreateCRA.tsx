@@ -5,9 +5,7 @@ import { useCreateCRAForm } from '@/hooks/useCRAForm';
 import { useCRAStore } from '@/stores/cra.store';
 import { useCompanyStore } from '@/stores/company.store';
 import { useAppStore } from '@/stores/app.store';
-import { logger } from '@/lib/logger';
 import {
-  Input,
   Textarea,
   Button,
   FormGroup,
@@ -35,6 +33,7 @@ export function CreateCRA() {
   const { month: currentMonth, year: currentYear } = getCurrentMonthYear();
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Charger les sociétés au montage
   useEffect(() => {
@@ -95,7 +94,9 @@ export function CreateCRA() {
 
   // Soumission du formulaire
   const onSubmit = async (data: CRAFormData) => {
-    logger.log('📝 [CreateCRA] Submitting form data:', data);
+    // Réinitialiser l'erreur avant la soumission
+    setSubmitError(null);
+
     try {
       await createCRA({
         month: data.month,
@@ -110,13 +111,14 @@ export function CreateCRA() {
       addNotification('CRA créé avec succès', 'success');
       navigate('/');
     } catch (error) {
-      logger.error('❌ [CreateCRA] Error:', error);
-      addNotification(
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la création du CRA',
-        'error'
-      );
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Erreur lors de la création du CRA';
+
+      // Stocker l'erreur pour l'afficher dans l'interface
+      setSubmitError(errorMessage);
+
+      addNotification(errorMessage, 'error');
     }
   };
 
@@ -131,7 +133,15 @@ export function CreateCRA() {
       </div>
 
       {/* Formulaire */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={handleSubmit(
+          onSubmit,
+          () => {
+            addNotification('Veuillez corriger les erreurs dans le formulaire', 'error');
+          }
+        )}
+        className="space-y-6"
+      >
         {/* Informations générales */}
         <FormSection
           title="Informations générales"
@@ -146,7 +156,6 @@ export function CreateCRA() {
                 <Select
                   label="Mois"
                   options={monthOptions}
-                  placeholder="Sélectionnez un mois"
                   error={errors.month?.message}
                   required
                   fullWidth
@@ -165,7 +174,6 @@ export function CreateCRA() {
                 <Select
                   label="Année"
                   options={yearOptions}
-                  placeholder="Sélectionnez une année"
                   error={errors.year?.message}
                   required
                   fullWidth
@@ -188,6 +196,7 @@ export function CreateCRA() {
                   helperText="Société cliente"
                   required
                   fullWidth
+                  disabled={companies.length === 0}
                   {...field}
                 />
               )}
@@ -205,6 +214,7 @@ export function CreateCRA() {
                   helperText="Société prestataire"
                   required
                   fullWidth
+                  disabled={companies.length === 0}
                   {...field}
                 />
               )}
@@ -337,6 +347,29 @@ export function CreateCRA() {
             </div>
           </div>
         </div>
+
+        {/* Erreur de soumission */}
+        {submitError && (
+          <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+            <div className="flex gap-3">
+              <svg
+                className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <div className="flex-1">
+                <p className="font-bold mb-1 text-red-800">Erreur lors de la création</p>
+                <p className="text-sm text-red-700">{submitError}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex justify-end gap-3">

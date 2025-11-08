@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CRA_STATUSES, CRA_CONSTRAINTS } from '@/constants/cra.constants';
+import { CRA_STATUSES } from '@/constants/cra.constants';
 
 /**
  * Helper pour obtenir le nombre de jours dans un mois
@@ -57,11 +57,27 @@ export const craFormSchema = z
     client_id: z
       .string()
       .min(1, 'Le client est requis')
-      .uuid('Le client sélectionné est invalide'),
+      .refine(
+        (val) => {
+          // Si la valeur est vide, c'est déjà géré par .min(1)
+          // Sinon, vérifier que c'est un UUID valide
+          if (val.length === 0) return false;
+          return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+        },
+        { message: 'Le client sélectionné est invalide' }
+      ),
     provider_id: z
       .string()
       .min(1, 'Le prestataire est requis')
-      .uuid('Le prestataire sélectionné est invalide'),
+      .refine(
+        (val) => {
+          // Si la valeur est vide, c'est déjà géré par .min(1)
+          // Sinon, vérifier que c'est un UUID valide
+          if (val.length === 0) return false;
+          return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+        },
+        { message: 'Le prestataire sélectionné est invalide' }
+      ),
     status: z.enum(CRA_STATUSES).optional().default('draft'),
   })
   .refine(
