@@ -43,6 +43,9 @@ export class CompanyModel {
         code,
         exemption,
         tva_number,
+        default_signatory_name,
+        default_signatory_title,
+        default_signature_image,
         created_at,
         updated_at
       FROM companies
@@ -110,6 +113,9 @@ export class CompanyModel {
         code,
         exemption,
         tva_number,
+        default_signatory_name,
+        default_signatory_title,
+        default_signature_image,
         created_at,
         updated_at
       FROM companies
@@ -142,9 +148,12 @@ export class CompanyModel {
         liste,
         code,
         exemption,
-        tva_number
+        tva_number,
+        default_signatory_name,
+        default_signatory_title,
+        default_signature_image
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
       RETURNING
         id,
         designation,
@@ -164,6 +173,9 @@ export class CompanyModel {
         code,
         exemption,
         tva_number,
+        default_signatory_name,
+        default_signatory_title,
+        default_signature_image,
         created_at,
         updated_at
     `;
@@ -186,6 +198,9 @@ export class CompanyModel {
       data.code || null,
       data.exemption,
       data.tva_number || null,
+      data.default_signatory_name || null,
+      data.default_signatory_title || null,
+      data.default_signature_image || null,
     ];
 
     const result = await query<Company>(queryText, params);
@@ -311,6 +326,24 @@ export class CompanyModel {
         paramIndex++;
       }
 
+      if (data.default_signatory_name !== undefined) {
+        updates.push(`default_signatory_name = $${paramIndex}`);
+        params.push(data.default_signatory_name || null);
+        paramIndex++;
+      }
+
+      if (data.default_signatory_title !== undefined) {
+        updates.push(`default_signatory_title = $${paramIndex}`);
+        params.push(data.default_signatory_title || null);
+        paramIndex++;
+      }
+
+      if (data.default_signature_image !== undefined) {
+        updates.push(`default_signature_image = $${paramIndex}`);
+        params.push(data.default_signature_image || null);
+        paramIndex++;
+      }
+
       // Toujours mettre à jour updated_at
       updates.push(`updated_at = CURRENT_TIMESTAMP`);
 
@@ -346,6 +379,9 @@ export class CompanyModel {
           code,
           exemption,
           tva_number,
+          default_signatory_name,
+          default_signatory_title,
+          default_signature_image,
           created_at,
           updated_at
       `;

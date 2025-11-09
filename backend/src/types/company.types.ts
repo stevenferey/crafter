@@ -67,6 +67,11 @@ export interface Company {
   exemption: boolean;
   tva_number?: string;
 
+  // Signature par défaut
+  default_signatory_name?: string;
+  default_signatory_title?: string;
+  default_signature_image?: string;
+
   // Timestamps
   created_at: Date;
   updated_at: Date;
@@ -103,6 +108,11 @@ export interface CreateCompanyInput {
   // TVA (exemption obligatoire, numéro optionnel)
   exemption: boolean;
   tva_number?: string;
+
+  // Signature par défaut (optionnel)
+  default_signatory_name?: string;
+  default_signatory_title?: string;
+  default_signature_image?: string;
 }
 
 export interface UpdateCompanyInput {
@@ -124,6 +134,9 @@ export interface UpdateCompanyInput {
   code?: string;
   exemption?: boolean;
   tva_number?: string;
+  default_signatory_name?: string;
+  default_signatory_title?: string;
+  default_signature_image?: string;
 }
 
 export interface CompanyFilters {

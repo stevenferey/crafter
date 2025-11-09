@@ -1,9 +1,17 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { testConnection, closePool } from './config/database.js';
 import craRoutes from './routes/cra.routes.js';
 import companyRoutes from './routes/company.routes.js';
+import uploadRoutes from './routes/upload.routes.js';
+
+// Obtenir __dirname dans un module ES
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -23,6 +31,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Servir les fichiers statiques (uploads)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Middleware de logging
 app.use((req: Request, _res: Response, next: NextFunction) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -32,6 +43,7 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
 // Routes
 app.use('/api/cras', craRoutes);
 app.use('/api/companies', companyRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Route de santé / health check
 app.get('/api/health', async (_req: Request, res: Response) => {
@@ -105,6 +117,10 @@ async function startServer() {
       console.log(`║     POST   /api/companies                     ║`);
       console.log(`║     PUT    /api/companies/:id                 ║`);
       console.log(`║     DELETE /api/companies/:id                 ║`);
+      console.log('║                                               ║');
+      console.log('║  Upload:                                      ║');
+      console.log(`║     POST   /api/upload/signature              ║`);
+      console.log(`║     DELETE /api/upload/signature/:filename    ║`);
       console.log('║                                               ║');
       console.log('╚═══════════════════════════════════════════════╝');
       console.log('');

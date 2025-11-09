@@ -26,6 +26,12 @@ export class CRAModel {
         client_id,
         provider_id,
         status,
+        client_signatory_name,
+        client_signatory_title,
+        client_signature_image,
+        provider_signatory_name,
+        provider_signatory_title,
+        provider_signature_image,
         created_at,
         updated_at
       FROM cras
@@ -89,6 +95,12 @@ export class CRAModel {
         client_id,
         provider_id,
         status,
+        client_signatory_name,
+        client_signatory_title,
+        client_signature_image,
+        provider_signatory_name,
+        provider_signatory_title,
+        provider_signature_image,
         created_at,
         updated_at
       FROM cras
@@ -111,9 +123,15 @@ export class CRAModel {
         comment,
         client_id,
         provider_id,
-        status
+        status,
+        client_signatory_name,
+        client_signatory_title,
+        client_signature_image,
+        provider_signatory_name,
+        provider_signatory_title,
+        provider_signature_image
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING
         id,
         month,
@@ -123,6 +141,12 @@ export class CRAModel {
         client_id,
         provider_id,
         status,
+        client_signatory_name,
+        client_signatory_title,
+        client_signature_image,
+        provider_signatory_name,
+        provider_signatory_title,
+        provider_signature_image,
         created_at,
         updated_at
     `;
@@ -135,6 +159,12 @@ export class CRAModel {
       data.client_id,
       data.provider_id,
       data.status || 'draft',
+      data.client_signatory_name || null,
+      data.client_signatory_title || null,
+      data.client_signature_image || null,
+      data.provider_signatory_name || null,
+      data.provider_signatory_title || null,
+      data.provider_signature_image || null,
     ]);
 
     return result.rows[0];
@@ -191,6 +221,42 @@ export class CRAModel {
       paramIndex++;
     }
 
+    if (data.client_signatory_name !== undefined) {
+      updates.push(`client_signatory_name = $${paramIndex}`);
+      params.push(data.client_signatory_name || null);
+      paramIndex++;
+    }
+
+    if (data.client_signatory_title !== undefined) {
+      updates.push(`client_signatory_title = $${paramIndex}`);
+      params.push(data.client_signatory_title || null);
+      paramIndex++;
+    }
+
+    if (data.client_signature_image !== undefined) {
+      updates.push(`client_signature_image = $${paramIndex}`);
+      params.push(data.client_signature_image || null);
+      paramIndex++;
+    }
+
+    if (data.provider_signatory_name !== undefined) {
+      updates.push(`provider_signatory_name = $${paramIndex}`);
+      params.push(data.provider_signatory_name || null);
+      paramIndex++;
+    }
+
+    if (data.provider_signatory_title !== undefined) {
+      updates.push(`provider_signatory_title = $${paramIndex}`);
+      params.push(data.provider_signatory_title || null);
+      paramIndex++;
+    }
+
+    if (data.provider_signature_image !== undefined) {
+      updates.push(`provider_signature_image = $${paramIndex}`);
+      params.push(data.provider_signature_image || null);
+      paramIndex++;
+    }
+
     // Toujours mettre à jour updated_at
     updates.push(`updated_at = CURRENT_TIMESTAMP`);
 
@@ -215,6 +281,12 @@ export class CRAModel {
         client_id,
         provider_id,
         status,
+        client_signatory_name,
+        client_signatory_title,
+        client_signature_image,
+        provider_signatory_name,
+        provider_signatory_title,
+        provider_signature_image,
         created_at,
         updated_at
     `;

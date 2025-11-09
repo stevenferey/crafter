@@ -79,6 +79,14 @@ export const craFormSchema = z
         { message: 'Le prestataire sélectionné est invalide' }
       ),
     status: z.enum(CRA_STATUSES).optional().default('draft'),
+
+    // Signatures (optionnelles, overrides des signatures par défaut)
+    client_signatory_name: z.string().max(255).optional(),
+    client_signatory_title: z.string().max(255).optional(),
+    client_signature_image: z.string().max(500).optional(),
+    provider_signatory_name: z.string().max(255).optional(),
+    provider_signatory_title: z.string().max(255).optional(),
+    provider_signature_image: z.string().max(500).optional(),
   })
   .refine(
     (data) => data.client_id !== data.provider_id,

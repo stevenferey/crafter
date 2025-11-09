@@ -18,6 +18,15 @@ export interface CRA {
   client_id: string;          // UUID de la société cliente
   provider_id: string;        // UUID de la société prestataire
   status: 'draft' | 'submitted' | 'approved' | 'rejected';
+
+  // Signatures (overrides de la signature par défaut de la société)
+  client_signatory_name?: string;
+  client_signatory_title?: string;
+  client_signature_image?: string;
+  provider_signatory_name?: string;
+  provider_signatory_title?: string;
+  provider_signature_image?: string;
+
   created_at: Date;
   updated_at: Date;
 }
@@ -30,6 +39,14 @@ export interface CreateCRAInput {
   client_id: string;
   provider_id: string;
   status?: 'draft' | 'submitted';
+
+  // Signatures (optionnel)
+  client_signatory_name?: string;
+  client_signatory_title?: string;
+  client_signature_image?: string;
+  provider_signatory_name?: string;
+  provider_signatory_title?: string;
+  provider_signature_image?: string;
 }
 
 export interface UpdateCRAInput {
@@ -40,6 +57,14 @@ export interface UpdateCRAInput {
   client_id?: string;
   provider_id?: string;
   status?: 'draft' | 'submitted' | 'approved' | 'rejected';
+
+  // Signatures (optionnel)
+  client_signatory_name?: string;
+  client_signatory_title?: string;
+  client_signature_image?: string;
+  provider_signatory_name?: string;
+  provider_signatory_title?: string;
+  provider_signature_image?: string;
 }
 
 export interface CRAFilters {
@@ -50,4 +75,14 @@ export interface CRAFilters {
   month?: number;            // Filtrer par mois
   limit?: number;
   offset?: number;
+}
+
+/**
+ * Représente les données complètes d'une signature
+ * Utilisé pour afficher et gérer les signatures dans les composants UI
+ */
+export interface SignatureData {
+  signatoryName: string;      // Nom du signataire
+  signatoryTitle: string;     // Titre/fonction du signataire
+  signatureImage: string;     // Chemin ou URL de l'image de signature
 }

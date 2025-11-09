@@ -146,6 +146,11 @@ export const companyFormSchema = z
         'Le numéro de TVA doit être au format FR suivi de 11 chiffres'
       )
       .optional(),
+
+    // Signature par défaut (optionnel)
+    default_signatory_name: z.string().max(255).optional(),
+    default_signatory_title: z.string().max(255).optional(),
+    default_signature_image: z.string().max(500).optional(),
   })
   .refine(
     (data) => {

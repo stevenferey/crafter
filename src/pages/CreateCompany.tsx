@@ -9,6 +9,8 @@ import {
   FormGroup,
   FormSection,
 } from '@/components/ui';
+import { SignatureInput } from '@/components/ui/SignatureInput';
+import type { SignatureData } from '@/types/cra.types';
 import { companyFormSchema, type CompanyFormData } from '@/schemas/company.schema';
 import { useCompanyStore } from '@/stores/company.store';
 import { REPERTOIRE_OPTIONS, LISTE_OPTIONS, REGISTRE_OPTIONS, type Registre, type CreateCompanyInput } from '@/types/company.types';
@@ -53,6 +55,9 @@ export function CreateCompany() {
         registre_number: data.registre_number || undefined,
         code: data.code || undefined,
         tva_number: data.tva_number || undefined,
+        default_signatory_name: data.default_signatory_name || undefined,
+        default_signatory_title: data.default_signatory_title || undefined,
+        default_signature_image: data.default_signature_image || undefined,
       };
 
       await createCompany(cleanedData);
@@ -305,6 +310,44 @@ export function CreateCompany() {
               />
             </FormGroup>
           )}
+        </FormSection>
+
+        {/* Section 7: Signature par défaut */}
+        <FormSection
+          title="Signature par défaut"
+          description="Signature utilisée par défaut pour les CRAs de cette société (optionnel)"
+        >
+          <Controller
+            name="default_signatory_name"
+            control={control}
+            render={({ field: nameField }) => (
+              <Controller
+                name="default_signatory_title"
+                control={control}
+                render={({ field: titleField }) => (
+                  <Controller
+                    name="default_signature_image"
+                    control={control}
+                    render={({ field: imageField }) => (
+                      <SignatureInput
+                        label="Signature par défaut"
+                        value={{
+                          signatoryName: nameField.value || '',
+                          signatoryTitle: titleField.value || '',
+                          signatureImage: imageField.value || '',
+                        }}
+                        onChange={(sig: Partial<SignatureData>) => {
+                          nameField.onChange(sig.signatoryName);
+                          titleField.onChange(sig.signatoryTitle);
+                          imageField.onChange(sig.signatureImage);
+                        }}
+                      />
+                    )}
+                  />
+                )}
+              />
+            )}
+          />
         </FormSection>
 
         {/* Actions */}

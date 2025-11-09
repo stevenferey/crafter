@@ -153,6 +153,12 @@ export class CRAController {
         client_id,
         provider_id,
         status: req.body.status || 'draft',
+        client_signatory_name: req.body.client_signatory_name || undefined,
+        client_signatory_title: req.body.client_signatory_title || undefined,
+        client_signature_image: req.body.client_signature_image || undefined,
+        provider_signatory_name: req.body.provider_signatory_name || undefined,
+        provider_signatory_title: req.body.provider_signatory_title || undefined,
+        provider_signature_image: req.body.provider_signature_image || undefined,
       };
 
       const newCRA = await CRAModel.create(craData);
@@ -249,6 +255,19 @@ export class CRAController {
       if (req.body.client_id !== undefined) updateData.client_id = req.body.client_id;
       if (req.body.provider_id !== undefined) updateData.provider_id = req.body.provider_id;
       if (req.body.status !== undefined) updateData.status = req.body.status;
+      // Signatures - accepter null et undefined
+      if (req.body.client_signatory_name !== undefined)
+        updateData.client_signatory_name = req.body.client_signatory_name || null;
+      if (req.body.client_signatory_title !== undefined)
+        updateData.client_signatory_title = req.body.client_signatory_title || null;
+      if (req.body.client_signature_image !== undefined)
+        updateData.client_signature_image = req.body.client_signature_image || null;
+      if (req.body.provider_signatory_name !== undefined)
+        updateData.provider_signatory_name = req.body.provider_signatory_name || null;
+      if (req.body.provider_signatory_title !== undefined)
+        updateData.provider_signatory_title = req.body.provider_signatory_title || null;
+      if (req.body.provider_signature_image !== undefined)
+        updateData.provider_signature_image = req.body.provider_signature_image || null;
 
       const updatedCRA = await CRAModel.update(id, updateData);
 
