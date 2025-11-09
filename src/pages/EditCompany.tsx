@@ -10,6 +10,8 @@ import {
   FormSection,
   Spinner,
 } from '@/components/ui';
+import { SignatureInput } from '@/components/ui/SignatureInput';
+import type { SignatureData } from '@/types/cra.types';
 import { companyFormSchema, type CompanyFormData } from '@/schemas/company.schema';
 import { useCompanyStore } from '@/stores/company.store';
 import { REPERTOIRE_OPTIONS, LISTE_OPTIONS, REGISTRE_OPTIONS, type Registre } from '@/types/company.types';
@@ -75,6 +77,9 @@ export function EditCompany() {
         code: selectedCompany.code || '',
         exemption: selectedCompany.exemption,
         tva_number: selectedCompany.tva_number || '',
+        default_signatory_name: selectedCompany.default_signatory_name || '',
+        default_signatory_title: selectedCompany.default_signatory_title || '',
+        default_signature_image: selectedCompany.default_signature_image || '',
       });
     }
   }, [selectedCompany, reset]);
@@ -85,15 +90,18 @@ export function EditCompany() {
     setIsSubmitting(true);
 
     try {
-      // Nettoyer les champs optionnels vides
+      // Nettoyer les champs optionnels vides - utiliser null au lieu de undefined
       const cleanedData = {
         ...data,
-        complement: data.complement || undefined,
-        phone: data.phone || undefined,
-        registre: (data.registre && data.registre !== '') ? (data.registre as Registre) : undefined,
-        registre_number: data.registre_number || undefined,
-        code: data.code || undefined,
-        tva_number: data.tva_number || undefined,
+        complement: data.complement || null,
+        phone: data.phone || null,
+        registre: (data.registre && data.registre !== '') ? (data.registre as Registre) : null,
+        registre_number: data.registre_number || null,
+        code: data.code || null,
+        tva_number: data.tva_number || null,
+        default_signatory_name: data.default_signatory_name || null,
+        default_signatory_title: data.default_signatory_title || null,
+        default_signature_image: data.default_signature_image || null,
       };
 
       await updateCompany(id, cleanedData);
@@ -364,6 +372,44 @@ export function EditCompany() {
               />
             </FormGroup>
           )}
+        </FormSection>
+
+        {/* Section 7: Signature par défaut */}
+        <FormSection
+          title="Signature par défaut"
+          description="Signature utilisée par défaut pour les CRAs de cette société (optionnel)"
+        >
+          <Controller
+            name="default_signatory_name"
+            control={control}
+            render={({ field: nameField }) => (
+              <Controller
+                name="default_signatory_title"
+                control={control}
+                render={({ field: titleField }) => (
+                  <Controller
+                    name="default_signature_image"
+                    control={control}
+                    render={({ field: imageField }) => (
+                      <SignatureInput
+                        label="Signature par défaut"
+                        value={{
+                          signatoryName: nameField.value || '',
+                          signatoryTitle: titleField.value || '',
+                          signatureImage: imageField.value || '',
+                        }}
+                        onChange={(sig: Partial<SignatureData>) => {
+                          nameField.onChange(sig.signatoryName);
+                          titleField.onChange(sig.signatoryTitle);
+                          imageField.onChange(sig.signatureImage);
+                        }}
+                      />
+                    )}
+                  />
+                )}
+              />
+            )}
+          />
         </FormSection>
 
         {/* Actions */}

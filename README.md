@@ -242,6 +242,9 @@ Identifiants :
 - `code` (VARCHAR) - Code d'activité (optionnel)
 - `exemption` (BOOLEAN) - Exemption TVA
 - `tva_number` (VARCHAR) - Numéro TVA intracommunautaire (optionnel)
+- `default_signatory_name` (VARCHAR) - Nom du signataire par défaut (optionnel)
+- `default_signatory_title` (VARCHAR) - Titre du signataire par défaut (optionnel)
+- `default_signature_image` (TEXT) - Chemin de l'image de signature (optionnel)
 - `created_at`, `updated_at` (TIMESTAMP)
 
 **Table `cras`** (Compte Rendu d'Activité Mensuel)
@@ -253,6 +256,12 @@ Identifiants :
 - `client_id` (UUID) - Clé étrangère vers `companies` (société cliente)
 - `provider_id` (UUID) - Clé étrangère vers `companies` (société prestataire)
 - `status` (ENUM) - Statut : draft, submitted, approved, rejected
+- `client_signatory_name` (VARCHAR) - Nom du signataire client (optionnel)
+- `client_signatory_title` (VARCHAR) - Titre du signataire client (optionnel)
+- `client_signature_image` (TEXT) - Chemin de l'image de signature client (optionnel)
+- `provider_signatory_name` (VARCHAR) - Nom du signataire prestataire (optionnel)
+- `provider_signatory_title` (VARCHAR) - Titre du signataire prestataire (optionnel)
+- `provider_signature_image` (TEXT) - Chemin de l'image de signature prestataire (optionnel)
 - `created_at`, `updated_at` (TIMESTAMP)
 - CONSTRAINT: `client_id <> provider_id` (une société ne peut pas être à la fois client et prestataire)
 
@@ -291,6 +300,11 @@ Base URL : `http://localhost:3001/api`
 - `POST /api/companies` - Crée une nouvelle société
 - `PUT /api/companies/:id` - Met à jour une société
 - `DELETE /api/companies/:id` - Supprime une société
+
+### Endpoints Upload
+
+- `POST /api/upload/signature` - Upload une image de signature (PNG/JPEG, max 2MB)
+- `DELETE /api/upload/signature/:filename` - Supprime une image de signature
 
 ### Health Check
 
@@ -332,6 +346,7 @@ docker-compose restart postgres
 
 Pour plus de détails sur le développement et l'architecture, consultez :
 - [backend/README.md](backend/README.md) - Documentation complète du backend
+- [SIGNATURES.md](SIGNATURES.md) - **Système de gestion des signatures** (NEW!)
 - [CLAUDE.md](CLAUDE.md) - Guide pour Claude Code
 - [PROJECT.md](PROJECT.md) - Documentation du projet
 

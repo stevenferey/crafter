@@ -14,6 +14,8 @@ import {
   Spinner,
   Select,
 } from '@/components/ui';
+import { SignatureInput } from '@/components/ui/SignatureInput';
+import type { SignatureData } from '@/types/cra.types';
 import {
   MONTHS,
   WEEKDAYS,
@@ -65,6 +67,12 @@ export function EditCRA() {
           client_id: selectedCRA.client_id || '',
           provider_id: selectedCRA.provider_id || '',
           status: selectedCRA.status,
+          client_signatory_name: selectedCRA.client_signatory_name || '',
+          client_signatory_title: selectedCRA.client_signatory_title || '',
+          client_signature_image: selectedCRA.client_signature_image || '',
+          provider_signatory_name: selectedCRA.provider_signatory_name || '',
+          provider_signatory_title: selectedCRA.provider_signatory_title || '',
+          provider_signature_image: selectedCRA.provider_signature_image || '',
         }
       : {}
   );
@@ -80,6 +88,12 @@ export function EditCRA() {
         client_id: selectedCRA.client_id || '',
         provider_id: selectedCRA.provider_id || '',
         status: selectedCRA.status,
+        client_signatory_name: selectedCRA.client_signatory_name || '',
+        client_signatory_title: selectedCRA.client_signatory_title || '',
+        client_signature_image: selectedCRA.client_signature_image || '',
+        provider_signatory_name: selectedCRA.provider_signatory_name || '',
+        provider_signatory_title: selectedCRA.provider_signatory_title || '',
+        provider_signature_image: selectedCRA.provider_signature_image || '',
       });
       setSelectedMonth(selectedCRA.month);
       setSelectedYear(selectedCRA.year);
@@ -124,6 +138,29 @@ export function EditCRA() {
   // Générer la grille du calendrier
   const calendarGrid = getCalendarGrid(selectedMonth, selectedYear);
 
+  // Récupérer les sociétés sélectionnées pour leurs signatures par défaut
+  const selectedClientId = watch('client_id');
+  const selectedProviderId = watch('provider_id');
+
+  const clientCompany = companies.find((c) => c.id === selectedClientId);
+  const providerCompany = companies.find((c) => c.id === selectedProviderId);
+
+  const clientDefaultSignature: Partial<SignatureData> | undefined = clientCompany
+    ? {
+        signatoryName: clientCompany.default_signatory_name || '',
+        signatoryTitle: clientCompany.default_signatory_title || '',
+        signatureImage: clientCompany.default_signature_image || '',
+      }
+    : undefined;
+
+  const providerDefaultSignature: Partial<SignatureData> | undefined = providerCompany
+    ? {
+        signatoryName: providerCompany.default_signatory_name || '',
+        signatoryTitle: providerCompany.default_signatory_title || '',
+        signatureImage: providerCompany.default_signature_image || '',
+      }
+    : undefined;
+
   // Gestion de la sélection des jours
   const toggleDay = (day: number) => {
     const currentDays = watchWorkedDays || [];
@@ -149,6 +186,13 @@ export function EditCRA() {
         client_id: data.client_id,
         provider_id: data.provider_id,
         status: data.status,
+        // Signatures - Utiliser null au lieu de undefined pour que les champs soient envoyés
+        client_signatory_name: data.client_signatory_name || null,
+        client_signatory_title: data.client_signatory_title || null,
+        client_signature_image: data.client_signature_image || null,
+        provider_signatory_name: data.provider_signatory_name || null,
+        provider_signatory_title: data.provider_signatory_title || null,
+        provider_signature_image: data.provider_signature_image || null,
       });
 
       addNotification('CRA mis à jour avec succès', 'success');
@@ -454,6 +498,84 @@ export function EditCRA() {
               {...register('comment')}
             />
           </FormGroup>
+        </FormSection>
+
+        {/* Signatures */}
+        <FormSection
+          title="Signatures"
+          description="Signatures des représentants des sociétés (optionnel)"
+        >
+          <div className="space-y-6">
+            {/* Signature Client */}
+            <Controller
+              name="client_signatory_name"
+              control={control}
+              render={({ field: nameField }) => (
+                <Controller
+                  name="client_signatory_title"
+                  control={control}
+                  render={({ field: titleField }) => (
+                    <Controller
+                      name="client_signature_image"
+                      control={control}
+                      render={({ field: imageField }) => (
+                        <SignatureInput
+                          label={`Signature ${clientCompany?.designation || 'Client'}`}
+                          value={{
+                            signatoryName: nameField.value || '',
+                            signatoryTitle: titleField.value || '',
+                            signatureImage: imageField.value || '',
+                          }}
+                          onChange={(sig) => {
+                            nameField.onChange(sig.signatoryName);
+                            titleField.onChange(sig.signatoryTitle);
+                            imageField.onChange(sig.signatureImage);
+                          }}
+                          defaultSignature={clientDefaultSignature}
+                          disabled={!selectedClientId}
+                        />
+                      )}
+                    />
+                  )}
+                />
+              )}
+            />
+
+            {/* Signature Provider */}
+            <Controller
+              name="provider_signatory_name"
+              control={control}
+              render={({ field: nameField }) => (
+                <Controller
+                  name="provider_signatory_title"
+                  control={control}
+                  render={({ field: titleField }) => (
+                    <Controller
+                      name="provider_signature_image"
+                      control={control}
+                      render={({ field: imageField }) => (
+                        <SignatureInput
+                          label={`Signature ${providerCompany?.designation || 'Prestataire'}`}
+                          value={{
+                            signatoryName: nameField.value || '',
+                            signatoryTitle: titleField.value || '',
+                            signatureImage: imageField.value || '',
+                          }}
+                          onChange={(sig) => {
+                            nameField.onChange(sig.signatoryName);
+                            titleField.onChange(sig.signatoryTitle);
+                            imageField.onChange(sig.signatureImage);
+                          }}
+                          defaultSignature={providerDefaultSignature}
+                          disabled={!selectedProviderId}
+                        />
+                      )}
+                    />
+                  )}
+                />
+              )}
+            />
+          </div>
         </FormSection>
 
         {/* Erreur de soumission */}

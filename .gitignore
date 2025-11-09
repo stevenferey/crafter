@@ -18,6 +18,12 @@ dist-ssr
 .env.*.local
 !.env.example
 
+# Uploaded files
+backend/uploads/signatures/*
+!backend/uploads/signatures/.gitkeep
+uploads/signatures/*
+!uploads/signatures/.gitkeep
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

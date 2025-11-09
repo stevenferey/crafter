@@ -16,6 +16,15 @@ export interface CRA {
   client_id: string; // UUID de la société cliente
   provider_id: string; // UUID de la société prestataire
   status: CRAStatus;
+
+  // Signatures (overrides de la signature par défaut de la société)
+  client_signatory_name?: string;
+  client_signatory_title?: string;
+  client_signature_image?: string;
+  provider_signatory_name?: string;
+  provider_signatory_title?: string;
+  provider_signature_image?: string;
+
   created_at: string; // Format ISO 8601
   updated_at: string; // Format ISO 8601
 }
@@ -31,6 +40,14 @@ export type CreateCRAInput = {
   client_id: string; // UUID de la société cliente (obligatoire)
   provider_id: string; // UUID de la société prestataire (obligatoire)
   status?: CRAStatus;
+
+  // Signatures (optionnel)
+  client_signatory_name?: string;
+  client_signatory_title?: string;
+  client_signature_image?: string;
+  provider_signatory_name?: string;
+  provider_signatory_title?: string;
+  provider_signature_image?: string;
 };
 
 /**
@@ -44,6 +61,14 @@ export type UpdateCRAInput = {
   client_id?: string;
   provider_id?: string;
   status?: CRAStatus;
+
+  // Signatures (optionnel)
+  client_signatory_name?: string;
+  client_signatory_title?: string;
+  client_signature_image?: string;
+  provider_signatory_name?: string;
+  provider_signatory_title?: string;
+  provider_signature_image?: string;
 };
 
 /**
@@ -65,4 +90,14 @@ export interface CRAFilters {
 export interface CRASortOptions {
   field: 'year' | 'month' | 'client' | 'created_at';
   direction: 'asc' | 'desc';
+}
+
+/**
+ * Représente les données complètes d'une signature
+ * Utilisé pour afficher et gérer les signatures dans les composants UI
+ */
+export interface SignatureData {
+  signatoryName: string; // Nom du signataire
+  signatoryTitle: string; // Titre/fonction du signataire
+  signatureImage: string; // Chemin ou URL de l'image de signature
 }

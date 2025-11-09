@@ -279,6 +279,9 @@ export class CompanyController {
         code: req.body.code || undefined,
         exemption: req.body.exemption || false,
         tva_number: req.body.tva_number || undefined,
+        default_signatory_name: req.body.default_signatory_name || undefined,
+        default_signatory_title: req.body.default_signatory_title || undefined,
+        default_signature_image: req.body.default_signature_image || undefined,
       };
 
       // Validation
@@ -324,7 +327,7 @@ export class CompanyController {
       if (req.body.address !== undefined)
         updateData.address = req.body.address;
       if (req.body.complement !== undefined)
-        updateData.complement = req.body.complement || undefined;
+        updateData.complement = req.body.complement || null;
       if (req.body.city !== undefined) updateData.city = req.body.city;
       if (req.body.postal_code !== undefined)
         updateData.postal_code = req.body.postal_code;
@@ -332,7 +335,7 @@ export class CompanyController {
         updateData.country = req.body.country;
       if (req.body.email !== undefined) updateData.email = req.body.email;
       if (req.body.phone !== undefined)
-        updateData.phone = req.body.phone || undefined;
+        updateData.phone = req.body.phone || null;
       if (req.body.repertoire !== undefined)
         updateData.repertoire = req.body.repertoire;
       if (req.body.repertoire_number !== undefined)
@@ -340,16 +343,22 @@ export class CompanyController {
       if (req.body.dispense !== undefined)
         updateData.dispense = req.body.dispense;
       if (req.body.registre !== undefined)
-        updateData.registre = req.body.registre || undefined;
+        updateData.registre = req.body.registre || null;
       if (req.body.registre_number !== undefined)
-        updateData.registre_number = req.body.registre_number || undefined;
+        updateData.registre_number = req.body.registre_number || null;
       if (req.body.liste !== undefined) updateData.liste = req.body.liste;
       if (req.body.code !== undefined)
-        updateData.code = req.body.code || undefined;
+        updateData.code = req.body.code || null;
       if (req.body.exemption !== undefined)
         updateData.exemption = req.body.exemption;
       if (req.body.tva_number !== undefined)
-        updateData.tva_number = req.body.tva_number || undefined;
+        updateData.tva_number = req.body.tva_number || null;
+      if (req.body.default_signatory_name !== undefined)
+        updateData.default_signatory_name = req.body.default_signatory_name || null;
+      if (req.body.default_signatory_title !== undefined)
+        updateData.default_signatory_title = req.body.default_signatory_title || null;
+      if (req.body.default_signature_image !== undefined)
+        updateData.default_signature_image = req.body.default_signature_image || null;
 
       // Validation
       const validation = this.validateCompanyData(updateData, true);
