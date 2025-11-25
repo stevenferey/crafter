@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Button, Spinner } from '@/components/ui';
 import { useCompanyStore } from '@/stores/company.store';
 import { logger } from '@/lib/logger';
@@ -163,18 +164,20 @@ export function Companies() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
-                        <Link
-                          to={`/companies/${company.id}/edit`}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          Modifier
+                        <Link to={`/companies/${company.id}/edit`}>
+                          <Button variant="outline" size="sm">
+                            <Pencil className="h-4 w-4 mr-1.5" />
+                            Modifier
+                          </Button>
                         </Link>
-                        <button
+                        <Button
+                          variant="danger"
+                          size="sm"
                           onClick={() => handleDelete(company.id, company.designation)}
-                          className="text-red-600 hover:text-red-900"
                         >
+                          <Trash2 className="h-4 w-4 mr-1.5" />
                           Supprimer
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
