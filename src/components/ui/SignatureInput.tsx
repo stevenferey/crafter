@@ -1,5 +1,4 @@
 import { useState, useRef, ChangeEvent } from 'react';
-import { cn } from '@/lib/utils';
 import { Input } from './Input';
 import { Button } from './Button';
 import { uploadSignature } from '@/services/upload.service';
