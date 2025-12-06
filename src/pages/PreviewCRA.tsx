@@ -28,11 +28,15 @@ export function PreviewCRA() {
     (companyId: string): Company | undefined => {
       return companies.find((c) => c.id === companyId);
     },
-    [companies]
+    [companies],
   );
 
-  const clientCompany = selectedCRA ? getCompany(selectedCRA.client_id) : undefined;
-  const providerCompany = selectedCRA ? getCompany(selectedCRA.provider_id) : undefined;
+  const clientCompany = selectedCRA
+    ? getCompany(selectedCRA.client_id)
+    : undefined;
+  const providerCompany = selectedCRA
+    ? getCompany(selectedCRA.provider_id)
+    : undefined;
 
   // Fonction helper pour obtenir le nom d'une société
   const getCompanyName = (companyId: string) => {
@@ -56,11 +60,12 @@ export function PreviewCRA() {
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
 
-      // Créer un nom de fichier descriptif
-      const monthYear = formatMonthYear(selectedCRA.month, selectedCRA.year).replace(' ', '-');
+      // Créer un nom de fichier descriptif : CRA-Prestataire-Client-Mois-Année.pdf
+      const monthYear = formatMonthYear(selectedCRA.month, selectedCRA.year);
       const filename = `CRA-${providerCompany.designation}-${clientCompany.designation}-${monthYear}.pdf`
-        .replace(/\s+/g, '_')
-        .replace(/[^a-zA-Z0-9_\-.]/g, '');
+        .replace(/\s+/g, '-')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, ''); // Supprime les accents
 
       // Déclencher le téléchargement
       const link = document.createElement('a');
@@ -71,8 +76,8 @@ export function PreviewCRA() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Erreur lors de l\'export PDF:', err);
-      alert('Une erreur est survenue lors de l\'export PDF');
+      console.error("Erreur lors de l'export PDF:", err);
+      alert("Une erreur est survenue lors de l'export PDF");
     } finally {
       setIsExporting(false);
     }
@@ -112,11 +117,18 @@ export function PreviewCRA() {
               />
             </svg>
             <div>
-              <h3 className="text-lg font-medium text-red-800">CRA introuvable</h3>
+              <h3 className="text-lg font-medium text-red-800">
+                CRA introuvable
+              </h3>
               <p className="text-sm text-red-700 mt-1">
-                {error || "Le CRA demandé n'existe pas ou n'a pas pu être chargé."}
+                {error ||
+                  "Le CRA demandé n'existe pas ou n'a pas pu être chargé."}
               </p>
-              <Button variant="outline" className="mt-4" onClick={() => navigate('/')}>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => navigate('/')}
+              >
                 Retour au dashboard
               </Button>
             </div>
@@ -175,7 +187,10 @@ export function PreviewCRA() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => navigate(`/cra/${id}/edit`)}>
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/cra/${id}/edit`)}
+            >
               Éditer
             </Button>
             <Button onClick={handleExportPDF} disabled={isExporting}>

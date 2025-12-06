@@ -99,7 +99,9 @@ export const useAppStore = create<AppState>()(
           root.classList.remove('dark');
         } else {
           // Mode système
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const prefersDark = window.matchMedia(
+            '(prefers-color-scheme: dark)',
+          ).matches;
           if (prefersDark) {
             root.classList.add('dark');
           } else {

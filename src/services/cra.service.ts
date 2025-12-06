@@ -34,10 +34,7 @@ export const craService = {
   /**
    * Récupère la liste des CRAs avec filtres et tri optionnels
    */
-  async getCRAs(
-    filters?: CRAFilters,
-    sort?: CRASortOptions,
-  ): Promise<CRA[]> {
+  async getCRAs(filters?: CRAFilters, sort?: CRASortOptions): Promise<CRA[]> {
     logger.log('🔍 [CRA Service] Fetching CRAs...', { filters, sort });
 
     const params = new URLSearchParams();

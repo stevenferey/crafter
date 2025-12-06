@@ -92,21 +92,23 @@ export function CreateCRA() {
   const clientCompany = companies.find((c) => c.id === selectedClientId);
   const providerCompany = companies.find((c) => c.id === selectedProviderId);
 
-  const clientDefaultSignature: Partial<SignatureData> | undefined = clientCompany
-    ? {
-        signatoryName: clientCompany.default_signatory_name || '',
-        signatoryTitle: clientCompany.default_signatory_title || '',
-        signatureImage: clientCompany.default_signature_image || '',
-      }
-    : undefined;
+  const clientDefaultSignature: Partial<SignatureData> | undefined =
+    clientCompany
+      ? {
+          signatoryName: clientCompany.default_signatory_name || '',
+          signatoryTitle: clientCompany.default_signatory_title || '',
+          signatureImage: clientCompany.default_signature_image || '',
+        }
+      : undefined;
 
-  const providerDefaultSignature: Partial<SignatureData> | undefined = providerCompany
-    ? {
-        signatoryName: providerCompany.default_signatory_name || '',
-        signatoryTitle: providerCompany.default_signatory_title || '',
-        signatureImage: providerCompany.default_signature_image || '',
-      }
-    : undefined;
+  const providerDefaultSignature: Partial<SignatureData> | undefined =
+    providerCompany
+      ? {
+          signatoryName: providerCompany.default_signatory_name || '',
+          signatoryTitle: providerCompany.default_signatory_title || '',
+          signatureImage: providerCompany.default_signature_image || '',
+        }
+      : undefined;
 
   // Gestion de la sélection des jours
   const toggleDay = (day: number) => {
@@ -143,9 +145,10 @@ export function CreateCRA() {
       addNotification('CRA créé avec succès', 'success');
       navigate('/');
     } catch (error) {
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Erreur lors de la création du CRA';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la création du CRA';
 
       // Stocker l'erreur pour l'afficher dans l'interface
       setSubmitError(errorMessage);
@@ -158,7 +161,9 @@ export function CreateCRA() {
     <div className="max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">Nouveau CRA</h1>
+        <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">
+          Nouveau CRA
+        </h1>
         <p className="text-[rgb(var(--color-text-secondary))] mt-1">
           Créez un nouveau compte rendu d'activité mensuel
         </p>
@@ -166,12 +171,12 @@ export function CreateCRA() {
 
       {/* Formulaire */}
       <form
-        onSubmit={handleSubmit(
-          onSubmit,
-          () => {
-            addNotification('Veuillez corriger les erreurs dans le formulaire', 'error');
-          }
-        )}
+        onSubmit={handleSubmit(onSubmit, () => {
+          addNotification(
+            'Veuillez corriger les erreurs dans le formulaire',
+            'error',
+          );
+        })}
         className="space-y-6"
       >
         {/* Informations générales */}
@@ -276,7 +281,9 @@ export function CreateCRA() {
             <div className="grid grid-cols-7 gap-2">
               {calendarGrid.map((dayInfo, index) => {
                 if (!dayInfo) {
-                  return <div key={`empty-${index}`} className="aspect-square" />;
+                  return (
+                    <div key={`empty-${index}`} className="aspect-square" />
+                  );
                 }
 
                 const isSelected = watchWorkedDays?.includes(dayInfo.day);
@@ -293,8 +300,8 @@ export function CreateCRA() {
                         isSelected
                           ? 'bg-blue-600 text-white border-blue-600 shadow-md'
                           : isWeekend
-                          ? 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300'
-                          : 'bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] border-[rgb(var(--color-border))] hover:border-blue-400'
+                            ? 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300'
+                            : 'bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] border-[rgb(var(--color-border))] hover:border-blue-400'
                       }
                       ${isSelected ? 'scale-95' : 'hover:scale-105'}
                     `}
@@ -309,7 +316,9 @@ export function CreateCRA() {
             <div className="bg-[rgb(var(--color-surface-hover))] rounded-lg p-4 border border-[rgb(var(--color-border))]">
               <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                 <span className="font-semibold text-[rgb(var(--color-text))]">
-                  {watchWorkedDays?.length || 0} jour{watchWorkedDays?.length > 1 ? 's' : ''} sélectionné{watchWorkedDays?.length > 1 ? 's' : ''}
+                  {watchWorkedDays?.length || 0} jour
+                  {watchWorkedDays?.length > 1 ? 's' : ''} sélectionné
+                  {watchWorkedDays?.length > 1 ? 's' : ''}
                 </span>
                 {watchWorkedDays && watchWorkedDays.length > 0 && (
                   <span className="ml-2">
@@ -450,9 +459,12 @@ export function CreateCRA() {
               />
             </svg>
             <div className="text-sm">
-              <p className="font-bold mb-1 text-blue-800">À propos du CRA mensuel</p>
+              <p className="font-bold mb-1 text-blue-800">
+                À propos du CRA mensuel
+              </p>
               <p className="text-blue-700">
-                Le CRA sera créé en mode brouillon. Vous pourrez le modifier avant de le soumettre pour validation.
+                Le CRA sera créé en mode brouillon. Vous pourrez le modifier
+                avant de le soumettre pour validation.
               </p>
             </div>
           </div>
@@ -474,7 +486,9 @@ export function CreateCRA() {
                 />
               </svg>
               <div className="flex-1">
-                <p className="font-bold mb-1 text-red-800">Erreur lors de la création</p>
+                <p className="font-bold mb-1 text-red-800">
+                  Erreur lors de la création
+                </p>
                 <p className="text-sm text-red-700">{submitError}</p>
               </div>
             </div>

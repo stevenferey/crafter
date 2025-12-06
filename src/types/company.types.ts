@@ -147,7 +147,10 @@ export const REGISTRE_OPTIONS: SelectOption<Registre>[] = [
   { value: 'RCC', label: 'RCC - Registre du Commerce du Canton' },
   { value: 'RAC', label: 'RAC - Registre des Actifs Circulants' },
   { value: 'RMJPM', label: 'RMJPM - Registre Mandataires Judiciaires' },
-  { value: 'RMJLE', label: 'RMJLE - Registre Mandataires Judiciaires Entreprises' },
+  {
+    value: 'RMJLE',
+    label: 'RMJLE - Registre Mandataires Judiciaires Entreprises',
+  },
   { value: 'ROVS', label: 'ROVS - Registre des Organismes de Ventes' },
   { value: 'ORIAS', label: 'ORIAS - Registre Intermédiaires Assurance' },
   { value: 'RAI', label: 'RAI - Registre des Agents Immobiliers' },
@@ -159,9 +162,15 @@ export const REGISTRE_OPTIONS: SelectOption<Registre>[] = [
   { value: 'ROF', label: 'ROF - Registre des Organismes de Formation' },
   { value: 'IFP', label: 'IFP - Institut Français du Pétrole' },
   { value: 'ROA', label: 'ROA - Registre des Organismes Agréés' },
-  { value: 'RNROM', label: 'RNROM - Registre National Organismes de Médiation' },
-  { value: 'RA', label: 'RA - Registre de l\'Agriculture' },
+  {
+    value: 'RNROM',
+    label: 'RNROM - Registre National Organismes de Médiation',
+  },
+  { value: 'RA', label: "RA - Registre de l'Agriculture" },
   { value: 'RESS', label: 'RESS - Registre Économie Sociale et Solidaire' },
-  { value: 'CNAPS', label: 'CNAPS - Conseil National Activités Privées de Sécurité' },
+  {
+    value: 'CNAPS',
+    label: 'CNAPS - Conseil National Activités Privées de Sécurité',
+  },
   { value: 'RPI', label: 'RPI - Registre de la Propriété Intellectuelle' },
 ];

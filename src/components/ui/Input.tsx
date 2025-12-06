@@ -43,7 +43,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       error
         ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
         : 'border-[rgb(var(--color-border))]',
-      disabled && 'bg-[rgb(var(--color-surface-hover))] text-[rgb(var(--color-text-muted))] cursor-not-allowed opacity-60',
+      disabled &&
+        'bg-[rgb(var(--color-surface-hover))] text-[rgb(var(--color-text-muted))] cursor-not-allowed opacity-60',
       // Largeur
       fullWidth ? 'w-full' : 'w-auto',
       className,
@@ -101,7 +102,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
 
         {helperText && !error && (
-          <p id={helperId} className="text-sm text-[rgb(var(--color-text-muted))]">
+          <p
+            id={helperId}
+            className="text-sm text-[rgb(var(--color-text-muted))]"
+          >
             {helperText}
           </p>
         )}

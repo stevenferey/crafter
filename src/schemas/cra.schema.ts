@@ -29,7 +29,7 @@ export const craFormSchema = z
           const currentYear = new Date().getFullYear();
           return year <= currentYear + 5;
         },
-        { message: "L'année ne peut pas être trop éloignée dans le futur" }
+        { message: "L'année ne peut pas être trop éloignée dans le futur" },
       ),
     worked_days: z
       .array(z.number().int('Les jours doivent être des nombres entiers'))
@@ -41,14 +41,14 @@ export const craFormSchema = z
           const uniqueDays = new Set(days);
           return uniqueDays.size === days.length;
         },
-        { message: 'Les jours travaillés ne doivent pas contenir de doublons' }
+        { message: 'Les jours travaillés ne doivent pas contenir de doublons' },
       )
       .refine(
         (days) => {
           // Vérifier que tous les jours sont dans la plage 1-31
           return days.every((day) => day >= 1 && day <= 31);
         },
-        { message: 'Les jours doivent être entre 1 et 31' }
+        { message: 'Les jours doivent être entre 1 et 31' },
       ),
     comment: z
       .string()
@@ -62,9 +62,11 @@ export const craFormSchema = z
           // Si la valeur est vide, c'est déjà géré par .min(1)
           // Sinon, vérifier que c'est un UUID valide
           if (val.length === 0) return false;
-          return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+          return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            val,
+          );
         },
-        { message: 'Le client sélectionné est invalide' }
+        { message: 'Le client sélectionné est invalide' },
       ),
     provider_id: z
       .string()
@@ -74,9 +76,11 @@ export const craFormSchema = z
           // Si la valeur est vide, c'est déjà géré par .min(1)
           // Sinon, vérifier que c'est un UUID valide
           if (val.length === 0) return false;
-          return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+          return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            val,
+          );
         },
-        { message: 'Le prestataire sélectionné est invalide' }
+        { message: 'Le prestataire sélectionné est invalide' },
       ),
     status: z.enum(CRA_STATUSES).optional().default('draft'),
 
@@ -88,13 +92,10 @@ export const craFormSchema = z
     provider_signatory_title: z.string().max(255).optional(),
     provider_signature_image: z.string().max(500).optional(),
   })
-  .refine(
-    (data) => data.client_id !== data.provider_id,
-    {
-      message: 'Le client et le prestataire doivent être différents',
-      path: ['provider_id'],
-    }
-  )
+  .refine((data) => data.client_id !== data.provider_id, {
+    message: 'Le client et le prestataire doivent être différents',
+    path: ['provider_id'],
+  })
   .refine(
     (data) => {
       // Vérifier que tous les jours travaillés sont valides pour le mois sélectionné
@@ -104,7 +105,7 @@ export const craFormSchema = z
     {
       message: 'Certains jours sélectionnés sont invalides pour le mois choisi',
       path: ['worked_days'],
-    }
+    },
   );
 
 /**
@@ -115,11 +116,13 @@ export type CRAFormData = z.infer<typeof craFormSchema>;
 /**
  * Validation partielle pour la sauvegarde en brouillon
  */
-export const craFormDraftSchema = craFormSchema.partial({
-  worked_days: true,
-}).extend({
-  worked_days: z.array(z.number().int()).optional().default([]),
-});
+export const craFormDraftSchema = craFormSchema
+  .partial({
+    worked_days: true,
+  })
+  .extend({
+    worked_days: z.array(z.number().int()).optional().default([]),
+  });
 
 /**
  * Type pour le brouillon

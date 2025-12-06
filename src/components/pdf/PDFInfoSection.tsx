@@ -37,7 +37,13 @@ function formatAddress(company: Company): string {
 /**
  * Bloc détails d'une société
  */
-function CompanyDetails({ company, label }: { company: Company; label: string }) {
+function CompanyDetails({
+  company,
+  label,
+}: {
+  company: Company;
+  label: string;
+}) {
   return (
     <View style={pdfStyles.companyBlock}>
       <Text style={pdfStyles.companyHeader}>{label}</Text>

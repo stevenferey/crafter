@@ -2,18 +2,21 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Button,
-  Input,
-  Select,
-  FormGroup,
-  FormSection,
-} from '@/components/ui';
+import { Button, Input, Select, FormGroup, FormSection } from '@/components/ui';
 import { SignatureInput } from '@/components/ui/SignatureInput';
 import type { SignatureData } from '@/types/cra.types';
-import { companyFormSchema, type CompanyFormData } from '@/schemas/company.schema';
+import {
+  companyFormSchema,
+  type CompanyFormData,
+} from '@/schemas/company.schema';
 import { useCompanyStore } from '@/stores/company.store';
-import { REPERTOIRE_OPTIONS, LISTE_OPTIONS, REGISTRE_OPTIONS, type Registre, type CreateCompanyInput } from '@/types/company.types';
+import {
+  REPERTOIRE_OPTIONS,
+  LISTE_OPTIONS,
+  REGISTRE_OPTIONS,
+  type Registre,
+  type CreateCompanyInput,
+} from '@/types/company.types';
 import { logger } from '@/lib/logger';
 
 export function CreateCompany() {
@@ -51,7 +54,10 @@ export function CreateCompany() {
         ...data,
         complement: data.complement || undefined,
         phone: data.phone || undefined,
-        registre: (data.registre && data.registre !== '') ? (data.registre as Registre) : undefined,
+        registre:
+          data.registre && data.registre !== ''
+            ? (data.registre as Registre)
+            : undefined,
         registre_number: data.registre_number || undefined,
         code: data.code || undefined,
         tva_number: data.tva_number || undefined,

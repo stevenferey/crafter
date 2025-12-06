@@ -57,7 +57,7 @@ export const companyService = {
     const response = await api.get<ApiResponse<Company[]>>(url);
     logger.log(
       '✅ [Company Service] Companies fetched:',
-      response.data?.length || 0
+      response.data?.length || 0,
     );
     return response.data || [];
   },
@@ -71,7 +71,7 @@ export const companyService = {
     if (!response.success || !response.data) {
       logger.error(
         '❌ [Company Service] Failed to fetch company:',
-        response.error
+        response.error,
       );
       throw new Error(response.error || 'Failed to fetch company');
     }
@@ -88,7 +88,7 @@ export const companyService = {
     if (!response.success || !response.data) {
       logger.error(
         '❌ [Company Service] Failed to create company:',
-        response.error
+        response.error,
       );
       throw new Error(response.error || 'Failed to create company');
     }
@@ -101,17 +101,17 @@ export const companyService = {
    */
   async updateCompany(
     id: string,
-    data: Partial<CreateCompanyInput>
+    data: Partial<CreateCompanyInput>,
   ): Promise<Company> {
     logger.log('✏️ [Company Service] Updating company:', id, data);
     const response = await api.put<ApiResponse<Company>>(
       `/companies/${id}`,
-      data
+      data,
     );
     if (!response.success || !response.data) {
       logger.error(
         '❌ [Company Service] Failed to update company:',
-        response.error
+        response.error,
       );
       throw new Error(response.error || 'Failed to update company');
     }
@@ -128,7 +128,7 @@ export const companyService = {
     if (!response.success) {
       logger.error(
         '❌ [Company Service] Failed to delete company:',
-        response.error
+        response.error,
       );
       throw new Error(response.error || 'Failed to delete company');
     }

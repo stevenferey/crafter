@@ -9,8 +9,7 @@ const VALIDATION_REGEX = {
   SIRET: /^\d{14}$/,
   POSTAL_CODE: /^\d{5}$/,
   PHONE: /^\d{10}$/,
-  EMAIL:
-    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+  EMAIL: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
   TVA: /^FR\d{11}$/,
 };
 
@@ -82,7 +81,7 @@ export const companyFormSchema = z
       .string()
       .regex(
         VALIDATION_REGEX.POSTAL_CODE,
-        'Le code postal doit contenir exactement 5 chiffres'
+        'Le code postal doit contenir exactement 5 chiffres',
       ),
 
     country: z
@@ -99,7 +98,7 @@ export const companyFormSchema = z
       .string()
       .refine(
         (val) => !val || val === '' || VALIDATION_REGEX.PHONE.test(val),
-        'Le téléphone doit contenir exactement 10 chiffres'
+        'Le téléphone doit contenir exactement 10 chiffres',
       )
       .optional(),
 
@@ -108,7 +107,9 @@ export const companyFormSchema = z
       message: 'Le répertoire doit être SIREN ou SIRET',
     }),
 
-    repertoire_number: z.string().min(1, 'Le numéro de répertoire est obligatoire'),
+    repertoire_number: z
+      .string()
+      .min(1, 'Le numéro de répertoire est obligatoire'),
 
     // Immatriculation
     dispense: z.boolean(),
@@ -116,8 +117,9 @@ export const companyFormSchema = z
     registre: z
       .string()
       .refine(
-        (val) => !val || val === '' || (REGISTRES as readonly string[]).includes(val),
-        'Le registre sélectionné est invalide'
+        (val) =>
+          !val || val === '' || (REGISTRES as readonly string[]).includes(val),
+        'Le registre sélectionné est invalide',
       )
       .optional(),
 
@@ -143,7 +145,7 @@ export const companyFormSchema = z
       .string()
       .refine(
         (val) => !val || val === '' || VALIDATION_REGEX.TVA.test(val),
-        'Le numéro de TVA doit être au format FR suivi de 11 chiffres'
+        'Le numéro de TVA doit être au format FR suivi de 11 chiffres',
       )
       .optional(),
 
@@ -166,7 +168,7 @@ export const companyFormSchema = z
       message:
         'Le numéro SIREN doit contenir 9 chiffres et le numéro SIRET 14 chiffres',
       path: ['repertoire_number'],
-    }
+    },
   );
 
 /**

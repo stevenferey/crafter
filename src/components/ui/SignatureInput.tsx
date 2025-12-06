@@ -56,7 +56,7 @@ export function SignatureInput({
       });
     } catch (err) {
       setUploadError(
-        err instanceof Error ? err.message : 'Erreur lors de l\'upload'
+        err instanceof Error ? err.message : "Erreur lors de l'upload",
       );
     } finally {
       setUploading(false);
@@ -139,9 +139,7 @@ export function SignatureInput({
         label="Nom du signataire"
         type="text"
         value={value.signatoryName || ''}
-        onChange={(e) =>
-          onChange({ ...value, signatoryName: e.target.value })
-        }
+        onChange={(e) => onChange({ ...value, signatoryName: e.target.value })}
         placeholder="ex: Jean Dupont"
         disabled={disabled}
         fullWidth
@@ -152,9 +150,7 @@ export function SignatureInput({
         label="Titre / Fonction"
         type="text"
         value={value.signatoryTitle || ''}
-        onChange={(e) =>
-          onChange({ ...value, signatoryTitle: e.target.value })
-        }
+        onChange={(e) => onChange({ ...value, signatoryTitle: e.target.value })}
         placeholder="ex: Directeur Général"
         disabled={disabled}
         fullWidth
@@ -197,7 +193,7 @@ export function SignatureInput({
             {uploading
               ? 'Upload en cours...'
               : value.signatureImage
-                ? 'Changer l\'image'
+                ? "Changer l'image"
                 : 'Choisir une image'}
           </Button>
           <p className="mt-1 text-xs text-[rgb(var(--color-text-muted))]">

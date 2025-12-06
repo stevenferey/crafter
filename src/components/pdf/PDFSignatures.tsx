@@ -1,8 +1,15 @@
 /**
  * Section signatures du PDF CRA
  *
- * Affiche les blocs de signature pour le prestataire et le client,
- * avec support des images de signature uploadées.
+ * Affiche deux blocs de signature côte à côte (prestataire et client).
+ * Chaque bloc utilise un layout en deux colonnes :
+ * - Gauche : informations (société, nom, titre, mention légale)
+ * - Droite : "lu et approuvé" (manuscrit) + image de signature
+ *
+ * Particularités :
+ * - Le prestataire a "lu et approuvé" pré-rempli en police Caveat
+ * - Le client doit écrire manuellement la mention
+ * - Espace réservé en bas pour notes manuscrites additionnelles
  */
 
 import { View, Text, Image } from '@react-pdf/renderer';
@@ -60,43 +67,75 @@ export function PDFSignatures({
         {/* Signature Prestataire */}
         <View style={pdfStyles.signatureBlock}>
           <Text style={pdfStyles.signatureLabel}>Pour le Prestataire</Text>
-          <Text style={pdfStyles.signatureCompany}>{providerCompanyName}</Text>
-
-          <View style={pdfStyles.signatureImageContainer}>
-            {providerImageUrl ? (
-              <Image src={providerImageUrl} style={pdfStyles.signatureImage} />
-            ) : (
-              <View style={pdfStyles.signaturePlaceholder} />
-            )}
+          <View style={pdfStyles.signatureContent}>
+            {/* Colonne gauche : infos */}
+            <View style={pdfStyles.signatureInfo}>
+              <Text style={pdfStyles.signatureCompany}>
+                {providerCompanyName}
+              </Text>
+              {providerSignature.name && (
+                <Text style={pdfStyles.signatureName}>
+                  {providerSignature.name}
+                </Text>
+              )}
+              {providerSignature.title && (
+                <Text style={pdfStyles.signatureTitle}>
+                  {providerSignature.title}
+                </Text>
+              )}
+              <Text style={pdfStyles.luEtApprouvePlaceholder}>
+                précédé de la mention « lu et approuvé »
+              </Text>
+            </View>
+            {/* Colonne droite : "lu et approuvé" + signature */}
+            <View style={pdfStyles.signatureImageArea}>
+              <Text style={pdfStyles.luEtApprouve}>lu et approuvé</Text>
+              {providerImageUrl ? (
+                <Image
+                  src={providerImageUrl}
+                  style={pdfStyles.signatureImage}
+                />
+              ) : (
+                <View style={pdfStyles.signaturePlaceholder} />
+              )}
+            </View>
           </View>
-
-          {providerSignature.name && (
-            <Text style={pdfStyles.signatureName}>{providerSignature.name}</Text>
-          )}
-          {providerSignature.title && (
-            <Text style={pdfStyles.signatureTitle}>{providerSignature.title}</Text>
-          )}
+          {/* Espace pour notes manuscrites */}
+          <View style={pdfStyles.signatureNotesSpace} />
         </View>
 
         {/* Signature Client */}
         <View style={pdfStyles.signatureBlock}>
           <Text style={pdfStyles.signatureLabel}>Pour le Client</Text>
-          <Text style={pdfStyles.signatureCompany}>{clientCompanyName}</Text>
-
-          <View style={pdfStyles.signatureImageContainer}>
-            {clientImageUrl ? (
-              <Image src={clientImageUrl} style={pdfStyles.signatureImage} />
-            ) : (
-              <View style={pdfStyles.signaturePlaceholder} />
-            )}
+          <View style={pdfStyles.signatureContent}>
+            {/* Colonne gauche : infos */}
+            <View style={pdfStyles.signatureInfo}>
+              <Text style={pdfStyles.signatureCompany}>
+                {clientCompanyName}
+              </Text>
+              {clientSignature.name && (
+                <Text style={pdfStyles.signatureName}>
+                  {clientSignature.name}
+                </Text>
+              )}
+              {clientSignature.title && (
+                <Text style={pdfStyles.signatureTitle}>
+                  {clientSignature.title}
+                </Text>
+              )}
+              <Text style={pdfStyles.luEtApprouvePlaceholder}>
+                précédé de la mention « lu et approuvé »
+              </Text>
+            </View>
+            {/* Colonne droite : signature (sans placeholder pour le client) */}
+            <View style={pdfStyles.signatureImageArea}>
+              {clientImageUrl && (
+                <Image src={clientImageUrl} style={pdfStyles.signatureImage} />
+              )}
+            </View>
           </View>
-
-          {clientSignature.name && (
-            <Text style={pdfStyles.signatureName}>{clientSignature.name}</Text>
-          )}
-          {clientSignature.title && (
-            <Text style={pdfStyles.signatureTitle}>{clientSignature.title}</Text>
-          )}
+          {/* Espace pour notes manuscrites */}
+          <View style={pdfStyles.signatureNotesSpace} />
         </View>
       </View>
     </View>

@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import {
-  useAppStore,
-  useSystemThemeListener,
-} from '@/stores/app.store';
+import { useAppStore, useSystemThemeListener } from '@/stores/app.store';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export function AppLayout() {
@@ -34,7 +31,9 @@ export function AppLayout() {
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">C</span>
                 </div>
-                <span className="text-xl font-bold text-[rgb(var(--color-text))]">Crafter</span>
+                <span className="text-xl font-bold text-[rgb(var(--color-text))]">
+                  Crafter
+                </span>
               </Link>
             </div>
 
@@ -114,10 +113,16 @@ export function AppLayout() {
               © 2025 DiscoData. Tous droits réservés.
             </div>
             <div className="flex space-x-6 text-sm text-[rgb(var(--color-text-muted))]">
-              <a href="#" className="hover:text-[rgb(var(--color-text))] transition-colors">
+              <a
+                href="#"
+                className="hover:text-[rgb(var(--color-text))] transition-colors"
+              >
                 Documentation
               </a>
-              <a href="#" className="hover:text-[rgb(var(--color-text))] transition-colors">
+              <a
+                href="#"
+                className="hover:text-[rgb(var(--color-text))] transition-colors"
+              >
                 Support
               </a>
               <a

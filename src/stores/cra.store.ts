@@ -119,7 +119,9 @@ export const useCRAStore = create<CRAState>()((set, get) => ({
       logger.error('❌ [CRA Store] Error searching CRAs:', error);
       set({
         error:
-          error instanceof Error ? error.message : 'Erreur lors de la recherche',
+          error instanceof Error
+            ? error.message
+            : 'Erreur lors de la recherche',
         isLoading: false,
       });
     }
