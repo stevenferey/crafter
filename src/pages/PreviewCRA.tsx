@@ -1,10 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { PDFViewer, pdf } from '@react-pdf/renderer';
 import { Button, StatusBadge, Spinner } from '@/components/ui';
 import { type CRAStatus } from '@/constants/cra.constants';
-import { formatMonthYear, formatWorkedDays } from '@/lib/monthUtils';
+import { formatMonthYear } from '@/lib/monthUtils';
 import { useCRA } from '@/hooks/useCRA';
 import { useCompanyStore } from '@/stores/company.store';
+import { CRAPDFDocument } from '@/components/pdf';
+import type { Company } from '@/types/company.types';
 
 export function PreviewCRA() {
   const navigate = useNavigate();
@@ -13,21 +16,66 @@ export function PreviewCRA() {
   const { cra: selectedCRA, isLoading, error } = useCRA(id);
   const companies = useCompanyStore((state) => state.companies);
   const fetchCompanies = useCompanyStore((state) => state.fetchCompanies);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Charger les sociétés au montage
   useEffect(() => {
     fetchCompanies();
   }, [fetchCompanies]);
 
+  // Récupérer les objets Company complets
+  const getCompany = useCallback(
+    (companyId: string): Company | undefined => {
+      return companies.find((c) => c.id === companyId);
+    },
+    [companies]
+  );
+
+  const clientCompany = selectedCRA ? getCompany(selectedCRA.client_id) : undefined;
+  const providerCompany = selectedCRA ? getCompany(selectedCRA.provider_id) : undefined;
+
   // Fonction helper pour obtenir le nom d'une société
   const getCompanyName = (companyId: string) => {
-    const company = companies.find((c) => c.id === companyId);
+    const company = getCompany(companyId);
     return company?.designation || 'N/A';
   };
 
-  const handleExportPDF = () => {
-    // TODO: Implémenter l'export PDF
-    alert('Export PDF en cours de développement...');
+  const handleExportPDF = async () => {
+    if (!selectedCRA || !clientCompany || !providerCompany) return;
+
+    setIsExporting(true);
+    try {
+      const doc = (
+        <CRAPDFDocument
+          cra={selectedCRA}
+          clientCompany={clientCompany}
+          providerCompany={providerCompany}
+        />
+      );
+
+      const blob = await pdf(doc).toBlob();
+      const url = URL.createObjectURL(blob);
+
+      // Créer un nom de fichier descriptif
+      const monthYear = formatMonthYear(selectedCRA.month, selectedCRA.year).replace(' ', '-');
+      const filename = `CRA-${providerCompany.designation}-${clientCompany.designation}-${monthYear}.pdf`
+        .replace(/\s+/g, '_')
+        .replace(/[^a-zA-Z0-9_\-.]/g, '');
+
+      // Déclencher le téléchargement
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Erreur lors de l\'export PDF:', err);
+      alert('Une erreur est survenue lors de l\'export PDF');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Loader pendant le chargement
@@ -37,7 +85,9 @@ export function PreviewCRA() {
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <Spinner />
-            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement du CRA...</p>
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">
+              Chargement du CRA...
+            </p>
           </div>
         </div>
       </div>
@@ -62,17 +112,11 @@ export function PreviewCRA() {
               />
             </svg>
             <div>
-              <h3 className="text-lg font-medium text-red-800">
-                CRA introuvable
-              </h3>
+              <h3 className="text-lg font-medium text-red-800">CRA introuvable</h3>
               <p className="text-sm text-red-700 mt-1">
                 {error || "Le CRA demandé n'existe pas ou n'a pas pu être chargé."}
               </p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => navigate('/')}
-              >
+              <Button variant="outline" className="mt-4" onClick={() => navigate('/')}>
                 Retour au dashboard
               </Button>
             </div>
@@ -84,19 +128,37 @@ export function PreviewCRA() {
 
   if (!selectedCRA) return null;
 
-  // Calculer les statistiques
-  const workedDaysCount = selectedCRA.worked_days?.length || 0;
+  // Attendre que les companies soient chargées
+  if (!clientCompany || !providerCompany) {
+    return (
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <Spinner />
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">
+              Chargement des informations...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-center gap-2 text-sm text-[rgb(var(--color-text-secondary))] mb-2">
-          <button onClick={() => navigate('/')} className="hover:text-[rgb(var(--color-text))]">
+          <button
+            onClick={() => navigate('/')}
+            className="hover:text-[rgb(var(--color-text))]"
+          >
             Dashboard
           </button>
           <span>/</span>
-          <span className="text-[rgb(var(--color-text))]\">CRA #{id?.slice(0, 8)}</span>
+          <span className="text-[rgb(var(--color-text))]">
+            CRA #{id?.slice(0, 8)}
+          </span>
         </div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -107,115 +169,58 @@ export function PreviewCRA() {
               <StatusBadge status={selectedCRA.status as CRAStatus} />
             </div>
             <p className="text-[rgb(var(--color-text-secondary))] mt-1">
-              {formatMonthYear(selectedCRA.month, selectedCRA.year)} - {getCompanyName(selectedCRA.provider_id)} → {getCompanyName(selectedCRA.client_id)}
+              {formatMonthYear(selectedCRA.month, selectedCRA.year)} -{' '}
+              {getCompanyName(selectedCRA.provider_id)} →{' '}
+              {getCompanyName(selectedCRA.client_id)}
             </p>
           </div>
           <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/cra/${id}/edit`)}
-            >
+            <Button variant="outline" onClick={() => navigate(`/cra/${id}/edit`)}>
               Éditer
             </Button>
-            <Button onClick={handleExportPDF}>
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Exporter PDF
+            <Button onClick={handleExportPDF} disabled={isExporting}>
+              {isExporting ? (
+                <>
+                  <Spinner className="w-4 h-4 mr-2" />
+                  Export en cours...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  Exporter PDF
+                </>
+              )}
             </Button>
           </div>
         </div>
       </div>
 
-      {/* CRA Preview */}
-      <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))] shadow-sm">
-        {/* Header du CRA */}
-        <div className="border-b border-[rgb(var(--color-border))] p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                Période
-              </h3>
-              <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
-                {formatMonthYear(selectedCRA.month, selectedCRA.year)}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">
-                Prestataire
-              </h3>
-              <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
-                {getCompanyName(selectedCRA.provider_id)}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-[rgb(var(--color-text-secondary))] mb-1">Client</h3>
-              <p className="text-lg font-semibold text-[rgb(var(--color-text))]">
-                {getCompanyName(selectedCRA.client_id)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Jours travaillés */}
-        <div className="p-6 border-b border-[rgb(var(--color-border))]">
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text))] mb-4">
-            Jours travaillés
-          </h3>
-          {!selectedCRA.worked_days || selectedCRA.worked_days.length === 0 ? (
-            <div className="text-center py-8 bg-[rgb(var(--color-surface-hover))] rounded-lg">
-              <p className="text-[rgb(var(--color-text-secondary))]">Aucun jour travaillé renseigné</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-[rgb(var(--color-surface-hover))] rounded-lg p-4">
-                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  <span className="font-semibold text-[rgb(var(--color-text))]">
-                    {workedDaysCount} jour{workedDaysCount > 1 ? 's' : ''} travaillé{workedDaysCount > 1 ? 's' : ''}
-                  </span>
-                  {' : '}
-                  {formatWorkedDays(selectedCRA.worked_days)}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Commentaire */}
-        {selectedCRA.comment && (
-          <div className="p-6 border-b border-[rgb(var(--color-border))]">
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text))] mb-4">
-              Commentaire
-            </h3>
-            <div className="bg-[rgb(var(--color-surface-hover))] rounded-lg p-4">
-              <p className="text-[rgb(var(--color-text))] whitespace-pre-wrap">
-                {selectedCRA.comment}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Stats */}
-        <div className="p-6 bg-[rgb(var(--color-surface-hover))]">
-          <div className="flex justify-center">
-            <div className="text-center">
-              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">Jours travaillés</p>
-              <p className="text-2xl font-bold text-[rgb(var(--color-text))]">
-                {workedDaysCount}
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* PDF Preview */}
+      <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))] shadow-sm overflow-hidden">
+        <PDFViewer
+          width="100%"
+          height={800}
+          showToolbar={true}
+          className="border-0"
+        >
+          <CRAPDFDocument
+            cra={selectedCRA}
+            clientCompany={clientCompany}
+            providerCompany={providerCompany}
+          />
+        </PDFViewer>
       </div>
 
       {/* Actions */}

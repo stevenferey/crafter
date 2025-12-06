@@ -21,9 +21,14 @@ export const MONTHS = [
 ] as const;
 
 /**
- * Liste des jours de la semaine en français
+ * Liste des jours de la semaine en français (dimanche en premier)
  */
 export const WEEKDAYS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'] as const;
+
+/**
+ * Liste des jours de la semaine en français (lundi en premier)
+ */
+export const WEEKDAYS_MONDAY_FIRST = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] as const;
 
 /**
  * Obtient le nombre de jours dans un mois donné
@@ -113,6 +118,32 @@ export function getCalendarGrid(month: number, year: number): (DayInfo | null)[]
   // if (remainingDays < 7) {
   //   grid.push(...Array(remainingDays).fill(null));
   // }
+
+  return grid;
+}
+
+/**
+ * Génère une grille de calendrier commençant par lundi
+ * Retourne un tableau avec null pour les jours vides et DayInfo pour les jours réels
+ */
+export function getCalendarGridMondayFirst(month: number, year: number): (DayInfo | null)[] {
+  const firstDayOfWeek = getFirstDayOfMonth(month, year);
+  const monthDays = getMonthDays(month, year);
+
+  // Convertir dimanche=0 en dimanche=6 pour que lundi=0
+  const mondayBasedFirstDay = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+
+  // Ajouter des null au début pour aligner le premier jour
+  const grid: (DayInfo | null)[] = Array(mondayBasedFirstDay).fill(null);
+
+  // Ajouter les jours du mois
+  grid.push(...monthDays);
+
+  // Compléter la dernière semaine pour avoir un grid complet
+  const remainingDays = 7 - (grid.length % 7);
+  if (remainingDays < 7) {
+    grid.push(...Array(remainingDays).fill(null));
+  }
 
   return grid;
 }

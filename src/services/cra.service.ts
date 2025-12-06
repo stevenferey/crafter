@@ -119,30 +119,6 @@ export const craService = {
   },
 
   /**
-   * Génère un PDF pour un CRA
-   * @returns L'URL du PDF généré
-   */
-  async generatePDF(id: string): Promise<{ url: string }> {
-    return api.post<{ url: string }>(`/cras/${id}/pdf`, {});
-  },
-
-  /**
-   * Télécharge le PDF d'un CRA
-   * Cette fonction déclenche le téléchargement côté client
-   */
-  async downloadPDF(id: string): Promise<void> {
-    const { url } = await this.generatePDF(id);
-
-    // Créer un lien temporaire pour déclencher le téléchargement
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `CRA-${id}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  },
-
-  /**
    * Recherche des CRAs par texte
    */
   async searchCRAs(query: string): Promise<CRA[]> {
