@@ -12,9 +12,17 @@ import {
 } from '@/components/ui';
 import { SignatureInput } from '@/components/ui/SignatureInput';
 import type { SignatureData } from '@/types/cra.types';
-import { companyFormSchema, type CompanyFormData } from '@/schemas/company.schema';
+import {
+  companyFormSchema,
+  type CompanyFormData,
+} from '@/schemas/company.schema';
 import { useCompanyStore } from '@/stores/company.store';
-import { REPERTOIRE_OPTIONS, LISTE_OPTIONS, REGISTRE_OPTIONS, type Registre } from '@/types/company.types';
+import {
+  REPERTOIRE_OPTIONS,
+  LISTE_OPTIONS,
+  REGISTRE_OPTIONS,
+  type Registre,
+} from '@/types/company.types';
 import { logger } from '@/lib/logger';
 
 export function EditCompany() {
@@ -95,7 +103,10 @@ export function EditCompany() {
         ...data,
         complement: data.complement || null,
         phone: data.phone || null,
-        registre: (data.registre && data.registre !== '') ? (data.registre as Registre) : null,
+        registre:
+          data.registre && data.registre !== ''
+            ? (data.registre as Registre)
+            : null,
         registre_number: data.registre_number || null,
         code: data.code || null,
         tva_number: data.tva_number || null,
@@ -423,7 +434,9 @@ export function EditCompany() {
             Annuler
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            {isSubmitting
+              ? 'Enregistrement...'
+              : 'Enregistrer les modifications'}
           </Button>
         </div>
       </form>

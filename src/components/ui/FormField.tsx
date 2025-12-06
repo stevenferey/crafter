@@ -62,9 +62,7 @@ export const FormField = ({
       )}
 
       {/* Children - Le champ de formulaire réel */}
-      <div className="relative">
-        {children}
-      </div>
+      <div className="relative">{children}</div>
 
       {/* Texte d'aide ou erreur */}
       {error && (
@@ -90,7 +88,10 @@ export const FormField = ({
       )}
 
       {helperText && !error && (
-        <p id={helperId} className="text-sm text-[rgb(var(--color-text-muted))]">
+        <p
+          id={helperId}
+          className="text-sm text-[rgb(var(--color-text-muted))]"
+        >
           {helperText}
         </p>
       )}
@@ -169,10 +170,14 @@ export const FormSection = ({
       {(title || description) && (
         <div className="border-b border-[rgb(var(--color-border))] pb-4">
           {title && (
-            <h2 className="text-lg font-semibold text-[rgb(var(--color-text))]">{title}</h2>
+            <h2 className="text-lg font-semibold text-[rgb(var(--color-text))]">
+              {title}
+            </h2>
           )}
           {description && (
-            <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">{description}</p>
+            <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
+              {description}
+            </p>
           )}
         </div>
       )}

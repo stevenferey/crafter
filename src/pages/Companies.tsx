@@ -20,7 +20,9 @@ export function Companies() {
   }, [fetchCompanies]);
 
   const handleDelete = async (id: string, designation: string) => {
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer "${designation}" ?`)) {
+    if (
+      window.confirm(`Êtes-vous sûr de vouloir supprimer "${designation}" ?`)
+    ) {
       try {
         await deleteCompany(id);
       } catch (error) {
@@ -173,7 +175,9 @@ export function Companies() {
                         <Button
                           variant="danger"
                           size="sm"
-                          onClick={() => handleDelete(company.id, company.designation)}
+                          onClick={() =>
+                            handleDelete(company.id, company.designation)
+                          }
                         >
                           <Trash2 className="h-4 w-4 mr-1.5" />
                           Supprimer

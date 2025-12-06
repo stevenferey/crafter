@@ -5,7 +5,12 @@
 /**
  * Liste des statuts possibles d'un CRA
  */
-export const CRA_STATUSES = ['draft', 'submitted', 'approved', 'rejected'] as const;
+export const CRA_STATUSES = [
+  'draft',
+  'submitted',
+  'approved',
+  'rejected',
+] as const;
 
 /**
  * Type TypeScript pour les statuts de CRA

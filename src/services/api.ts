@@ -67,11 +67,7 @@ async function fetchAPI<T>(
         errorMessage = (data as { message: string }).message;
       }
 
-      throw new ApiError(
-        errorMessage,
-        response.status,
-        data,
-      );
+      throw new ApiError(errorMessage, response.status, data);
     }
 
     return data as T;
@@ -153,7 +149,7 @@ export interface ApiResponse<T> {
  */
 export function unwrapApiResponse<T>(
   response: ApiResponse<T>,
-  defaultError: string
+  defaultError: string,
 ): T {
   if (!response.success || !response.data) {
     throw new Error(response.error || defaultError);

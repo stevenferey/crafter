@@ -1,4 +1,8 @@
-import { useRouteError, useNavigate, isRouteErrorResponse } from 'react-router-dom';
+import {
+  useRouteError,
+  useNavigate,
+  isRouteErrorResponse,
+} from 'react-router-dom';
 import { Button } from '@/components/ui';
 
 /**
@@ -50,9 +54,7 @@ export function ErrorBoundary() {
             <Button variant="outline" onClick={() => window.location.reload()}>
               Recharger la page
             </Button>
-            <Button onClick={() => navigate('/')}>
-              Retour au Dashboard
-            </Button>
+            <Button onClick={() => navigate('/')}>Retour au Dashboard</Button>
           </div>
         </div>
       </div>

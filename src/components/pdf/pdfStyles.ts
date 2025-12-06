@@ -287,10 +287,13 @@ const pdfStyles = StyleSheet.create({
 
   // ==========================================================================
   // SIGNATURES
+  // Layout en deux colonnes : infos à gauche, signature à droite
+  // Chaque bloc inclut la mention "lu et approuvé" (pré-remplie pour prestataire)
   // ==========================================================================
   signaturesSection: {
     marginTop: 'auto',
     paddingTop: 8,
+    marginBottom: 25, // Espace avant le footer
   },
   signaturesTitle: {
     fontSize: 10,
@@ -311,7 +314,24 @@ const pdfStyles = StyleSheet.create({
     borderRadius: 6,
     borderTopWidth: 3,
     borderTopColor: colors.accent,
-    minHeight: 75,
+    minHeight: 90,
+  },
+  // Layout deux colonnes dans chaque bloc
+  signatureContent: {
+    flexDirection: 'row',
+    minHeight: 65,
+  },
+  // Colonne gauche : informations du signataire
+  signatureInfo: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    paddingRight: 8,
+  },
+  // Colonne droite : "lu et approuvé" + image signature
+  signatureImageArea: {
+    width: 100,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
   },
   signatureLabel: {
     fontSize: 7,
@@ -327,33 +347,46 @@ const pdfStyles = StyleSheet.create({
     color: colors.primary,
     marginBottom: 6,
   },
-  signatureImageContainer: {
-    height: 30,
-    marginBottom: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   signatureImage: {
-    maxHeight: 30,
-    maxWidth: 90,
+    width: 100,
+    height: 60,
     objectFit: 'contain',
   },
   signaturePlaceholder: {
     height: 30,
+    width: 80,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     borderBottomStyle: 'dashed',
-    marginBottom: 4,
   },
   signatureName: {
     fontSize: 8,
     fontFamily: 'Helvetica-Bold',
     color: colors.text,
+    marginBottom: 3,
   },
   signatureTitle: {
     fontSize: 7,
     color: colors.textSecondary,
-    marginTop: 1,
+  },
+  // "lu et approuvé" en police manuscrite Caveat (prestataire uniquement)
+  luEtApprouve: {
+    fontFamily: 'Caveat',
+    fontSize: 12,
+    color: colors.text,
+    marginBottom: 2,
+  },
+  // Instruction pour la mention "lu et approuvé"
+  luEtApprouvePlaceholder: {
+    fontSize: 7,
+    color: colors.textLight,
+    fontStyle: 'italic',
+    marginTop: 4,
+  },
+  // Espace réservé pour notes manuscrites
+  signatureNotesSpace: {
+    height: 12,
+    marginTop: 4,
   },
 
   // ==========================================================================

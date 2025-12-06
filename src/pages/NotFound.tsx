@@ -25,7 +25,9 @@ export function NotFound() {
             />
           </svg>
         </div>
-        <h1 className="text-6xl font-bold text-[rgb(var(--color-text))] mb-4">404</h1>
+        <h1 className="text-6xl font-bold text-[rgb(var(--color-text))] mb-4">
+          404
+        </h1>
         <h2 className="text-2xl font-semibold text-[rgb(var(--color-text))] mb-2">
           Page non trouvée
         </h2>
@@ -36,9 +38,7 @@ export function NotFound() {
           <Button variant="outline" onClick={() => navigate(-1)}>
             Retour
           </Button>
-          <Button onClick={() => navigate('/')}>
-            Retour au Dashboard
-          </Button>
+          <Button onClick={() => navigate('/')}>Retour au Dashboard</Button>
         </div>
       </div>
     </div>

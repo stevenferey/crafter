@@ -31,14 +31,14 @@ export const Spinner = forwardRef<HTMLDivElement, SpinnerProps>(
           'inline-block animate-spin rounded-full border-b-2',
           sizes[size],
           color,
-          className
+          className,
         )}
         role="status"
         aria-label="Chargement"
         {...props}
       />
     );
-  }
+  },
 );
 
 Spinner.displayName = 'Spinner';

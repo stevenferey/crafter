@@ -23,12 +23,28 @@ export const MONTHS = [
 /**
  * Liste des jours de la semaine en français (dimanche en premier)
  */
-export const WEEKDAYS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'] as const;
+export const WEEKDAYS = [
+  'Dim',
+  'Lun',
+  'Mar',
+  'Mer',
+  'Jeu',
+  'Ven',
+  'Sam',
+] as const;
 
 /**
  * Liste des jours de la semaine en français (lundi en premier)
  */
-export const WEEKDAYS_MONDAY_FIRST = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] as const;
+export const WEEKDAYS_MONDAY_FIRST = [
+  'Lun',
+  'Mar',
+  'Mer',
+  'Jeu',
+  'Ven',
+  'Sam',
+  'Dim',
+] as const;
 
 /**
  * Obtient le nombre de jours dans un mois donné
@@ -103,7 +119,10 @@ export function getMonthDays(month: number, year: number): DayInfo[] {
  * Génère une grille de calendrier avec padding pour aligner les jours
  * Retourne un tableau avec null pour les jours vides et DayInfo pour les jours réels
  */
-export function getCalendarGrid(month: number, year: number): (DayInfo | null)[] {
+export function getCalendarGrid(
+  month: number,
+  year: number,
+): (DayInfo | null)[] {
   const firstDayOfWeek = getFirstDayOfMonth(month, year);
   const monthDays = getMonthDays(month, year);
 
@@ -126,7 +145,10 @@ export function getCalendarGrid(month: number, year: number): (DayInfo | null)[]
  * Génère une grille de calendrier commençant par lundi
  * Retourne un tableau avec null pour les jours vides et DayInfo pour les jours réels
  */
-export function getCalendarGridMondayFirst(month: number, year: number): (DayInfo | null)[] {
+export function getCalendarGridMondayFirst(
+  month: number,
+  year: number,
+): (DayInfo | null)[] {
   const firstDayOfWeek = getFirstDayOfMonth(month, year);
   const monthDays = getMonthDays(month, year);
 
@@ -159,8 +181,12 @@ export function formatWorkedDays(workedDays: number[]): string {
 /**
  * Compte le nombre de jours ouvrés (lundi-vendredi) dans une liste de jours
  */
-export function countWeekdays(workedDays: number[], month: number, year: number): number {
-  return workedDays.filter(day => {
+export function countWeekdays(
+  workedDays: number[],
+  month: number,
+  year: number,
+): number {
+  return workedDays.filter((day) => {
     const date = new Date(year, month - 1, day);
     const dayOfWeek = date.getDay();
     return dayOfWeek !== 0 && dayOfWeek !== 6; // Pas dimanche ni samedi
@@ -170,8 +196,12 @@ export function countWeekdays(workedDays: number[], month: number, year: number)
 /**
  * Compte le nombre de week-ends dans une liste de jours
  */
-export function countWeekends(workedDays: number[], month: number, year: number): number {
-  return workedDays.filter(day => {
+export function countWeekends(
+  workedDays: number[],
+  month: number,
+  year: number,
+): number {
+  return workedDays.filter((day) => {
     const date = new Date(year, month - 1, day);
     const dayOfWeek = date.getDay();
     return dayOfWeek === 0 || dayOfWeek === 6; // Dimanche ou samedi
@@ -194,7 +224,10 @@ export function isMonthInFuture(month: number, year: number): boolean {
 /**
  * Obtient la liste des années disponibles (passé et futur proche)
  */
-export function getAvailableYears(pastYears: number = 5, futureYears: number = 2): number[] {
+export function getAvailableYears(
+  pastYears: number = 5,
+  futureYears: number = 2,
+): number[] {
   const currentYear = new Date().getFullYear();
   const years: number[] = [];
 

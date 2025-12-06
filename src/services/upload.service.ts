@@ -16,7 +16,7 @@ export async function uploadSignature(file: File): Promise<string> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Erreur lors de l\'upload de la signature');
+    throw new Error(error.message || "Erreur lors de l'upload de la signature");
   }
 
   const data = await response.json();
@@ -34,6 +34,8 @@ export async function deleteSignature(filename: string): Promise<void> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Erreur lors de la suppression de la signature');
+    throw new Error(
+      error.message || 'Erreur lors de la suppression de la signature',
+    );
   }
 }

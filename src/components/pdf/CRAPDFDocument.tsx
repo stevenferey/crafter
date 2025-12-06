@@ -15,7 +15,7 @@
  * ```
  */
 
-import { Document, Page, Text } from '@react-pdf/renderer';
+import { Document, Page, Text, Font } from '@react-pdf/renderer';
 import { pdfStyles } from './pdfStyles';
 import { PDFHeader } from './PDFHeader';
 import { PDFInfoSection } from './PDFInfoSection';
@@ -25,6 +25,16 @@ import { PDFComment } from './PDFComment';
 import { PDFSignatures } from './PDFSignatures';
 import type { CRA } from '@/types/cra.types';
 import type { Company } from '@/types/company.types';
+
+/**
+ * Enregistrement de la police manuscrite Caveat (Google Fonts)
+ * Utilisée pour la mention "lu et approuvé" dans le bloc signature prestataire
+ * @see https://fonts.google.com/specimen/Caveat
+ */
+Font.register({
+  family: 'Caveat',
+  src: 'https://fonts.gstatic.com/s/caveat/v23/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9SII.ttf',
+});
 
 interface CRAPDFDocumentProps {
   /** Données du CRA */
@@ -64,8 +74,10 @@ export function CRAPDFDocument({
 
   const providerSignature = {
     name: cra.provider_signatory_name || providerCompany.default_signatory_name,
-    title: cra.provider_signatory_title || providerCompany.default_signatory_title,
-    image: cra.provider_signature_image || providerCompany.default_signature_image,
+    title:
+      cra.provider_signatory_title || providerCompany.default_signatory_title,
+    image:
+      cra.provider_signature_image || providerCompany.default_signature_image,
   };
 
   return (
@@ -102,7 +114,8 @@ export function CRAPDFDocument({
         />
 
         <Text style={pdfStyles.footer}>
-          Document généré automatiquement - {new Date().toLocaleDateString('fr-FR')}
+          Document généré automatiquement -{' '}
+          {new Date().toLocaleDateString('fr-FR')}
         </Text>
       </Page>
     </Document>

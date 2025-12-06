@@ -39,8 +39,12 @@ export function EditCRA() {
   const addNotification = useAppStore((state) => state.addNotification);
 
   const { month: currentMonth, year: currentYear } = getCurrentMonthYear();
-  const [selectedMonth, setSelectedMonth] = useState(selectedCRA?.month || currentMonth);
-  const [selectedYear, setSelectedYear] = useState(selectedCRA?.year || currentYear);
+  const [selectedMonth, setSelectedMonth] = useState(
+    selectedCRA?.month || currentMonth,
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    selectedCRA?.year || currentYear,
+  );
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Charger les sociétés au montage du composant
@@ -74,7 +78,7 @@ export function EditCRA() {
           provider_signatory_title: selectedCRA.provider_signatory_title || '',
           provider_signature_image: selectedCRA.provider_signature_image || '',
         }
-      : {}
+      : {},
   );
 
   // Réinitialiser le formulaire quand les données sont chargées
@@ -130,10 +134,12 @@ export function EditCRA() {
     label: year.toString(),
   }));
 
-  const statusOptions = Object.entries(STATUS_CONFIG).map(([value, config]) => ({
-    value,
-    label: config.label,
-  }));
+  const statusOptions = Object.entries(STATUS_CONFIG).map(
+    ([value, config]) => ({
+      value,
+      label: config.label,
+    }),
+  );
 
   // Générer la grille du calendrier
   const calendarGrid = getCalendarGrid(selectedMonth, selectedYear);
@@ -145,21 +151,23 @@ export function EditCRA() {
   const clientCompany = companies.find((c) => c.id === selectedClientId);
   const providerCompany = companies.find((c) => c.id === selectedProviderId);
 
-  const clientDefaultSignature: Partial<SignatureData> | undefined = clientCompany
-    ? {
-        signatoryName: clientCompany.default_signatory_name || '',
-        signatoryTitle: clientCompany.default_signatory_title || '',
-        signatureImage: clientCompany.default_signature_image || '',
-      }
-    : undefined;
+  const clientDefaultSignature: Partial<SignatureData> | undefined =
+    clientCompany
+      ? {
+          signatoryName: clientCompany.default_signatory_name || '',
+          signatoryTitle: clientCompany.default_signatory_title || '',
+          signatureImage: clientCompany.default_signature_image || '',
+        }
+      : undefined;
 
-  const providerDefaultSignature: Partial<SignatureData> | undefined = providerCompany
-    ? {
-        signatoryName: providerCompany.default_signatory_name || '',
-        signatoryTitle: providerCompany.default_signatory_title || '',
-        signatureImage: providerCompany.default_signature_image || '',
-      }
-    : undefined;
+  const providerDefaultSignature: Partial<SignatureData> | undefined =
+    providerCompany
+      ? {
+          signatoryName: providerCompany.default_signatory_name || '',
+          signatoryTitle: providerCompany.default_signatory_title || '',
+          signatureImage: providerCompany.default_signature_image || '',
+        }
+      : undefined;
 
   // Gestion de la sélection des jours
   const toggleDay = (day: number) => {
@@ -198,9 +206,10 @@ export function EditCRA() {
       addNotification('CRA mis à jour avec succès', 'success');
       navigate('/');
     } catch (error) {
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Erreur lors de la mise à jour du CRA';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la mise à jour du CRA';
 
       // Stocker l'erreur pour l'afficher dans l'interface
       setSubmitError(errorMessage);
@@ -214,7 +223,7 @@ export function EditCRA() {
     if (!id) return;
 
     const confirmed = window.confirm(
-      'Êtes-vous sûr de vouloir supprimer ce CRA ? Cette action est irréversible.'
+      'Êtes-vous sûr de vouloir supprimer ce CRA ? Cette action est irréversible.',
     );
 
     if (!confirmed) return;
@@ -228,7 +237,7 @@ export function EditCRA() {
         error instanceof Error
           ? error.message
           : 'Erreur lors de la suppression du CRA',
-        'error'
+        'error',
       );
     }
   };
@@ -239,7 +248,9 @@ export function EditCRA() {
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col items-center justify-center py-12">
           <Spinner />
-          <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement du CRA...</p>
+          <p className="mt-4 text-[rgb(var(--color-text-secondary))]">
+            Chargement du CRA...
+          </p>
         </div>
       </div>
     );
@@ -267,7 +278,8 @@ export function EditCRA() {
                 CRA introuvable
               </h3>
               <p className="text-sm text-red-700 mt-1">
-                {error || "Le CRA demandé n'existe pas ou n'a pas pu être chargé."}
+                {error ||
+                  "Le CRA demandé n'existe pas ou n'a pas pu être chargé."}
               </p>
               <Button
                 variant="outline"
@@ -287,7 +299,9 @@ export function EditCRA() {
     <div className="max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">Éditer le CRA</h1>
+        <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">
+          Éditer le CRA
+        </h1>
         <p className="text-[rgb(var(--color-text-secondary))] mt-1">
           Modifiez les informations du compte rendu d'activité mensuel
         </p>
@@ -419,7 +433,9 @@ export function EditCRA() {
             <div className="grid grid-cols-7 gap-2">
               {calendarGrid.map((dayInfo, index) => {
                 if (!dayInfo) {
-                  return <div key={`empty-${index}`} className="aspect-square" />;
+                  return (
+                    <div key={`empty-${index}`} className="aspect-square" />
+                  );
                 }
 
                 const isSelected = watchWorkedDays?.includes(dayInfo.day);
@@ -436,8 +452,8 @@ export function EditCRA() {
                         isSelected
                           ? 'bg-blue-600 text-white border-blue-600 shadow-md'
                           : isWeekend
-                          ? 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300'
-                          : 'bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] border-[rgb(var(--color-border))] hover:border-blue-400'
+                            ? 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300'
+                            : 'bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] border-[rgb(var(--color-border))] hover:border-blue-400'
                       }
                       ${isSelected ? 'scale-95' : 'hover:scale-105'}
                     `}
@@ -452,7 +468,9 @@ export function EditCRA() {
             <div className="bg-[rgb(var(--color-surface-hover))] rounded-lg p-4 border border-[rgb(var(--color-border))]">
               <p className="text-sm text-[rgb(var(--color-text-secondary))]">
                 <span className="font-semibold text-[rgb(var(--color-text))]">
-                  {watchWorkedDays?.length || 0} jour{watchWorkedDays?.length > 1 ? 's' : ''} sélectionné{watchWorkedDays?.length > 1 ? 's' : ''}
+                  {watchWorkedDays?.length || 0} jour
+                  {watchWorkedDays?.length > 1 ? 's' : ''} sélectionné
+                  {watchWorkedDays?.length > 1 ? 's' : ''}
                 </span>
                 {watchWorkedDays && watchWorkedDays.length > 0 && (
                   <span className="ml-2">
@@ -594,7 +612,9 @@ export function EditCRA() {
                 />
               </svg>
               <div className="flex-1">
-                <p className="font-bold mb-1 text-red-800">Erreur lors de la mise à jour</p>
+                <p className="font-bold mb-1 text-red-800">
+                  Erreur lors de la mise à jour
+                </p>
                 <p className="text-sm text-red-700">{submitError}</p>
               </div>
             </div>

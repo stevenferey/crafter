@@ -62,13 +62,8 @@ const getDefaultCRAValues = (): Partial<CRAFormData> => {
  * );
  * ```
  */
-export function useCRAForm(
-  options: UseCRAFormOptions = {},
-) {
-  const {
-    defaultValues,
-    isDraft = false,
-  } = options;
+export function useCRAForm(options: UseCRAFormOptions = {}) {
+  const { defaultValues, isDraft = false } = options;
 
   // Sélectionner le schéma approprié (la validation de période est maintenant dans craFormSchema)
   const schema = isDraft
@@ -108,9 +103,7 @@ export function useCreateCRAForm() {
 /**
  * Hook pour un brouillon de CRA (validation partielle)
  */
-export function useDraftCRAForm(
-  existingDraft?: Partial<CRAFormDraftData>,
-) {
+export function useDraftCRAForm(existingDraft?: Partial<CRAFormDraftData>) {
   return useCRAForm({
     defaultValues: existingDraft,
     isDraft: true,

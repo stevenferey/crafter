@@ -1,5 +1,8 @@
 import { create } from 'zustand';
-import { companyService, type CompanyFilters } from '@/services/company.service';
+import {
+  companyService,
+  type CompanyFilters,
+} from '@/services/company.service';
 import { logger } from '@/lib/logger';
 import type { Company, CreateCompanyInput } from '@/types/company.types';
 
@@ -20,7 +23,10 @@ interface CompanyState {
 
   // Actions de modification
   createCompany: (data: CreateCompanyInput) => Promise<Company>;
-  updateCompany: (id: string, data: Partial<CreateCompanyInput>) => Promise<Company>;
+  updateCompany: (
+    id: string,
+    data: Partial<CreateCompanyInput>,
+  ) => Promise<Company>;
   deleteCompany: (id: string) => Promise<void>;
 
   // Actions de gestion de l'état

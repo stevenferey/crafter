@@ -8,7 +8,10 @@
 import { View, Text } from '@react-pdf/renderer';
 import type { Style } from '@react-pdf/types';
 import { pdfStyles } from './pdfStyles';
-import { getCalendarGridMondayFirst, WEEKDAYS_MONDAY_FIRST } from '@/lib/monthUtils';
+import {
+  getCalendarGridMondayFirst,
+  WEEKDAYS_MONDAY_FIRST,
+} from '@/lib/monthUtils';
 
 interface PDFCalendarGridProps {
   /** Mois du calendrier (1-12) */
@@ -66,7 +69,9 @@ export function PDFCalendarGrid({
         <View style={pdfStyles.calendarGrid}>
           {grid.map((dayInfo, index) => {
             if (!dayInfo) {
-              return <View key={`empty-${index}`} style={pdfStyles.dayCellEmpty} />;
+              return (
+                <View key={`empty-${index}`} style={pdfStyles.dayCellEmpty} />
+              );
             }
 
             const isWorked = workedDaysSet.has(dayInfo.day);
@@ -74,7 +79,9 @@ export function PDFCalendarGrid({
 
             return (
               <View key={dayInfo.day} style={getCellStyle(isWeekend, isWorked)}>
-                <Text style={getTextStyle(isWeekend, isWorked)}>{dayInfo.day}</Text>
+                <Text style={getTextStyle(isWeekend, isWorked)}>
+                  {dayInfo.day}
+                </Text>
               </View>
             );
           })}

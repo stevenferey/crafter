@@ -20,14 +20,19 @@ export function Dashboard() {
 
   // Charger les CRAs et les sociétés au montage du composant
   useEffect(() => {
-    logger.log('📊 [Dashboard] Component mounted, fetching CRAs and Companies...');
+    logger.log(
+      '📊 [Dashboard] Component mounted, fetching CRAs and Companies...',
+    );
     fetchCRAs();
     fetchCompanies();
   }, [fetchCRAs, fetchCompanies]);
 
   // Calculer les statistiques à partir des CRAs
   const totalClients = new Set(cras.map((cra) => cra.client_id)).size;
-  const totalWorkedDays = cras.reduce((sum, cra) => sum + (cra.worked_days?.length || 0), 0);
+  const totalWorkedDays = cras.reduce(
+    (sum, cra) => sum + (cra.worked_days?.length || 0),
+    0,
+  );
 
   // CRAs du mois en cours
   const today = new Date();
@@ -85,7 +90,9 @@ export function Dashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">
+            Dashboard
+          </h1>
           <p className="text-[rgb(var(--color-text-secondary))] mt-1">
             Gérez vos comptes rendus d'activité
           </p>
@@ -144,10 +151,16 @@ export function Dashboard() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold text-[rgb(var(--color-text))]">{stat.value}</p>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-1">
+                  {stat.label}
+                </p>
+                <p className="text-3xl font-bold text-[rgb(var(--color-text))]">
+                  {stat.value}
+                </p>
                 {stat.subtext && (
-                  <p className="text-xs text-[rgb(var(--color-text-muted))] mt-1">{stat.subtext}</p>
+                  <p className="text-xs text-[rgb(var(--color-text-muted))] mt-1">
+                    {stat.subtext}
+                  </p>
                 )}
               </div>
               <div className="text-4xl">{stat.icon}</div>
@@ -159,13 +172,17 @@ export function Dashboard() {
       {/* Recent CRAs */}
       <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))]">
         <div className="px-6 py-4 border-b border-[rgb(var(--color-border))]">
-          <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">CRA récents</h2>
+          <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">
+            CRA récents
+          </h2>
         </div>
 
         {isLoading && cras.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <Spinner />
-            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement des CRAs...</p>
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">
+              Chargement des CRAs...
+            </p>
           </div>
         ) : recentCRAs.length === 0 ? (
           <div className="px-6 py-12 text-center">
@@ -182,7 +199,9 @@ export function Dashboard() {
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Aucun CRA disponible</p>
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">
+              Aucun CRA disponible
+            </p>
             <p className="text-sm text-[rgb(var(--color-text-muted))] mt-2">
               Créez votre premier CRA pour commencer
             </p>
@@ -265,7 +284,9 @@ export function Dashboard() {
       <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))]">
         <div className="px-6 py-4 border-b border-[rgb(var(--color-border))]">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">Sociétés</h2>
+            <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">
+              Sociétés
+            </h2>
             <Link to="/companies/new">
               <Button size="sm">
                 <span className="mr-2">+</span>
@@ -278,7 +299,9 @@ export function Dashboard() {
         {isLoadingCompanies && companies.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <Spinner />
-            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Chargement des sociétés...</p>
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">
+              Chargement des sociétés...
+            </p>
           </div>
         ) : companies.length === 0 ? (
           <div className="px-6 py-12 text-center">
@@ -295,7 +318,9 @@ export function Dashboard() {
                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
               />
             </svg>
-            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">Aucune société disponible</p>
+            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">
+              Aucune société disponible
+            </p>
             <p className="text-sm text-[rgb(var(--color-text-muted))] mt-2">
               Créez votre première société pour commencer
             </p>
