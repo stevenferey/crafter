@@ -70,6 +70,10 @@ export function CRAPDFDocument({
     name: cra.client_signatory_name || clientCompany.default_signatory_name,
     title: cra.client_signatory_title || clientCompany.default_signatory_title,
     image: cra.client_signature_image || clientCompany.default_signature_image,
+    location:
+      cra.client_signature_location || clientCompany.default_signature_location,
+    useCurrentDate:
+      cra.client_use_current_date ?? clientCompany.default_use_current_date,
   };
 
   const providerSignature = {
@@ -78,6 +82,11 @@ export function CRAPDFDocument({
       cra.provider_signatory_title || providerCompany.default_signatory_title,
     image:
       cra.provider_signature_image || providerCompany.default_signature_image,
+    location:
+      cra.provider_signature_location ||
+      providerCompany.default_signature_location,
+    useCurrentDate:
+      cra.provider_use_current_date ?? providerCompany.default_use_current_date,
   };
 
   return (

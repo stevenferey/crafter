@@ -383,6 +383,26 @@ const pdfStyles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: 4,
   },
+  // "Fait à..." line above "lu et approuvé"
+  faitA: {
+    fontSize: 8,
+    color: colors.text,
+    marginTop: 6,
+    marginBottom: 2,
+  },
+  // "Fait à..." with empty fields (more space for manual writing)
+  faitAEmpty: {
+    fontSize: 8,
+    color: colors.text,
+    marginTop: 6,
+    marginBottom: 0,
+  },
+  faitAEmptyDate: {
+    fontSize: 8,
+    color: colors.text,
+    marginTop: 8,
+    marginBottom: 2,
+  },
   // Espace réservé pour notes manuscrites
   signatureNotesSpace: {
     height: 12,

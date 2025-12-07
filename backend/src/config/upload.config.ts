@@ -30,7 +30,7 @@ const storage = multer.diskStorage({
 const fileFilter = (
   _req: Request,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback
+  cb: multer.FileFilterCallback,
 ) => {
   // Vérifier le type MIME
   const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/jpg'];
@@ -40,8 +40,8 @@ const fileFilter = (
   } else {
     cb(
       new Error(
-        'Format de fichier invalide. Seuls les fichiers PNG et JPEG sont acceptés.'
-      )
+        'Format de fichier invalide. Seuls les fichiers PNG et JPEG sont acceptés.',
+      ),
     );
   }
 };

@@ -62,10 +62,11 @@ export function PreviewCRA() {
 
       // Créer un nom de fichier descriptif : CRA-Prestataire-Client-Mois-Année.pdf
       const monthYear = formatMonthYear(selectedCRA.month, selectedCRA.year);
-      const filename = `CRA-${providerCompany.designation}-${clientCompany.designation}-${monthYear}.pdf`
-        .replace(/\s+/g, '-')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, ''); // Supprime les accents
+      const filename =
+        `CRA-${providerCompany.designation}-${clientCompany.designation}-${monthYear}.pdf`
+          .replace(/\s+/g, '-')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, ''); // Supprime les accents
 
       // Déclencher le téléchargement
       const link = document.createElement('a');

@@ -72,6 +72,8 @@ export function SignatureInput({
       signatoryName: '',
       signatoryTitle: '',
       signatureImage: '',
+      signatureLocation: '',
+      useCurrentDate: false,
     });
     setUploadError(null);
   };
@@ -82,6 +84,8 @@ export function SignatureInput({
         signatoryName: defaultSignature.signatoryName || '',
         signatoryTitle: defaultSignature.signatoryTitle || '',
         signatureImage: defaultSignature.signatureImage || '',
+        signatureLocation: defaultSignature.signatureLocation || '',
+        useCurrentDate: defaultSignature.useCurrentDate ?? false,
       });
     }
   };
@@ -95,11 +99,17 @@ export function SignatureInput({
   };
 
   const hasValue =
-    value.signatoryName || value.signatoryTitle || value.signatureImage;
+    value.signatoryName ||
+    value.signatoryTitle ||
+    value.signatureImage ||
+    value.signatureLocation ||
+    value.useCurrentDate;
   const hasDefault =
     defaultSignature?.signatoryName ||
     defaultSignature?.signatoryTitle ||
-    defaultSignature?.signatureImage;
+    defaultSignature?.signatureImage ||
+    defaultSignature?.signatureLocation ||
+    defaultSignature?.useCurrentDate;
 
   return (
     <div className="flex flex-col gap-4 p-4 border border-[rgb(var(--color-border))] rounded-lg bg-[rgb(var(--color-surface))]">
@@ -155,6 +165,36 @@ export function SignatureInput({
         disabled={disabled}
         fullWidth
       />
+
+      {/* Lieu de signature */}
+      <Input
+        label="Lieu de signature"
+        type="text"
+        value={value.signatureLocation || ''}
+        onChange={(e) =>
+          onChange({ ...value, signatureLocation: e.target.value })
+        }
+        placeholder="ex: MONTPELLIER"
+        helperText="Ville pour la mention « Fait à ... »"
+        disabled={disabled}
+        fullWidth
+      />
+
+      {/* Utiliser la date du jour */}
+      <label className="flex items-center gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={value.useCurrentDate || false}
+          onChange={(e) =>
+            onChange({ ...value, useCurrentDate: e.target.checked })
+          }
+          disabled={disabled}
+          className="w-4 h-4 rounded border-[rgb(var(--color-border))] text-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
+        />
+        <span className="text-sm text-[rgb(var(--color-text))]">
+          Utiliser la date du jour à la génération du PDF
+        </span>
+      </label>
 
       {/* Upload d'image */}
       <div className="flex flex-col gap-2">

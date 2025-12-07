@@ -15,7 +15,7 @@ const router = Router();
 router.post(
   '/signature',
   uploadSignature.single('signature'),
-  uploadSignatureImage
+  uploadSignatureImage,
 );
 
 /**

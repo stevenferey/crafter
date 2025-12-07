@@ -71,6 +71,8 @@ export interface Company {
   default_signatory_name?: string;
   default_signatory_title?: string;
   default_signature_image?: string;
+  default_signature_location?: string;
+  default_use_current_date: boolean;
 
   // Timestamps
   created_at: Date;
@@ -113,6 +115,8 @@ export interface CreateCompanyInput {
   default_signatory_name?: string;
   default_signatory_title?: string;
   default_signature_image?: string;
+  default_signature_location?: string;
+  default_use_current_date?: boolean;
 }
 
 export interface UpdateCompanyInput {
@@ -137,6 +141,8 @@ export interface UpdateCompanyInput {
   default_signatory_name?: string;
   default_signatory_title?: string;
   default_signature_image?: string;
+  default_signature_location?: string;
+  default_use_current_date?: boolean;
 }
 
 export interface CompanyFilters {

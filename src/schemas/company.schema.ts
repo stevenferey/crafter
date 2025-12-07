@@ -153,6 +153,8 @@ export const companyFormSchema = z
     default_signatory_name: z.string().max(255).optional(),
     default_signatory_title: z.string().max(255).optional(),
     default_signature_image: z.string().max(500).optional(),
+    default_signature_location: z.string().max(255).optional(),
+    default_use_current_date: z.boolean().optional(),
   })
   .refine(
     (data) => {

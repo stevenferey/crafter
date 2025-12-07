@@ -46,6 +46,8 @@ export class CompanyModel {
         default_signatory_name,
         default_signatory_title,
         default_signature_image,
+        default_signature_location,
+        default_use_current_date,
         created_at,
         updated_at
       FROM companies
@@ -116,6 +118,8 @@ export class CompanyModel {
         default_signatory_name,
         default_signatory_title,
         default_signature_image,
+        default_signature_location,
+        default_use_current_date,
         created_at,
         updated_at
       FROM companies
@@ -151,9 +155,11 @@ export class CompanyModel {
         tva_number,
         default_signatory_name,
         default_signatory_title,
-        default_signature_image
+        default_signature_image,
+        default_signature_location,
+        default_use_current_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
       RETURNING
         id,
         designation,
@@ -176,6 +182,8 @@ export class CompanyModel {
         default_signatory_name,
         default_signatory_title,
         default_signature_image,
+        default_signature_location,
+        default_use_current_date,
         created_at,
         updated_at
     `;
@@ -201,6 +209,8 @@ export class CompanyModel {
       data.default_signatory_name || null,
       data.default_signatory_title || null,
       data.default_signature_image || null,
+      data.default_signature_location || null,
+      data.default_use_current_date ?? false,
     ];
 
     const result = await query<Company>(queryText, params);
@@ -212,7 +222,7 @@ export class CompanyModel {
    */
   static async update(
     id: string,
-    data: UpdateCompanyInput
+    data: UpdateCompanyInput,
   ): Promise<Company | null> {
     const client = await pool.connect();
 
@@ -344,6 +354,18 @@ export class CompanyModel {
         paramIndex++;
       }
 
+      if (data.default_signature_location !== undefined) {
+        updates.push(`default_signature_location = $${paramIndex}`);
+        params.push(data.default_signature_location || null);
+        paramIndex++;
+      }
+
+      if (data.default_use_current_date !== undefined) {
+        updates.push(`default_use_current_date = $${paramIndex}`);
+        params.push(data.default_use_current_date);
+        paramIndex++;
+      }
+
       // Toujours mettre à jour updated_at
       updates.push(`updated_at = CURRENT_TIMESTAMP`);
 
@@ -382,6 +404,8 @@ export class CompanyModel {
           default_signatory_name,
           default_signatory_title,
           default_signature_image,
+          default_signature_location,
+          default_use_current_date,
           created_at,
           updated_at
       `;
@@ -422,7 +446,7 @@ export class CompanyModel {
 
       if (count > 0) {
         throw new Error(
-          `Cette société est utilisée dans ${count} CRA(s) et ne peut pas être supprimée`
+          `Cette société est utilisée dans ${count} CRA(s) et ne peut pas être supprimée`,
         );
       }
 

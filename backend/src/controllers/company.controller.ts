@@ -67,7 +67,7 @@ export class CompanyController {
    */
   private static validateCompanyData(
     data: Partial<CreateCompanyInput>,
-    isUpdate = false
+    isUpdate = false,
   ): { valid: boolean; error?: string } {
     // Validation des champs obligatoires (seulement pour la création)
     if (!isUpdate) {
@@ -105,12 +105,15 @@ export class CompanyController {
         return { valid: false, error: 'Le champ dispense est obligatoire' };
       }
       if (data.exemption === undefined) {
-        return { valid: false, error: "Le champ exemption est obligatoire" };
+        return { valid: false, error: 'Le champ exemption est obligatoire' };
       }
     }
 
     // Validation du code postal
-    if (data.postal_code && !VALIDATION_REGEX.POSTAL_CODE.test(data.postal_code)) {
+    if (
+      data.postal_code &&
+      !VALIDATION_REGEX.POSTAL_CODE.test(data.postal_code)
+    ) {
       return {
         valid: false,
         error: 'Le code postal doit contenir exactement 5 chiffres',
@@ -282,6 +285,9 @@ export class CompanyController {
         default_signatory_name: req.body.default_signatory_name || undefined,
         default_signatory_title: req.body.default_signatory_title || undefined,
         default_signature_image: req.body.default_signature_image || undefined,
+        default_signature_location:
+          req.body.default_signature_location || undefined,
+        default_use_current_date: req.body.default_use_current_date ?? false,
       };
 
       // Validation
@@ -324,15 +330,13 @@ export class CompanyController {
       // Construire les données de mise à jour à partir du body
       if (req.body.designation !== undefined)
         updateData.designation = req.body.designation;
-      if (req.body.address !== undefined)
-        updateData.address = req.body.address;
+      if (req.body.address !== undefined) updateData.address = req.body.address;
       if (req.body.complement !== undefined)
         updateData.complement = req.body.complement || null;
       if (req.body.city !== undefined) updateData.city = req.body.city;
       if (req.body.postal_code !== undefined)
         updateData.postal_code = req.body.postal_code;
-      if (req.body.country !== undefined)
-        updateData.country = req.body.country;
+      if (req.body.country !== undefined) updateData.country = req.body.country;
       if (req.body.email !== undefined) updateData.email = req.body.email;
       if (req.body.phone !== undefined)
         updateData.phone = req.body.phone || null;
@@ -347,18 +351,25 @@ export class CompanyController {
       if (req.body.registre_number !== undefined)
         updateData.registre_number = req.body.registre_number || null;
       if (req.body.liste !== undefined) updateData.liste = req.body.liste;
-      if (req.body.code !== undefined)
-        updateData.code = req.body.code || null;
+      if (req.body.code !== undefined) updateData.code = req.body.code || null;
       if (req.body.exemption !== undefined)
         updateData.exemption = req.body.exemption;
       if (req.body.tva_number !== undefined)
         updateData.tva_number = req.body.tva_number || null;
       if (req.body.default_signatory_name !== undefined)
-        updateData.default_signatory_name = req.body.default_signatory_name || null;
+        updateData.default_signatory_name =
+          req.body.default_signatory_name || null;
       if (req.body.default_signatory_title !== undefined)
-        updateData.default_signatory_title = req.body.default_signatory_title || null;
+        updateData.default_signatory_title =
+          req.body.default_signatory_title || null;
       if (req.body.default_signature_image !== undefined)
-        updateData.default_signature_image = req.body.default_signature_image || null;
+        updateData.default_signature_image =
+          req.body.default_signature_image || null;
+      if (req.body.default_signature_location !== undefined)
+        updateData.default_signature_location =
+          req.body.default_signature_location || null;
+      if (req.body.default_use_current_date !== undefined)
+        updateData.default_use_current_date = req.body.default_use_current_date;
 
       // Validation
       const validation = this.validateCompanyData(updateData, true);
