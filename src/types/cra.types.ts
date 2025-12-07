@@ -21,9 +21,13 @@ export interface CRA {
   client_signatory_name?: string;
   client_signatory_title?: string;
   client_signature_image?: string;
+  client_signature_location?: string;
+  client_use_current_date?: boolean;
   provider_signatory_name?: string;
   provider_signatory_title?: string;
   provider_signature_image?: string;
+  provider_signature_location?: string;
+  provider_use_current_date?: boolean;
 
   created_at: string; // Format ISO 8601
   updated_at: string; // Format ISO 8601
@@ -45,9 +49,13 @@ export type CreateCRAInput = {
   client_signatory_name?: string;
   client_signatory_title?: string;
   client_signature_image?: string;
+  client_signature_location?: string;
+  client_use_current_date?: boolean;
   provider_signatory_name?: string;
   provider_signatory_title?: string;
   provider_signature_image?: string;
+  provider_signature_location?: string;
+  provider_use_current_date?: boolean;
 };
 
 /**
@@ -66,9 +74,13 @@ export type UpdateCRAInput = {
   client_signatory_name?: string;
   client_signatory_title?: string;
   client_signature_image?: string;
+  client_signature_location?: string;
+  client_use_current_date?: boolean;
   provider_signatory_name?: string;
   provider_signatory_title?: string;
   provider_signature_image?: string;
+  provider_signature_location?: string;
+  provider_use_current_date?: boolean;
 };
 
 /**
@@ -100,4 +112,6 @@ export interface SignatureData {
   signatoryName: string; // Nom du signataire
   signatoryTitle: string; // Titre/fonction du signataire
   signatureImage: string; // Chemin ou URL de l'image de signature
+  signatureLocation?: string; // Lieu de signature (ville)
+  useCurrentDate?: boolean; // Utiliser la date du jour
 }

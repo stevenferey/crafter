@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { CRAModel } from '../models/cra.model.js';
-import { CreateCRAInput, UpdateCRAInput, CRAFilters } from '../types/cra.types.js';
+import {
+  CreateCRAInput,
+  UpdateCRAInput,
+  CRAFilters,
+} from '../types/cra.types.js';
 
 /**
  * Controller pour gérer les requêtes HTTP liées aux CRA mensuels
@@ -17,7 +21,9 @@ export class CRAController {
         client: req.query.client as string,
         provider: req.query.provider as string,
         year: req.query.year ? parseInt(req.query.year as string) : undefined,
-        month: req.query.month ? parseInt(req.query.month as string) : undefined,
+        month: req.query.month
+          ? parseInt(req.query.month as string)
+          : undefined,
         limit: req.query.limit ? parseInt(req.query.limit as string) : 50,
         offset: req.query.offset ? parseInt(req.query.offset as string) : 0,
       };
@@ -90,7 +96,8 @@ export class CRAController {
         res.status(400).json({
           success: false,
           error: 'Invalid input',
-          message: 'month, year, worked_days, client_id, and provider_id are required',
+          message:
+            'month, year, worked_days, client_id, and provider_id are required',
         });
         return;
       }
@@ -156,9 +163,18 @@ export class CRAController {
         client_signatory_name: req.body.client_signatory_name || undefined,
         client_signatory_title: req.body.client_signatory_title || undefined,
         client_signature_image: req.body.client_signature_image || undefined,
+        client_signature_location:
+          req.body.client_signature_location || undefined,
+        client_use_current_date: req.body.client_use_current_date ?? undefined,
         provider_signatory_name: req.body.provider_signatory_name || undefined,
-        provider_signatory_title: req.body.provider_signatory_title || undefined,
-        provider_signature_image: req.body.provider_signature_image || undefined,
+        provider_signatory_title:
+          req.body.provider_signatory_title || undefined,
+        provider_signature_image:
+          req.body.provider_signature_image || undefined,
+        provider_signature_location:
+          req.body.provider_signature_location || undefined,
+        provider_use_current_date:
+          req.body.provider_use_current_date ?? undefined,
       };
 
       const newCRA = await CRAModel.create(craData);
@@ -176,7 +192,8 @@ export class CRAController {
         res.status(409).json({
           success: false,
           error: 'Duplicate CRA',
-          message: 'Un CRA existe déjà pour ce mois, cette année et cette combinaison client/prestataire',
+          message:
+            'Un CRA existe déjà pour ce mois, cette année et cette combinaison client/prestataire',
         });
         return;
       }
@@ -200,7 +217,8 @@ export class CRAController {
 
       // Validation: si on met à jour client_id et provider_id, ils doivent être différents
       if (
-        (req.body.client_id !== undefined && req.body.provider_id !== undefined) &&
+        req.body.client_id !== undefined &&
+        req.body.provider_id !== undefined &&
         req.body.client_id === req.body.provider_id
       ) {
         res.status(400).json({
@@ -213,7 +231,11 @@ export class CRAController {
 
       // Validation du mois si présent
       if (req.body.month !== undefined) {
-        if (typeof req.body.month !== 'number' || req.body.month < 1 || req.body.month > 12) {
+        if (
+          typeof req.body.month !== 'number' ||
+          req.body.month < 1 ||
+          req.body.month > 12
+        ) {
           res.status(400).json({
             success: false,
             error: 'Invalid month',
@@ -226,7 +248,11 @@ export class CRAController {
 
       // Validation de l'année si présente
       if (req.body.year !== undefined) {
-        if (typeof req.body.year !== 'number' || req.body.year < 2000 || req.body.year > 2100) {
+        if (
+          typeof req.body.year !== 'number' ||
+          req.body.year < 2000 ||
+          req.body.year > 2100
+        ) {
           res.status(400).json({
             success: false,
             error: 'Invalid year',
@@ -252,22 +278,41 @@ export class CRAController {
 
       // Construire les données de mise à jour à partir du body
       if (req.body.comment !== undefined) updateData.comment = req.body.comment;
-      if (req.body.client_id !== undefined) updateData.client_id = req.body.client_id;
-      if (req.body.provider_id !== undefined) updateData.provider_id = req.body.provider_id;
+      if (req.body.client_id !== undefined)
+        updateData.client_id = req.body.client_id;
+      if (req.body.provider_id !== undefined)
+        updateData.provider_id = req.body.provider_id;
       if (req.body.status !== undefined) updateData.status = req.body.status;
       // Signatures - accepter null et undefined
       if (req.body.client_signatory_name !== undefined)
-        updateData.client_signatory_name = req.body.client_signatory_name || null;
+        updateData.client_signatory_name =
+          req.body.client_signatory_name || null;
       if (req.body.client_signatory_title !== undefined)
-        updateData.client_signatory_title = req.body.client_signatory_title || null;
+        updateData.client_signatory_title =
+          req.body.client_signatory_title || null;
       if (req.body.client_signature_image !== undefined)
-        updateData.client_signature_image = req.body.client_signature_image || null;
+        updateData.client_signature_image =
+          req.body.client_signature_image || null;
       if (req.body.provider_signatory_name !== undefined)
-        updateData.provider_signatory_name = req.body.provider_signatory_name || null;
+        updateData.provider_signatory_name =
+          req.body.provider_signatory_name || null;
       if (req.body.provider_signatory_title !== undefined)
-        updateData.provider_signatory_title = req.body.provider_signatory_title || null;
+        updateData.provider_signatory_title =
+          req.body.provider_signatory_title || null;
       if (req.body.provider_signature_image !== undefined)
-        updateData.provider_signature_image = req.body.provider_signature_image || null;
+        updateData.provider_signature_image =
+          req.body.provider_signature_image || null;
+      if (req.body.client_signature_location !== undefined)
+        updateData.client_signature_location =
+          req.body.client_signature_location || null;
+      if (req.body.client_use_current_date !== undefined)
+        updateData.client_use_current_date = req.body.client_use_current_date;
+      if (req.body.provider_signature_location !== undefined)
+        updateData.provider_signature_location =
+          req.body.provider_signature_location || null;
+      if (req.body.provider_use_current_date !== undefined)
+        updateData.provider_use_current_date =
+          req.body.provider_use_current_date;
 
       const updatedCRA = await CRAModel.update(id, updateData);
 
@@ -293,7 +338,8 @@ export class CRAController {
         res.status(409).json({
           success: false,
           error: 'Duplicate CRA',
-          message: 'Un CRA existe déjà pour ce mois, cette année et cette combinaison client/prestataire',
+          message:
+            'Un CRA existe déjà pour ce mois, cette année et cette combinaison client/prestataire',
         });
         return;
       }

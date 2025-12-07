@@ -64,6 +64,9 @@ export function CreateCompany() {
         default_signatory_name: data.default_signatory_name || undefined,
         default_signatory_title: data.default_signatory_title || undefined,
         default_signature_image: data.default_signature_image || undefined,
+        default_signature_location:
+          data.default_signature_location || undefined,
+        default_use_current_date: data.default_use_current_date ?? false,
       };
 
       await createCompany(cleanedData);
@@ -335,18 +338,34 @@ export function CreateCompany() {
                     name="default_signature_image"
                     control={control}
                     render={({ field: imageField }) => (
-                      <SignatureInput
-                        label="Signature par défaut"
-                        value={{
-                          signatoryName: nameField.value || '',
-                          signatoryTitle: titleField.value || '',
-                          signatureImage: imageField.value || '',
-                        }}
-                        onChange={(sig: Partial<SignatureData>) => {
-                          nameField.onChange(sig.signatoryName);
-                          titleField.onChange(sig.signatoryTitle);
-                          imageField.onChange(sig.signatureImage);
-                        }}
+                      <Controller
+                        name="default_signature_location"
+                        control={control}
+                        render={({ field: locationField }) => (
+                          <Controller
+                            name="default_use_current_date"
+                            control={control}
+                            render={({ field: dateField }) => (
+                              <SignatureInput
+                                label="Signature par défaut"
+                                value={{
+                                  signatoryName: nameField.value || '',
+                                  signatoryTitle: titleField.value || '',
+                                  signatureImage: imageField.value || '',
+                                  signatureLocation: locationField.value || '',
+                                  useCurrentDate: dateField.value ?? false,
+                                }}
+                                onChange={(sig: Partial<SignatureData>) => {
+                                  nameField.onChange(sig.signatoryName);
+                                  titleField.onChange(sig.signatoryTitle);
+                                  imageField.onChange(sig.signatureImage);
+                                  locationField.onChange(sig.signatureLocation);
+                                  dateField.onChange(sig.useCurrentDate);
+                                }}
+                              />
+                            )}
+                          />
+                        )}
                       />
                     )}
                   />

@@ -30,7 +30,7 @@ pool.on('error', (err) => {
 // Fonction utilitaire pour exécuter des requêtes
 export const query = async <T extends pg.QueryResultRow = pg.QueryResultRow>(
   text: string,
-  params?: unknown[]
+  params?: unknown[],
 ): Promise<pg.QueryResult<T>> => {
   const start = Date.now();
   try {

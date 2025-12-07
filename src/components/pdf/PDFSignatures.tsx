@@ -24,6 +24,10 @@ interface SignatureInfo {
   title?: string;
   /** Chemin ou URL de l'image de signature */
   image?: string;
+  /** Lieu de signature (ville) */
+  location?: string;
+  /** Utiliser la date courante */
+  useCurrentDate?: boolean;
 }
 
 interface PDFSignaturesProps {
@@ -45,6 +49,33 @@ function getSignatureImageUrl(path?: string): string | null {
   if (path.startsWith('http') || path.startsWith('data:')) return path;
   const baseUrl = env.apiUrl?.replace('/api', '') || 'http://localhost:3001';
   return `${baseUrl}${path}`;
+}
+
+/**
+ * Vérifie si les champs lieu/date sont vides (nécessitant un remplissage manuel)
+ */
+function isManualEntry(location?: string, useCurrentDate?: boolean): boolean {
+  return !location && !useCurrentDate;
+}
+
+/**
+ * Formate la ligne "Fait à <VILLE>,"
+ */
+function formatFaitALocation(location?: string): string {
+  const locationPart = location
+    ? location.toUpperCase()
+    : '________________________';
+  return `Fait à ${locationPart},`;
+}
+
+/**
+ * Formate la ligne "le <DATE>"
+ */
+function formatFaitADate(useCurrentDate?: boolean): string {
+  const datePart = useCurrentDate
+    ? new Date().toLocaleDateString('fr-FR')
+    : '____/____/_______';
+  return `le ${datePart}`;
 }
 
 /**
@@ -81,6 +112,24 @@ export function PDFSignatures({
               {providerSignature.title && (
                 <Text style={pdfStyles.signatureTitle}>
                   {providerSignature.title}
+                </Text>
+              )}
+              {isManualEntry(
+                providerSignature.location,
+                providerSignature.useCurrentDate,
+              ) ? (
+                <>
+                  <Text style={pdfStyles.faitAEmpty}>
+                    {formatFaitALocation(providerSignature.location)}
+                  </Text>
+                  <Text style={pdfStyles.faitAEmptyDate}>
+                    {formatFaitADate(providerSignature.useCurrentDate)}
+                  </Text>
+                </>
+              ) : (
+                <Text style={pdfStyles.faitA}>
+                  {formatFaitALocation(providerSignature.location)}{' '}
+                  {formatFaitADate(providerSignature.useCurrentDate)}
                 </Text>
               )}
               <Text style={pdfStyles.luEtApprouvePlaceholder}>
@@ -121,6 +170,24 @@ export function PDFSignatures({
               {clientSignature.title && (
                 <Text style={pdfStyles.signatureTitle}>
                   {clientSignature.title}
+                </Text>
+              )}
+              {isManualEntry(
+                clientSignature.location,
+                clientSignature.useCurrentDate,
+              ) ? (
+                <>
+                  <Text style={pdfStyles.faitAEmpty}>
+                    {formatFaitALocation(clientSignature.location)}
+                  </Text>
+                  <Text style={pdfStyles.faitAEmptyDate}>
+                    {formatFaitADate(clientSignature.useCurrentDate)}
+                  </Text>
+                </>
+              ) : (
+                <Text style={pdfStyles.faitA}>
+                  {formatFaitALocation(clientSignature.location)}{' '}
+                  {formatFaitADate(clientSignature.useCurrentDate)}
                 </Text>
               )}
               <Text style={pdfStyles.luEtApprouvePlaceholder}>

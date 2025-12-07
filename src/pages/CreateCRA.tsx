@@ -98,6 +98,8 @@ export function CreateCRA() {
           signatoryName: clientCompany.default_signatory_name || '',
           signatoryTitle: clientCompany.default_signatory_title || '',
           signatureImage: clientCompany.default_signature_image || '',
+          signatureLocation: clientCompany.default_signature_location || '',
+          useCurrentDate: clientCompany.default_use_current_date ?? false,
         }
       : undefined;
 
@@ -107,6 +109,8 @@ export function CreateCRA() {
           signatoryName: providerCompany.default_signatory_name || '',
           signatoryTitle: providerCompany.default_signatory_title || '',
           signatureImage: providerCompany.default_signature_image || '',
+          signatureLocation: providerCompany.default_signature_location || '',
+          useCurrentDate: providerCompany.default_use_current_date ?? false,
         }
       : undefined;
 
@@ -137,9 +141,13 @@ export function CreateCRA() {
         client_signatory_name: data.client_signatory_name,
         client_signatory_title: data.client_signatory_title,
         client_signature_image: data.client_signature_image,
+        client_signature_location: data.client_signature_location,
+        client_use_current_date: data.client_use_current_date,
         provider_signatory_name: data.provider_signatory_name,
         provider_signatory_title: data.provider_signatory_title,
         provider_signature_image: data.provider_signature_image,
+        provider_signature_location: data.provider_signature_location,
+        provider_use_current_date: data.provider_use_current_date,
       });
 
       addNotification('CRA créé avec succès', 'success');
@@ -385,20 +393,39 @@ export function CreateCRA() {
                       name="client_signature_image"
                       control={control}
                       render={({ field: imageField }) => (
-                        <SignatureInput
-                          label={`Signature ${clientCompany?.designation || 'Client'}`}
-                          value={{
-                            signatoryName: nameField.value || '',
-                            signatoryTitle: titleField.value || '',
-                            signatureImage: imageField.value || '',
-                          }}
-                          onChange={(sig) => {
-                            nameField.onChange(sig.signatoryName);
-                            titleField.onChange(sig.signatoryTitle);
-                            imageField.onChange(sig.signatureImage);
-                          }}
-                          defaultSignature={clientDefaultSignature}
-                          disabled={!selectedClientId}
+                        <Controller
+                          name="client_signature_location"
+                          control={control}
+                          render={({ field: locationField }) => (
+                            <Controller
+                              name="client_use_current_date"
+                              control={control}
+                              render={({ field: dateField }) => (
+                                <SignatureInput
+                                  label={`Signature ${clientCompany?.designation || 'Client'}`}
+                                  value={{
+                                    signatoryName: nameField.value || '',
+                                    signatoryTitle: titleField.value || '',
+                                    signatureImage: imageField.value || '',
+                                    signatureLocation:
+                                      locationField.value || '',
+                                    useCurrentDate: dateField.value ?? false,
+                                  }}
+                                  onChange={(sig) => {
+                                    nameField.onChange(sig.signatoryName);
+                                    titleField.onChange(sig.signatoryTitle);
+                                    imageField.onChange(sig.signatureImage);
+                                    locationField.onChange(
+                                      sig.signatureLocation,
+                                    );
+                                    dateField.onChange(sig.useCurrentDate);
+                                  }}
+                                  defaultSignature={clientDefaultSignature}
+                                  disabled={!selectedClientId}
+                                />
+                              )}
+                            />
+                          )}
                         />
                       )}
                     />
@@ -420,20 +447,39 @@ export function CreateCRA() {
                       name="provider_signature_image"
                       control={control}
                       render={({ field: imageField }) => (
-                        <SignatureInput
-                          label={`Signature ${providerCompany?.designation || 'Prestataire'}`}
-                          value={{
-                            signatoryName: nameField.value || '',
-                            signatoryTitle: titleField.value || '',
-                            signatureImage: imageField.value || '',
-                          }}
-                          onChange={(sig) => {
-                            nameField.onChange(sig.signatoryName);
-                            titleField.onChange(sig.signatoryTitle);
-                            imageField.onChange(sig.signatureImage);
-                          }}
-                          defaultSignature={providerDefaultSignature}
-                          disabled={!selectedProviderId}
+                        <Controller
+                          name="provider_signature_location"
+                          control={control}
+                          render={({ field: locationField }) => (
+                            <Controller
+                              name="provider_use_current_date"
+                              control={control}
+                              render={({ field: dateField }) => (
+                                <SignatureInput
+                                  label={`Signature ${providerCompany?.designation || 'Prestataire'}`}
+                                  value={{
+                                    signatoryName: nameField.value || '',
+                                    signatoryTitle: titleField.value || '',
+                                    signatureImage: imageField.value || '',
+                                    signatureLocation:
+                                      locationField.value || '',
+                                    useCurrentDate: dateField.value ?? false,
+                                  }}
+                                  onChange={(sig) => {
+                                    nameField.onChange(sig.signatoryName);
+                                    titleField.onChange(sig.signatoryTitle);
+                                    imageField.onChange(sig.signatureImage);
+                                    locationField.onChange(
+                                      sig.signatureLocation,
+                                    );
+                                    dateField.onChange(sig.useCurrentDate);
+                                  }}
+                                  defaultSignature={providerDefaultSignature}
+                                  disabled={!selectedProviderId}
+                                />
+                              )}
+                            />
+                          )}
                         />
                       )}
                     />

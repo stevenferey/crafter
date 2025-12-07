@@ -24,7 +24,7 @@ app.use(
   cors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
     credentials: true,
-  })
+  }),
 );
 
 // Middleware pour parser le JSON
@@ -88,7 +88,9 @@ async function startServer() {
 
     if (!dbConnected) {
       console.error('✗ Failed to connect to database');
-      console.error('Make sure PostgreSQL is running and the credentials are correct');
+      console.error(
+        'Make sure PostgreSQL is running and the credentials are correct',
+      );
       process.exit(1);
     }
 

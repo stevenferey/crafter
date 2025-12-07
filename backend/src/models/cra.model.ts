@@ -14,7 +14,15 @@ export class CRAModel {
    * Récupère tous les CRA avec filtres optionnels
    */
   static async findAll(filters: CRAFilters = {}): Promise<CRA[]> {
-    const { status, client, provider, year, month, limit = 50, offset = 0 } = filters;
+    const {
+      status,
+      client,
+      provider,
+      year,
+      month,
+      limit = 50,
+      offset = 0,
+    } = filters;
 
     let queryText = `
       SELECT
@@ -29,9 +37,13 @@ export class CRAModel {
         client_signatory_name,
         client_signatory_title,
         client_signature_image,
+        client_signature_location,
+        client_use_current_date,
         provider_signatory_name,
         provider_signatory_title,
         provider_signature_image,
+        provider_signature_location,
+        provider_use_current_date,
         created_at,
         updated_at
       FROM cras
@@ -98,9 +110,13 @@ export class CRAModel {
         client_signatory_name,
         client_signatory_title,
         client_signature_image,
+        client_signature_location,
+        client_use_current_date,
         provider_signatory_name,
         provider_signatory_title,
         provider_signature_image,
+        provider_signature_location,
+        provider_use_current_date,
         created_at,
         updated_at
       FROM cras
@@ -127,11 +143,15 @@ export class CRAModel {
         client_signatory_name,
         client_signatory_title,
         client_signature_image,
+        client_signature_location,
+        client_use_current_date,
         provider_signatory_name,
         provider_signatory_title,
-        provider_signature_image
+        provider_signature_image,
+        provider_signature_location,
+        provider_use_current_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING
         id,
         month,
@@ -144,9 +164,13 @@ export class CRAModel {
         client_signatory_name,
         client_signatory_title,
         client_signature_image,
+        client_signature_location,
+        client_use_current_date,
         provider_signatory_name,
         provider_signatory_title,
         provider_signature_image,
+        provider_signature_location,
+        provider_use_current_date,
         created_at,
         updated_at
     `;
@@ -162,9 +186,13 @@ export class CRAModel {
       data.client_signatory_name || null,
       data.client_signatory_title || null,
       data.client_signature_image || null,
+      data.client_signature_location || null,
+      data.client_use_current_date ?? null,
       data.provider_signatory_name || null,
       data.provider_signatory_title || null,
       data.provider_signature_image || null,
+      data.provider_signature_location || null,
+      data.provider_use_current_date ?? null,
     ]);
 
     return result.rows[0];
@@ -239,6 +267,18 @@ export class CRAModel {
       paramIndex++;
     }
 
+    if (data.client_signature_location !== undefined) {
+      updates.push(`client_signature_location = $${paramIndex}`);
+      params.push(data.client_signature_location || null);
+      paramIndex++;
+    }
+
+    if (data.client_use_current_date !== undefined) {
+      updates.push(`client_use_current_date = $${paramIndex}`);
+      params.push(data.client_use_current_date);
+      paramIndex++;
+    }
+
     if (data.provider_signatory_name !== undefined) {
       updates.push(`provider_signatory_name = $${paramIndex}`);
       params.push(data.provider_signatory_name || null);
@@ -254,6 +294,18 @@ export class CRAModel {
     if (data.provider_signature_image !== undefined) {
       updates.push(`provider_signature_image = $${paramIndex}`);
       params.push(data.provider_signature_image || null);
+      paramIndex++;
+    }
+
+    if (data.provider_signature_location !== undefined) {
+      updates.push(`provider_signature_location = $${paramIndex}`);
+      params.push(data.provider_signature_location || null);
+      paramIndex++;
+    }
+
+    if (data.provider_use_current_date !== undefined) {
+      updates.push(`provider_use_current_date = $${paramIndex}`);
+      params.push(data.provider_use_current_date);
       paramIndex++;
     }
 
@@ -284,9 +336,13 @@ export class CRAModel {
         client_signatory_name,
         client_signatory_title,
         client_signature_image,
+        client_signature_location,
+        client_use_current_date,
         provider_signatory_name,
         provider_signatory_title,
         provider_signature_image,
+        provider_signature_location,
+        provider_use_current_date,
         created_at,
         updated_at
     `;

@@ -6,7 +6,10 @@ import fs from 'fs/promises';
  * Upload une signature et retourne le chemin du fichier
  * POST /api/upload/signature
  */
-export const uploadSignatureImage = async (req: Request, res: Response): Promise<void> => {
+export const uploadSignatureImage = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     // Vérifier qu'un fichier a été uploadé
     if (!req.file) {
@@ -35,7 +38,7 @@ export const uploadSignatureImage = async (req: Request, res: Response): Promise
     res.status(500).json({
       success: false,
       error: 'Internal Server Error',
-      message: 'Erreur lors de l\'upload de la signature',
+      message: "Erreur lors de l'upload de la signature",
     });
   }
 };
@@ -44,7 +47,10 @@ export const uploadSignatureImage = async (req: Request, res: Response): Promise
  * Supprime une signature
  * DELETE /api/upload/signature/:filename
  */
-export const deleteSignatureImage = async (req: Request, res: Response): Promise<void> => {
+export const deleteSignatureImage = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { filename } = req.params;
 
@@ -59,11 +65,7 @@ export const deleteSignatureImage = async (req: Request, res: Response): Promise
     }
 
     // Construire le chemin complet
-    const filePath = path.join(
-      __dirname,
-      '../../uploads/signatures',
-      filename
-    );
+    const filePath = path.join(__dirname, '../../uploads/signatures', filename);
 
     // Vérifier que le fichier existe
     try {
