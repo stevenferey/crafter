@@ -237,3 +237,22 @@ export function getAvailableYears(
 
   return years;
 }
+
+/**
+ * Calcule le numéro de semaine ISO 8601
+ * La semaine 1 est celle contenant le premier jeudi de l'année
+ * Les semaines commencent le lundi
+ */
+export function getWeekNumber(date: Date): number {
+  const d = new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+  );
+  // Définir le jour de la semaine (1=lundi, 7=dimanche)
+  const dayNum = d.getUTCDay() || 7;
+  // Ajuster au jeudi de la même semaine
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  // Obtenir le premier jour de l'année
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  // Calculer le numéro de semaine
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
