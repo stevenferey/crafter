@@ -227,7 +227,7 @@ export function PreviewCRA() {
       <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))] shadow-sm overflow-hidden">
         <PDFViewer
           width="100%"
-          height={800}
+          height={1200}
           showToolbar={true}
           className="border-0"
         >

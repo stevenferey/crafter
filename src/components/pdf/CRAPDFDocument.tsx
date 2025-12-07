@@ -123,8 +123,7 @@ export function CRAPDFDocument({
         />
 
         <Text style={pdfStyles.footer}>
-          Document généré automatiquement -{' '}
-          {new Date().toLocaleDateString('fr-FR')}
+          Document généré automatiquement par crafter – © {new Date().getFullYear()} DiscoData. Tous droits réservés.
         </Text>
       </Page>
     </Document>

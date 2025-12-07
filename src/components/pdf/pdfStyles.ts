@@ -151,7 +151,7 @@ const pdfStyles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   weekHeaderCell: {
-    flex: 1,
+    width: '13.14%',
     padding: 5,
     textAlign: 'center',
   },
@@ -161,12 +161,48 @@ const pdfStyles = StyleSheet.create({
     color: colors.white,
     textTransform: 'uppercase',
   },
+  // Colonne numéro de semaine (header)
+  weekNumberHeaderCell: {
+    width: '8%',
+    padding: 5,
+    textAlign: 'center',
+    backgroundColor: colors.primaryLight,
+  },
+  weekNumberHeaderText: {
+    fontSize: 6,
+    fontFamily: 'Helvetica-Bold',
+    color: colors.white,
+    textTransform: 'uppercase',
+  },
   calendarGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
+  // Ligne de semaine (numéro + 7 jours)
+  calendarRow: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  // Cellule numéro de semaine dans le corps du calendrier
+  // Fond blanc pour ne pas confondre avec les week-ends (même gris)
+  weekNumberCell: {
+    width: '8%',
+    padding: 4,
+    backgroundColor: colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRightWidth: 0.5,
+    borderBottomWidth: 0.5,
+    borderColor: colors.border,
+    minHeight: 20,
+  },
+  weekNumberText: {
+    fontSize: 6,
+    color: colors.textLight,
+    fontFamily: 'Helvetica-Bold',
+  },
   dayCell: {
-    width: '14.28%',
+    width: '13.14%',
     padding: 4,
     borderRightWidth: 0.5,
     borderBottomWidth: 0.5,
@@ -178,7 +214,7 @@ const pdfStyles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   dayCellEmpty: {
-    width: '14.28%',
+    width: '13.14%',
     padding: 4,
     borderRightWidth: 0.5,
     borderBottomWidth: 0.5,
