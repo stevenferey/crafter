@@ -122,7 +122,7 @@ export function EditCompany() {
       };
 
       await updateCompany(id, cleanedData);
-      navigate('/companies');
+      navigate('/dashboard/companies');
     } catch (error) {
       logger.error('❌ [EditCompany] Error updating company:', error);
       setIsSubmitting(false);
@@ -146,7 +146,7 @@ export function EditCompany() {
         <p className="text-[rgb(var(--color-text-secondary))] mt-2">
           La société demandée n'existe pas.
         </p>
-        <Button onClick={() => navigate('/companies')} className="mt-4">
+        <Button onClick={() => navigate('/dashboard/companies')} className="mt-4">
           Retour à la liste
         </Button>
       </div>
@@ -450,7 +450,7 @@ export function EditCompany() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate('/companies')}
+            onClick={() => navigate('/dashboard/companies')}
             disabled={isSubmitting}
           >
             Annuler

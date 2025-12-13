@@ -71,7 +71,7 @@ export function CreateCompany() {
 
       await createCompany(cleanedData);
       logger.log('✅ [CreateCompany] Company created successfully');
-      navigate('/companies');
+      navigate('/dashboard/companies');
     } catch (error) {
       logger.error('❌ [CreateCompany] Error creating company:', error);
       setIsSubmitting(false);
@@ -380,7 +380,7 @@ export function CreateCompany() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate('/companies')}
+            onClick={() => navigate('/dashboard/companies')}
             disabled={isSubmitting}
           >
             Annuler

@@ -225,7 +225,7 @@ export function EditCRA() {
       });
 
       addNotification('CRA mis à jour avec succès', 'success');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -252,7 +252,7 @@ export function EditCRA() {
     try {
       await deleteCRA(id);
       addNotification('CRA supprimé avec succès', 'success');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       addNotification(
         error instanceof Error
@@ -305,7 +305,7 @@ export function EditCRA() {
               <Button
                 variant="outline"
                 className="mt-4"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
               >
                 Retour au dashboard
               </Button>
@@ -709,7 +709,7 @@ export function EditCRA() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/dashboard')}
               disabled={isSubmitting || isLoading}
             >
               Annuler

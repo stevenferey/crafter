@@ -54,7 +54,7 @@ export function ErrorBoundary() {
             <Button variant="outline" onClick={() => window.location.reload()}>
               Recharger la page
             </Button>
-            <Button onClick={() => navigate('/')}>Retour au Dashboard</Button>
+            <Button onClick={() => navigate('/dashboard')}>Retour au Dashboard</Button>
           </div>
         </div>
       </div>

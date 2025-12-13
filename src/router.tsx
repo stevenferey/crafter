@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { Landing } from '@/pages/Landing';
 import { Dashboard } from '@/pages/Dashboard';
 import { CreateCRA } from '@/pages/CreateCRA';
 import { EditCRA } from '@/pages/EditCRA';
@@ -18,7 +19,11 @@ import { NotFound } from '@/pages/NotFound';
 import { ErrorBoundary } from '@/pages/ErrorBoundary';
 
 export const router = createBrowserRouter([
-  // Routes publiques (authentification)
+  // Routes publiques
+  {
+    path: '/',
+    element: <Landing />,
+  },
   {
     path: '/login',
     element: <Login />,
@@ -46,7 +51,7 @@ export const router = createBrowserRouter([
 
   // Routes protégées (nécessitent authentification)
   {
-    path: '/',
+    path: '/dashboard',
     element: (
       <ProtectedRoute>
         <AppLayout />

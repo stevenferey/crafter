@@ -151,7 +151,7 @@ export function CreateCRA() {
       });
 
       addNotification('CRA créé avec succès', 'success');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -546,7 +546,7 @@ export function CreateCRA() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             disabled={isSubmitting || isLoading}
           >
             Annuler

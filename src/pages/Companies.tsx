@@ -44,7 +44,7 @@ export function Companies() {
             Gérez vos sociétés clientes et prestataires
           </p>
         </div>
-        <Link to="/companies/new">
+        <Link to="/dashboard/companies/new">
           <Button size="lg">
             <span className="mr-2">+</span>
             Nouvelle société
@@ -106,7 +106,7 @@ export function Companies() {
           <p className="text-[rgb(var(--color-text-secondary))] mb-6">
             Commencez par créer votre première société
           </p>
-          <Link to="/companies/new">
+          <Link to="/dashboard/companies/new">
             <Button>
               <span className="mr-2">+</span>
               Créer une société
@@ -166,7 +166,7 @@ export function Companies() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
-                        <Link to={`/companies/${company.id}/edit`}>
+                        <Link to={`/dashboard/companies/${company.id}/edit`}>
                           <Button variant="outline" size="sm">
                             <Pencil className="h-4 w-4 mr-1.5" />
                             Modifier

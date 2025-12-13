@@ -97,7 +97,7 @@ export function Dashboard() {
             Gérez vos comptes rendus d'activité
           </p>
         </div>
-        <Link to="/cra/new">
+        <Link to="/dashboard/cra/new">
           <Button size="lg">
             <span className="mr-2">+</span>
             Nouveau CRA
@@ -205,7 +205,7 @@ export function Dashboard() {
             <p className="text-sm text-[rgb(var(--color-text-muted))] mt-2">
               Créez votre premier CRA pour commencer
             </p>
-            <Link to="/cra/new">
+            <Link to="/dashboard/cra/new">
               <Button className="mt-4">Créer un CRA</Button>
             </Link>
           </div>
@@ -262,12 +262,12 @@ export function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Link to={`/cra/${cra.id}/preview`}>
+                    <Link to={`/dashboard/cra/${cra.id}/preview`}>
                       <Button variant="outline" size="sm">
                         Voir
                       </Button>
                     </Link>
-                    <Link to={`/cra/${cra.id}/edit`}>
+                    <Link to={`/dashboard/cra/${cra.id}/edit`}>
                       <Button variant="ghost" size="sm">
                         Éditer
                       </Button>
@@ -287,7 +287,7 @@ export function Dashboard() {
             <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">
               Sociétés
             </h2>
-            <Link to="/companies/new">
+            <Link to="/dashboard/companies/new">
               <Button size="sm">
                 <span className="mr-2">+</span>
                 Nouvelle société
@@ -324,7 +324,7 @@ export function Dashboard() {
             <p className="text-sm text-[rgb(var(--color-text-muted))] mt-2">
               Créez votre première société pour commencer
             </p>
-            <Link to="/companies/new">
+            <Link to="/dashboard/companies/new">
               <Button className="mt-4">Créer une société</Button>
             </Link>
           </div>
@@ -378,7 +378,7 @@ export function Dashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
-                        <Link to={`/companies/${company.id}/edit`}>
+                        <Link to={`/dashboard/companies/${company.id}/edit`}>
                           <Button variant="ghost" size="sm">
                             Éditer
                           </Button>
@@ -394,7 +394,7 @@ export function Dashboard() {
 
         {companies.length > 5 && (
           <div className="px-6 py-3 border-t border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-hover))]">
-            <Link to="/companies">
+            <Link to="/dashboard/companies">
               <Button variant="ghost" size="sm" className="w-full">
                 Voir toutes les sociétés ({companies.length})
               </Button>
@@ -413,7 +413,7 @@ export function Dashboard() {
             <p className="text-[rgb(var(--color-text-secondary))] mb-4">
               Créez votre premier CRA en quelques clics
             </p>
-            <Link to="/cra/new">
+            <Link to="/dashboard/cra/new">
               <Button variant="primary">Créer un CRA</Button>
             </Link>
           </div>

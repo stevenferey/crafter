@@ -41,7 +41,7 @@ export function AuthCallback() {
         setUser(user);
 
         // Rediriger vers le dashboard
-        navigate('/', { replace: true });
+        navigate('/dashboard', { replace: true });
       } catch (err) {
         console.error('[AuthCallback] Error:', err);
         setError('Échec de la récupération du profil');

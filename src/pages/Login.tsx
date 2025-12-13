@@ -14,8 +14,9 @@ export function Login() {
   const isLoading = useAuthStore((state) => state.isLoading);
   const [error, setError] = useState<string | null>(null);
 
-  // Récupérer l'URL de redirection
-  const from = (location.state as { from?: Location })?.from?.pathname || '/';
+  // Récupérer l'URL de redirection (dashboard par défaut)
+  const from =
+    (location.state as { from?: Location })?.from?.pathname || '/dashboard';
 
   const {
     register,
@@ -47,6 +48,27 @@ export function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        {/* Lien retour */}
+        <Link
+          to="/"
+          className="inline-flex items-center text-sm text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text))]"
+        >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Retour à l'accueil
+        </Link>
+
         {/* Header */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">
