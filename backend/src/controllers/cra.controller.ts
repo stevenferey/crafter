@@ -7,6 +7,17 @@ import {
 } from '../types/cra.types.js';
 
 /**
+ * Helper pour obtenir le user_id à filtrer
+ * Retourne undefined pour les admins (qui voient tout)
+ */
+function getUserIdFilter(req: Request): string | undefined {
+  if (!req.user) return undefined;
+  // Les admins peuvent voir tous les CRA
+  if (req.user.role === 'admin') return undefined;
+  return req.user.id;
+}
+
+/**
  * Controller pour gérer les requêtes HTTP liées aux CRA mensuels
  */
 export class CRAController {
@@ -16,7 +27,10 @@ export class CRAController {
    */
   static async getAll(req: Request, res: Response): Promise<void> {
     try {
+      const userIdFilter = getUserIdFilter(req);
+
       const filters: CRAFilters = {
+        user_id: userIdFilter,
         status: req.query.status as string,
         client: req.query.client as string,
         provider: req.query.provider as string,
@@ -58,7 +72,8 @@ export class CRAController {
   static async getById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const cra = await CRAModel.findById(id);
+      const userIdFilter = getUserIdFilter(req);
+      const cra = await CRAModel.findById(id, userIdFilter);
 
       if (!cra) {
         res.status(404).json({
@@ -89,6 +104,16 @@ export class CRAController {
    */
   static async create(req: Request, res: Response): Promise<void> {
     try {
+      // Vérifier que l'utilisateur est authentifié
+      if (!req.user) {
+        res.status(401).json({
+          success: false,
+          error: 'unauthorized',
+          message: 'Authentification requise',
+        });
+        return;
+      }
+
       // Validation basique
       const { month, year, worked_days, client_id, provider_id } = req.body;
 
@@ -153,6 +178,7 @@ export class CRAController {
       }
 
       const craData: CreateCRAInput = {
+        user_id: req.user.id,
         month,
         year,
         worked_days,
@@ -213,6 +239,7 @@ export class CRAController {
   static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const userIdFilter = getUserIdFilter(req);
       const updateData: UpdateCRAInput = {};
 
       // Validation: si on met à jour client_id et provider_id, ils doivent être différents
@@ -314,7 +341,7 @@ export class CRAController {
         updateData.provider_use_current_date =
           req.body.provider_use_current_date;
 
-      const updatedCRA = await CRAModel.update(id, updateData);
+      const updatedCRA = await CRAModel.update(id, updateData, userIdFilter);
 
       if (!updatedCRA) {
         res.status(404).json({
@@ -359,7 +386,8 @@ export class CRAController {
   static async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const deleted = await CRAModel.delete(id);
+      const userIdFilter = getUserIdFilter(req);
+      const deleted = await CRAModel.delete(id, userIdFilter);
 
       if (!deleted) {
         res.status(404).json({

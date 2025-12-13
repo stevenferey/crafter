@@ -15,6 +15,7 @@ export class CompanyModel {
    */
   static async findAll(filters: CompanyFilters = {}): Promise<Company[]> {
     const {
+      user_id,
       designation,
       city,
       repertoire,
@@ -26,6 +27,7 @@ export class CompanyModel {
     let queryText = `
       SELECT
         id,
+        user_id,
         designation,
         address,
         complement,
@@ -56,6 +58,13 @@ export class CompanyModel {
 
     const params: unknown[] = [];
     let paramIndex = 1;
+
+    // Filtrage par utilisateur (obligatoire pour les non-admin)
+    if (user_id) {
+      queryText += ` AND user_id = $${paramIndex}`;
+      params.push(user_id);
+      paramIndex++;
+    }
 
     if (designation) {
       queryText += ` AND designation ILIKE $${paramIndex}`;
@@ -94,10 +103,11 @@ export class CompanyModel {
   /**
    * Récupère une société par son ID
    */
-  static async findById(id: string): Promise<Company | null> {
-    const queryText = `
+  static async findById(id: string, userId?: string): Promise<Company | null> {
+    let queryText = `
       SELECT
         id,
+        user_id,
         designation,
         address,
         complement,
@@ -126,7 +136,15 @@ export class CompanyModel {
       WHERE id = $1
     `;
 
-    const result = await query<Company>(queryText, [id]);
+    const params: unknown[] = [id];
+
+    // Si userId fourni, filtrer par propriétaire (sauf admin)
+    if (userId) {
+      queryText += ` AND user_id = $2`;
+      params.push(userId);
+    }
+
+    const result = await query<Company>(queryText, params);
     return result.rows[0] || null;
   }
 
@@ -136,6 +154,7 @@ export class CompanyModel {
   static async create(data: CreateCompanyInput): Promise<Company> {
     const queryText = `
       INSERT INTO companies (
+        user_id,
         designation,
         address,
         complement,
@@ -159,9 +178,10 @@ export class CompanyModel {
         default_signature_location,
         default_use_current_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
       RETURNING
         id,
+        user_id,
         designation,
         address,
         complement,
@@ -189,6 +209,7 @@ export class CompanyModel {
     `;
 
     const params = [
+      data.user_id,
       data.designation,
       data.address,
       data.complement || null,
@@ -223,6 +244,7 @@ export class CompanyModel {
   static async update(
     id: string,
     data: UpdateCompanyInput,
+    userId?: string,
   ): Promise<Company | null> {
     const client = await pool.connect();
 
@@ -372,18 +394,28 @@ export class CompanyModel {
       if (updates.length === 1) {
         // Seulement updated_at, pas besoin de mise à jour
         await client.query('COMMIT');
-        return this.findById(id);
+        return this.findById(id, userId);
       }
 
       // Ajouter l'ID à la fin des paramètres
       params.push(id);
 
+      let whereClause = `WHERE id = $${paramIndex}`;
+      paramIndex++;
+
+      // Si userId fourni, filtrer par propriétaire (sauf admin)
+      if (userId) {
+        whereClause += ` AND user_id = $${paramIndex}`;
+        params.push(userId);
+      }
+
       const updateQuery = `
         UPDATE companies
         SET ${updates.join(', ')}
-        WHERE id = $${paramIndex}
+        ${whereClause}
         RETURNING
           id,
+          user_id,
           designation,
           address,
           complement,
@@ -427,7 +459,7 @@ export class CompanyModel {
    * Supprime une société
    * Retourne une erreur si la société est utilisée dans des CRA
    */
-  static async delete(id: string): Promise<boolean> {
+  static async delete(id: string, userId?: string): Promise<boolean> {
     const client = await pool.connect();
 
     try {
@@ -450,10 +482,16 @@ export class CompanyModel {
         );
       }
 
-      // Supprimer la société
-      const result = await client.query('DELETE FROM companies WHERE id = $1', [
-        id,
-      ]);
+      // Supprimer la société avec filtrage par propriétaire si userId fourni
+      let deleteQuery = 'DELETE FROM companies WHERE id = $1';
+      const params: unknown[] = [id];
+
+      if (userId) {
+        deleteQuery += ' AND user_id = $2';
+        params.push(userId);
+      }
+
+      const result = await client.query(deleteQuery, params);
 
       await client.query('COMMIT');
 
@@ -470,11 +508,18 @@ export class CompanyModel {
    * Compte le nombre total de sociétés avec filtres
    */
   static async count(filters: CompanyFilters = {}): Promise<number> {
-    const { designation, city, repertoire, registre } = filters;
+    const { user_id, designation, city, repertoire, registre } = filters;
 
     let queryText = 'SELECT COUNT(*) as count FROM companies WHERE 1=1';
     const params: unknown[] = [];
     let paramIndex = 1;
+
+    // Filtrage par utilisateur (obligatoire pour les non-admin)
+    if (user_id) {
+      queryText += ` AND user_id = $${paramIndex}`;
+      params.push(user_id);
+      paramIndex++;
+    }
 
     if (designation) {
       queryText += ` AND designation ILIKE $${paramIndex}`;

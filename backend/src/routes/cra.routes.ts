@@ -1,12 +1,17 @@
 import { Router } from 'express';
 import { CRAController } from '../controllers/cra.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
 /**
  * Routes pour les CRA
  * Base path: /api/cras
+ * Toutes les routes sont protégées par authentification
  */
+
+// Appliquer l'authentification à toutes les routes
+router.use(authenticate);
 
 // GET /api/cras - Liste tous les CRA avec filtres optionnels
 router.get('/', CRAController.getAll);

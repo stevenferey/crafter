@@ -4,7 +4,11 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import cookieParser from 'cookie-parser';
+import passport from 'passport';
 import { testConnection, closePool } from './config/database.js';
+import { configurePassport } from './config/passport.config.js';
+import authRoutes from './routes/auth.routes.js';
 import craRoutes from './routes/cra.routes.js';
 import companyRoutes from './routes/company.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
@@ -27,9 +31,14 @@ app.use(
   }),
 );
 
-// Middleware pour parser le JSON
+// Middleware pour parser le JSON et les cookies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Initialiser Passport
+configurePassport();
+app.use(passport.initialize());
 
 // Servir les fichiers statiques (uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -41,6 +50,7 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/cras', craRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/upload', uploadRoutes);
@@ -99,32 +109,40 @@ async function startServer() {
     // Démarrer le serveur Express
     app.listen(PORT, () => {
       console.log('');
-      console.log('╔═══════════════════════════════════════════════╗');
-      console.log('║                                               ║');
-      console.log(`║  🚀 Server running on http://localhost:${PORT}  ║`);
-      console.log('║                                               ║');
-      console.log('║  📚 API Documentation:                        ║');
-      console.log(`║     GET    /api/health                        ║`);
-      console.log('║                                               ║');
-      console.log('║  CRAs:                                        ║');
-      console.log(`║     GET    /api/cras                          ║`);
-      console.log(`║     GET    /api/cras/:id                      ║`);
-      console.log(`║     POST   /api/cras                          ║`);
-      console.log(`║     PUT    /api/cras/:id                      ║`);
-      console.log(`║     DELETE /api/cras/:id                      ║`);
-      console.log('║                                               ║');
-      console.log('║  Companies:                                   ║');
-      console.log(`║     GET    /api/companies                     ║`);
-      console.log(`║     GET    /api/companies/:id                 ║`);
-      console.log(`║     POST   /api/companies                     ║`);
-      console.log(`║     PUT    /api/companies/:id                 ║`);
-      console.log(`║     DELETE /api/companies/:id                 ║`);
-      console.log('║                                               ║');
-      console.log('║  Upload:                                      ║');
-      console.log(`║     POST   /api/upload/signature              ║`);
-      console.log(`║     DELETE /api/upload/signature/:filename    ║`);
-      console.log('║                                               ║');
-      console.log('╚═══════════════════════════════════════════════╝');
+      console.log('╔═══════════════════════════════════════════════════╗');
+      console.log('║                                                   ║');
+      console.log(`║  🚀 Server running on http://localhost:${PORT}      ║`);
+      console.log('║                                                   ║');
+      console.log('║  📚 API Documentation:                            ║');
+      console.log(`║     GET    /api/health                            ║`);
+      console.log('║                                                   ║');
+      console.log('║  Auth:                                            ║');
+      console.log(`║     POST   /api/auth/register                     ║`);
+      console.log(`║     POST   /api/auth/login                        ║`);
+      console.log(`║     POST   /api/auth/logout                       ║`);
+      console.log(`║     POST   /api/auth/refresh                      ║`);
+      console.log(`║     GET    /api/auth/me                           ║`);
+      console.log(`║     GET    /api/auth/google                       ║`);
+      console.log('║                                                   ║');
+      console.log('║  CRAs:                                            ║');
+      console.log(`║     GET    /api/cras                              ║`);
+      console.log(`║     GET    /api/cras/:id                          ║`);
+      console.log(`║     POST   /api/cras                              ║`);
+      console.log(`║     PUT    /api/cras/:id                          ║`);
+      console.log(`║     DELETE /api/cras/:id                          ║`);
+      console.log('║                                                   ║');
+      console.log('║  Companies:                                       ║');
+      console.log(`║     GET    /api/companies                         ║`);
+      console.log(`║     GET    /api/companies/:id                     ║`);
+      console.log(`║     POST   /api/companies                         ║`);
+      console.log(`║     PUT    /api/companies/:id                     ║`);
+      console.log(`║     DELETE /api/companies/:id                     ║`);
+      console.log('║                                                   ║');
+      console.log('║  Upload:                                          ║');
+      console.log(`║     POST   /api/upload/signature                  ║`);
+      console.log(`║     DELETE /api/upload/signature/:filename        ║`);
+      console.log('║                                                   ║');
+      console.log('╚═══════════════════════════════════════════════════╝');
       console.log('');
     });
   } catch (error) {

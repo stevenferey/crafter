@@ -15,6 +15,7 @@ export class CRAModel {
    */
   static async findAll(filters: CRAFilters = {}): Promise<CRA[]> {
     const {
+      user_id,
       status,
       client,
       provider,
@@ -27,6 +28,7 @@ export class CRAModel {
     let queryText = `
       SELECT
         id,
+        user_id,
         month,
         year,
         worked_days,
@@ -52,6 +54,13 @@ export class CRAModel {
 
     const params: unknown[] = [];
     let paramIndex = 1;
+
+    // Filtrage par utilisateur (obligatoire pour les non-admin)
+    if (user_id) {
+      queryText += ` AND user_id = $${paramIndex}`;
+      params.push(user_id);
+      paramIndex++;
+    }
 
     if (status) {
       queryText += ` AND status = $${paramIndex}`;
@@ -96,10 +105,11 @@ export class CRAModel {
   /**
    * Récupère un CRA par son ID
    */
-  static async findById(id: string): Promise<CRA | null> {
-    const queryText = `
+  static async findById(id: string, userId?: string): Promise<CRA | null> {
+    let queryText = `
       SELECT
         id,
+        user_id,
         month,
         year,
         worked_days,
@@ -123,7 +133,15 @@ export class CRAModel {
       WHERE id = $1
     `;
 
-    const result = await query<CRA>(queryText, [id]);
+    const params: unknown[] = [id];
+
+    // Si userId fourni, filtrer par propriétaire (sauf admin)
+    if (userId) {
+      queryText += ` AND user_id = $2`;
+      params.push(userId);
+    }
+
+    const result = await query<CRA>(queryText, params);
     return result.rows[0] || null;
   }
 
@@ -133,6 +151,7 @@ export class CRAModel {
   static async create(data: CreateCRAInput): Promise<CRA> {
     const queryText = `
       INSERT INTO cras (
+        user_id,
         month,
         year,
         worked_days,
@@ -151,9 +170,10 @@ export class CRAModel {
         provider_signature_location,
         provider_use_current_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING
         id,
+        user_id,
         month,
         year,
         worked_days,
@@ -176,6 +196,7 @@ export class CRAModel {
     `;
 
     const result = await query<CRA>(queryText, [
+      data.user_id,
       data.month,
       data.year,
       data.worked_days,
@@ -201,7 +222,7 @@ export class CRAModel {
   /**
    * Met à jour un CRA existant
    */
-  static async update(id: string, data: UpdateCRAInput): Promise<CRA | null> {
+  static async update(id: string, data: UpdateCRAInput, userId?: string): Promise<CRA | null> {
     // Construire la requête de mise à jour dynamiquement
     const updates: string[] = [];
     const params: unknown[] = [];
@@ -314,18 +335,28 @@ export class CRAModel {
 
     if (updates.length === 1) {
       // Seulement updated_at, récupérer le CRA existant
-      return this.findById(id);
+      return this.findById(id, userId);
     }
 
     // Ajouter l'ID à la fin des paramètres
     params.push(id);
 
+    let whereClause = `WHERE id = $${paramIndex}`;
+    paramIndex++;
+
+    // Si userId fourni, filtrer par propriétaire (sauf admin)
+    if (userId) {
+      whereClause += ` AND user_id = $${paramIndex}`;
+      params.push(userId);
+    }
+
     const updateQuery = `
       UPDATE cras
       SET ${updates.join(', ')}
-      WHERE id = $${paramIndex}
+      ${whereClause}
       RETURNING
         id,
+        user_id,
         month,
         year,
         worked_days,
@@ -354,9 +385,17 @@ export class CRAModel {
   /**
    * Supprime un CRA
    */
-  static async delete(id: string): Promise<boolean> {
-    const queryText = 'DELETE FROM cras WHERE id = $1';
-    const result = await query(queryText, [id]);
+  static async delete(id: string, userId?: string): Promise<boolean> {
+    let queryText = 'DELETE FROM cras WHERE id = $1';
+    const params: unknown[] = [id];
+
+    // Si userId fourni, filtrer par propriétaire (sauf admin)
+    if (userId) {
+      queryText += ' AND user_id = $2';
+      params.push(userId);
+    }
+
+    const result = await query(queryText, params);
     return result.rowCount !== null && result.rowCount > 0;
   }
 
@@ -364,11 +403,18 @@ export class CRAModel {
    * Compte le nombre total de CRA avec filtres
    */
   static async count(filters: CRAFilters = {}): Promise<number> {
-    const { status, client, provider, year, month } = filters;
+    const { user_id, status, client, provider, year, month } = filters;
 
     let queryText = 'SELECT COUNT(*) as count FROM cras WHERE 1=1';
     const params: unknown[] = [];
     let paramIndex = 1;
+
+    // Filtrage par utilisateur (obligatoire pour les non-admin)
+    if (user_id) {
+      queryText += ` AND user_id = $${paramIndex}`;
+      params.push(user_id);
+      paramIndex++;
+    }
 
     if (status) {
       queryText += ` AND status = $${paramIndex}`;

@@ -11,6 +11,7 @@ export interface Activity {
 
 export interface CRA {
   id: string;
+  user_id: string; // UUID de l'utilisateur propriétaire
   month: number; // 1-12 (Janvier = 1, Décembre = 12)
   year: number; // Année (ex: 2025)
   worked_days: number[]; // Liste des jours travaillés du mois
@@ -36,6 +37,7 @@ export interface CRA {
 }
 
 export interface CreateCRAInput {
+  user_id: string; // UUID de l'utilisateur propriétaire
   month: number;
   year: number;
   worked_days: number[];
@@ -80,6 +82,7 @@ export interface UpdateCRAInput {
 }
 
 export interface CRAFilters {
+  user_id?: string; // UUID de l'utilisateur (pour filtrer par propriétaire)
   status?: string;
   client?: string; // UUID de la société cliente
   provider?: string; // UUID de la société prestataire
