@@ -128,7 +128,7 @@ export function PreviewCRA() {
               <Button
                 variant="outline"
                 className="mt-4"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
               >
                 Retour au dashboard
               </Button>
@@ -163,7 +163,7 @@ export function PreviewCRA() {
       <div className="mb-6">
         <div className="flex items-center gap-2 text-sm text-[rgb(var(--color-text-secondary))] mb-2">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             className="hover:text-[rgb(var(--color-text))]"
           >
             Dashboard
@@ -241,7 +241,7 @@ export function PreviewCRA() {
 
       {/* Actions */}
       <div className="mt-6 flex justify-end gap-3">
-        <Button variant="outline" onClick={() => navigate('/')}>
+        <Button variant="outline" onClick={() => navigate('/dashboard')}>
           Retour au dashboard
         </Button>
       </div>

@@ -71,7 +71,7 @@ export function AppLayout() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <Link to="/" className="flex items-center space-x-2">
+              <Link to="/dashboard" className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">C</span>
                 </div>
@@ -84,10 +84,10 @@ export function AppLayout() {
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
               <Link
-                to="/"
+                to="/dashboard"
                 className={cn(
                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  isActive('/')
+                  isActive('/dashboard')
                     ? 'bg-[rgb(var(--color-primary-light))] text-blue-700'
                     : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-hover))] hover:text-[rgb(var(--color-text))]',
                 )}
@@ -95,10 +95,10 @@ export function AppLayout() {
                 Dashboard
               </Link>
               <Link
-                to="/cra/new"
+                to="/dashboard/cra/new"
                 className={cn(
                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  isActive('/cra/new')
+                  isActive('/dashboard/cra/new')
                     ? 'bg-[rgb(var(--color-primary-light))] text-blue-700'
                     : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-hover))] hover:text-[rgb(var(--color-text))]',
                 )}
@@ -106,10 +106,10 @@ export function AppLayout() {
                 Nouveau CRA
               </Link>
               <Link
-                to="/companies"
+                to="/dashboard/companies"
                 className={cn(
                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  location.pathname.startsWith('/companies')
+                  location.pathname.startsWith('/dashboard/companies')
                     ? 'bg-[rgb(var(--color-primary-light))] text-blue-700'
                     : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-hover))] hover:text-[rgb(var(--color-text))]',
                 )}
