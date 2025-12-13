@@ -3,9 +3,26 @@
  */
 
 // Configuration de l'API
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 const AI_API_KEY = import.meta.env.VITE_AI_API_KEY;
 const APP_NAME = import.meta.env.VITE_APP_NAME || 'Crafter';
+
+/**
+ * Fonction pour récupérer le token d'accès depuis le localStorage
+ * Évite la dépendance circulaire avec le store
+ */
+const getAccessToken = (): string | null => {
+  try {
+    const stored = localStorage.getItem('crafter-auth-storage');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return parsed.state?.accessToken || null;
+    }
+  } catch {
+    // Ignorer les erreurs de parsing
+  }
+  return null;
+};
 
 /**
  * Options par défaut pour les requêtes fetch
@@ -14,6 +31,7 @@ const defaultOptions: RequestInit = {
   headers: {
     'Content-Type': 'application/json',
   },
+  credentials: 'include', // Nécessaire pour les cookies (refresh token)
 };
 
 /**
@@ -40,12 +58,17 @@ async function fetchAPI<T>(
 ): Promise<T> {
   const url = `${API_URL}${endpoint}`;
 
+  // Récupérer le token d'accès pour les requêtes authentifiées
+  const accessToken = getAccessToken();
+
   const config: RequestInit = {
     ...defaultOptions,
     ...options,
     headers: {
       ...defaultOptions.headers,
       ...options.headers,
+      // Ajouter le token d'authentification si disponible
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
     },
   };
 
@@ -136,6 +159,7 @@ export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
+  message?: string;
 }
 
 /**

@@ -1,12 +1,17 @@
 import { Router } from 'express';
 import { CompanyController } from '../controllers/company.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
 /**
  * Routes pour les sociétés
  * Base path: /api/companies
+ * Toutes les routes sont protégées par authentification
  */
+
+// Appliquer l'authentification à toutes les routes
+router.use(authenticate);
 
 // GET /api/companies - Liste toutes les sociétés avec filtres optionnels
 router.get('/', (req, res) => CompanyController.getAll(req, res));

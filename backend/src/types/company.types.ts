@@ -35,6 +35,7 @@ export type Registre =
 
 export interface Company {
   id: string;
+  user_id: string; // UUID de l'utilisateur propriétaire
 
   // Désignation
   designation: string;
@@ -80,6 +81,9 @@ export interface Company {
 }
 
 export interface CreateCompanyInput {
+  // Propriétaire (obligatoire)
+  user_id: string;
+
   // Désignation (obligatoire)
   designation: string;
 
@@ -146,6 +150,7 @@ export interface UpdateCompanyInput {
 }
 
 export interface CompanyFilters {
+  user_id?: string; // UUID de l'utilisateur (pour filtrer par propriétaire)
   designation?: string;
   city?: string;
   repertoire?: Repertoire;

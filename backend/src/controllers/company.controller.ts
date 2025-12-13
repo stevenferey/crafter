@@ -10,6 +10,17 @@ import {
 } from '../types/company.types.js';
 
 /**
+ * Helper pour obtenir le user_id à filtrer
+ * Retourne undefined pour les admins (qui voient tout)
+ */
+function getUserIdFilter(req: Request): string | undefined {
+  if (!req.user) return undefined;
+  // Les admins peuvent voir toutes les sociétés
+  if (req.user.role === 'admin') return undefined;
+  return req.user.id;
+}
+
+/**
  * Regex pour la validation des formats français
  */
 const VALIDATION_REGEX = {
@@ -194,7 +205,10 @@ export class CompanyController {
    */
   static async getAll(req: Request, res: Response): Promise<void> {
     try {
+      const userIdFilter = getUserIdFilter(req);
+
       const filters: CompanyFilters = {
+        user_id: userIdFilter,
         designation: req.query.designation as string,
         city: req.query.city as string,
         repertoire: req.query.repertoire as Repertoire,
@@ -233,7 +247,8 @@ export class CompanyController {
   static async getById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const company = await CompanyModel.findById(id);
+      const userIdFilter = getUserIdFilter(req);
+      const company = await CompanyModel.findById(id, userIdFilter);
 
       if (!company) {
         res.status(404).json({
@@ -264,7 +279,18 @@ export class CompanyController {
    */
   static async create(req: Request, res: Response): Promise<void> {
     try {
+      // Vérifier que l'utilisateur est authentifié
+      if (!req.user) {
+        res.status(401).json({
+          success: false,
+          error: 'unauthorized',
+          message: 'Authentification requise',
+        });
+        return;
+      }
+
       const companyData: CreateCompanyInput = {
+        user_id: req.user.id,
         designation: req.body.designation,
         address: req.body.address,
         complement: req.body.complement || undefined,
@@ -325,6 +351,7 @@ export class CompanyController {
   static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const userIdFilter = getUserIdFilter(req);
       const updateData: UpdateCompanyInput = {};
 
       // Construire les données de mise à jour à partir du body
@@ -382,7 +409,7 @@ export class CompanyController {
         return;
       }
 
-      const updatedCompany = await CompanyModel.update(id, updateData);
+      const updatedCompany = await CompanyModel.update(id, updateData, userIdFilter);
 
       if (!updatedCompany) {
         res.status(404).json({
@@ -415,7 +442,8 @@ export class CompanyController {
   static async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const deleted = await CompanyModel.delete(id);
+      const userIdFilter = getUserIdFilter(req);
+      const deleted = await CompanyModel.delete(id, userIdFilter);
 
       if (!deleted) {
         res.status(404).json({
