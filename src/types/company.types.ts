@@ -85,14 +85,14 @@ export interface CreateCompanyInput {
 
   // Siège social (obligatoire sauf complement)
   address: string;
-  complement?: string;
+  complement?: string | null;
   city: string;
   postal_code: string;
   country: string;
 
   // Contact (email obligatoire, téléphone optionnel)
   email: string;
-  phone?: string;
+  phone?: string | null;
 
   // Identification (répertoire + numéro obligatoires)
   repertoire: Repertoire;
@@ -100,22 +100,22 @@ export interface CreateCompanyInput {
 
   // Immatriculation (dispense obligatoire, registre et numéro optionnels)
   dispense: boolean;
-  registre?: Registre;
-  registre_number?: string;
+  registre?: Registre | null;
+  registre_number?: string | null;
 
   // Activité (liste obligatoire, code optionnel)
   liste: Liste;
-  code?: string;
+  code?: string | null;
 
   // TVA (exemption obligatoire, numéro optionnel)
   exemption: boolean;
-  tva_number?: string;
+  tva_number?: string | null;
 
-  // Signature par défaut (optionnel)
-  default_signatory_name?: string;
-  default_signatory_title?: string;
-  default_signature_image?: string;
-  default_signature_location?: string;
+  // Signature par défaut (optionnel, accepte null pour effacer)
+  default_signatory_name?: string | null;
+  default_signatory_title?: string | null;
+  default_signature_image?: string | null;
+  default_signature_location?: string | null;
   default_use_current_date?: boolean;
 }
 

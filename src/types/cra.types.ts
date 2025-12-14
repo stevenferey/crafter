@@ -60,6 +60,7 @@ export type CreateCRAInput = {
 
 /**
  * Type pour la mise à jour d'un CRA
+ * Note: les champs de signature acceptent null pour permettre l'effacement explicite via l'API
  */
 export type UpdateCRAInput = {
   month?: number;
@@ -70,17 +71,17 @@ export type UpdateCRAInput = {
   provider_id?: string;
   status?: CRAStatus;
 
-  // Signatures (optionnel)
-  client_signatory_name?: string;
-  client_signatory_title?: string;
-  client_signature_image?: string;
-  client_signature_location?: string;
-  client_use_current_date?: boolean;
-  provider_signatory_name?: string;
-  provider_signatory_title?: string;
-  provider_signature_image?: string;
-  provider_signature_location?: string;
-  provider_use_current_date?: boolean;
+  // Signatures (optionnel, accepte null pour effacer)
+  client_signatory_name?: string | null;
+  client_signatory_title?: string | null;
+  client_signature_image?: string | null;
+  client_signature_location?: string | null;
+  client_use_current_date?: boolean | null;
+  provider_signatory_name?: string | null;
+  provider_signatory_title?: string | null;
+  provider_signature_image?: string | null;
+  provider_signature_location?: string | null;
+  provider_use_current_date?: boolean | null;
 };
 
 /**
