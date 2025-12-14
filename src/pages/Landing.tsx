@@ -1,7 +1,19 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui';
+import {
+  DonationModal,
+  BitcoinIcon,
+  EthereumIcon,
+} from '@/components/features/DonationModal';
+
+const BTC_ADDRESS = import.meta.env.VITE_DONATION_BTC;
+const ETH_ADDRESS = import.meta.env.VITE_DONATION_ETH;
 
 export function Landing() {
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+  const hasDonationAddresses = BTC_ADDRESS || ETH_ADDRESS;
+
   return (
     <div className="min-h-screen bg-[rgb(var(--color-bg-secondary))]">
       {/* Hero Section */}
@@ -155,11 +167,42 @@ export function Landing() {
       {/* Footer */}
       <footer className="py-8 bg-[rgb(var(--color-bg))] border-t border-[rgb(var(--color-border))]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-[rgb(var(--color-text-secondary))]">
-            &copy; {new Date().getFullYear()} Crafter. Tous droits réservés.
-          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+              &copy; {new Date().getFullYear()} Crafter. Tous droits réservés.
+            </p>
+            {hasDonationAddresses && (
+              <div className="flex items-center gap-2">
+                <span className="text-[rgb(var(--color-border))] hidden sm:inline">
+                  |
+                </span>
+                <button
+                  onClick={() => setIsDonationModalOpen(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm text-[rgb(var(--color-text-muted))] hover:text-[rgb(var(--color-text))] hover:bg-[rgb(var(--color-surface-hover))] transition-colors group cursor-pointer"
+                  aria-label="Soutenir le projet"
+                >
+                  {BTC_ADDRESS && (
+                    <span className="transition-transform duration-500 group-hover:rotate-[360deg]">
+                      <BitcoinIcon />
+                    </span>
+                  )}
+                  {ETH_ADDRESS && (
+                    <span className="transition-transform duration-500 group-hover:rotate-[360deg]">
+                      <EthereumIcon />
+                    </span>
+                  )}
+                  <span>Soutenir</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </footer>
+
+      <DonationModal
+        isOpen={isDonationModalOpen}
+        onClose={() => setIsDonationModalOpen(false)}
+      />
     </div>
   );
 }

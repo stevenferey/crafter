@@ -1,6 +1,6 @@
-# Exemples d'utilisation des composants de formulaire
+# Exemples d'utilisation des composants UI
 
-Ce document présente des exemples d'utilisation des composants de formulaire UI.
+Ce document présente des exemples d'utilisation des composants UI.
 
 ## Import des composants
 
@@ -408,3 +408,71 @@ Tous les composants acceptent une prop `className` pour personnalisation :
   ...
 </FormSection>
 ```
+
+## Modal
+
+Composant modal réutilisable avec overlay, fermeture au clic extérieur et support clavier (Escape).
+
+### Import
+
+```tsx
+import { Modal } from '@/components/ui/Modal';
+```
+
+### Utilisation basique
+
+```tsx
+import { useState } from 'react';
+import { Modal } from '@/components/ui/Modal';
+
+function MyComponent() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <button onClick={() => setIsOpen(true)}>Ouvrir la modal</button>
+
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Titre de la modal"
+      >
+        <p>Contenu de la modal</p>
+      </Modal>
+    </>
+  );
+}
+```
+
+### Sans titre (modal simple)
+
+```tsx
+<Modal isOpen={isOpen} onClose={handleClose}>
+  <div className="text-center">
+    <p>Êtes-vous sûr de vouloir continuer ?</p>
+    <div className="mt-4 flex justify-center gap-2">
+      <button onClick={handleClose}>Annuler</button>
+      <button onClick={handleConfirm}>Confirmer</button>
+    </div>
+  </div>
+</Modal>
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `isOpen` | `boolean` | - | Contrôle l'affichage de la modal |
+| `onClose` | `() => void` | - | Callback appelé à la fermeture |
+| `title` | `string` | - | Titre affiché dans le header (optionnel) |
+| `className` | `string` | - | Classes CSS additionnelles |
+| `children` | `ReactNode` | - | Contenu de la modal |
+
+### Fonctionnalités
+
+- ✅ Fermeture au clic sur l'overlay
+- ✅ Fermeture avec la touche Escape
+- ✅ Bloque le scroll du body quand ouverte
+- ✅ Animation d'apparition (fade + zoom)
+- ✅ Support du thème dark/light
+- ✅ Accessibilité (role="dialog", aria-modal, aria-labelledby)
