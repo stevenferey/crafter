@@ -145,12 +145,12 @@ export class AuthController {
         return;
       }
 
-      // Vérifier si l'utilisateur a un mot de passe (compte OAuth uniquement)
+      // Vérifier si l'utilisateur a un mot de passe
       if (!user.password_hash) {
         res.status(401).json({
           success: false,
-          error: 'oauth_only',
-          message: 'Ce compte utilise la connexion Google. Veuillez vous connecter avec Google.',
+          error: 'no_password',
+          message: 'Ce compte n\'a pas de mot de passe configuré. Veuillez réinitialiser votre mot de passe.',
         });
         return;
       }
@@ -615,47 +615,6 @@ export class AuthController {
         error: 'server_error',
         message: 'Erreur lors de la mise à jour du profil',
       });
-    }
-  }
-
-  /**
-   * GET /api/auth/google/callback
-   * Callback après authentification Google
-   * (appelé par Passport après succès OAuth)
-   */
-  static async googleCallback(req: Request, res: Response): Promise<void> {
-    try {
-      if (!req.user) {
-        res.redirect(`${process.env.FRONTEND_URL}/login?error=google_auth_failed`);
-        return;
-      }
-
-      // Générer les tokens
-      const tokenPayload: TokenPayload = {
-        userId: req.user.id,
-        email: req.user.email,
-        role: req.user.role,
-      };
-
-      const { accessToken, refreshToken } = TokenService.generateTokenPair(tokenPayload);
-
-      // Sauvegarder le refresh token
-      const refreshTokenHash = TokenService.hashToken(refreshToken);
-      await UserModel.setRefreshToken(req.user.id, refreshTokenHash);
-
-      // Mettre à jour la date de dernière connexion
-      await UserModel.updateLastLogin(req.user.id);
-
-      // Définir le cookie refresh token
-      res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
-
-      console.log(`[Auth] Google login successful: ${req.user.email}`);
-
-      // Rediriger vers le frontend avec l'access token en paramètre
-      res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${accessToken}`);
-    } catch (error) {
-      console.error('[Auth] Google callback error:', error);
-      res.redirect(`${process.env.FRONTEND_URL}/login?error=server_error`);
     }
   }
 }

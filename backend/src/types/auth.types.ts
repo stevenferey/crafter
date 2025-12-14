@@ -15,7 +15,6 @@ export interface User {
   email_verification_expires?: Date;
   password_reset_token?: string;
   password_reset_expires?: Date;
-  google_id?: string;
   refresh_token_hash?: string;
   last_login_at?: Date;
   created_at: Date;

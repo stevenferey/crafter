@@ -10,7 +10,6 @@ export interface User {
   last_name?: string;
   avatar_url?: string;
   email_verified: boolean;
-  google_id?: string;
   last_login_at?: string;
   created_at: string;
   updated_at: string;
