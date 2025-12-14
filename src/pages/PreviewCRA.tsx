@@ -190,7 +190,7 @@ export function PreviewCRA() {
           <div className="flex gap-3">
             <Button
               variant="outline"
-              onClick={() => navigate(`/cra/${id}/edit`)}
+              onClick={() => navigate(`/dashboard/cra/${id}/edit`)}
             >
               Éditer
             </Button>
