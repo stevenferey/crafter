@@ -4,6 +4,8 @@ interface ImportMetaEnv {
   readonly VITE_API_URL: string;
   readonly VITE_AI_API_KEY?: string;
   readonly VITE_APP_NAME: string;
+  readonly VITE_DONATION_BTC?: string;
+  readonly VITE_DONATION_ETH?: string;
 }
 
 interface ImportMeta {

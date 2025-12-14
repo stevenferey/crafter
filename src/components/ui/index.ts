@@ -40,3 +40,6 @@ export type {
   FormGroupProps,
   FormSectionProps,
 } from './FormField';
+
+export { Modal } from './Modal';
+export type { ModalProps } from './Modal';

@@ -65,6 +65,10 @@ VITE_AI_API_KEY=
 
 # Application Name
 VITE_APP_NAME=Crafter
+
+# Donation addresses (optionnel, pour afficher les boutons de dons)
+VITE_DONATION_BTC=
+VITE_DONATION_ETH=
 ```
 
 **Important** :
@@ -128,10 +132,13 @@ src/
    - Navigation avec `<Link>` et `useNavigate()`
    - Paramètres dynamiques avec `useParams()`
    - Routes principales :
-     - `/` → Dashboard
-     - `/cra/new` → CreateCRA
-     - `/cra/:id/edit` → EditCRA
-     - `/cra/:id/preview` → PreviewCRA
+     - `/` → Landing (page publique)
+     - `/login`, `/register` → Authentification
+     - `/dashboard` → Dashboard (utilisateurs connectés)
+     - `/dashboard/cra/new` → CreateCRA
+     - `/dashboard/cra/:id/edit` → EditCRA
+     - `/dashboard/cra/:id/preview` → PreviewCRA
+     - `/dashboard/companies` → Liste des sociétés
 
 Exemple de configuration du router :
 ```tsx
@@ -139,13 +146,20 @@ import { createBrowserRouter } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 
 export const router = createBrowserRouter([
+  // Routes publiques
+  { path: '/', element: <Landing /> },
+  { path: '/login', element: <Login /> },
+  { path: '/register', element: <Register /> },
+
+  // Routes protégées (utilisateurs connectés)
   {
-    path: '/',
-    element: <AppLayout />,
+    path: '/dashboard',
+    element: <ProtectedRoute><AppLayout /></ProtectedRoute>,
     children: [
       { index: true, element: <Dashboard /> },
       { path: 'cra/new', element: <CreateCRA /> },
       { path: 'cra/:id/edit', element: <EditCRA /> },
+      { path: 'companies', element: <Companies /> },
     ],
   },
 ]);

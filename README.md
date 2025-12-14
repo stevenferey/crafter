@@ -190,6 +190,8 @@ Format de réponse API :
 VITE_API_URL=http://localhost:3001/api
 VITE_AI_API_KEY=
 VITE_APP_NAME=Crafter
+VITE_DONATION_BTC=       # Adresse Bitcoin (optionnel)
+VITE_DONATION_ETH=       # Adresse Ethereum ERC20 (optionnel)
 ```
 
 #### Backend (`backend/.env`)

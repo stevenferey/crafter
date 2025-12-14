@@ -78,6 +78,8 @@ Le projet utilise les variables d'environnement Vite (préfixe `VITE_`):
 - `VITE_API_URL` - URL de l'API backend
 - `VITE_AI_API_KEY` - Clé API pour services IA (optionnel)
 - `VITE_APP_NAME` - Nom de l'application
+- `VITE_DONATION_BTC` - Adresse Bitcoin pour les dons (optionnel)
+- `VITE_DONATION_ETH` - Adresse Ethereum ERC20 pour les dons (optionnel)
 
 Fichiers de configuration :
 - `.env.example` - Template (versionné)

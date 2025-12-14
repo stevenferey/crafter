@@ -4,6 +4,14 @@ import { cn } from '@/lib/utils';
 import { useAppStore, useSystemThemeListener } from '@/stores/app.store';
 import { useAuthStore } from '@/stores/auth.store';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import {
+  DonationModal,
+  BitcoinIcon,
+  EthereumIcon,
+} from '@/components/features/DonationModal';
+
+const BTC_ADDRESS = import.meta.env.VITE_DONATION_BTC;
+const ETH_ADDRESS = import.meta.env.VITE_DONATION_ETH;
 
 export function AppLayout() {
   const location = useLocation();
@@ -18,6 +26,10 @@ export function AppLayout() {
   // Menu utilisateur
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Modal de dons
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+  const hasDonationAddresses = BTC_ADDRESS || ETH_ADDRESS;
 
   // Fermer le menu en cliquant à l'extérieur
   useEffect(() => {
@@ -221,7 +233,26 @@ export function AppLayout() {
             <div className="text-sm text-[rgb(var(--color-text-muted))]">
               © 2025 DiscoData. Tous droits réservés.
             </div>
-            <div className="flex space-x-6 text-sm text-[rgb(var(--color-text-muted))]">
+            <div className="flex items-center space-x-6 text-sm text-[rgb(var(--color-text-muted))]">
+              {hasDonationAddresses && (
+                <button
+                  onClick={() => setIsDonationModalOpen(true)}
+                  className="flex items-center gap-1.5 hover:text-[rgb(var(--color-text))] transition-colors group cursor-pointer"
+                  aria-label="Soutenir le projet"
+                >
+                  {BTC_ADDRESS && (
+                    <span className="transition-transform duration-500 group-hover:rotate-[360deg]">
+                      <BitcoinIcon />
+                    </span>
+                  )}
+                  {ETH_ADDRESS && (
+                    <span className="transition-transform duration-500 group-hover:rotate-[360deg]">
+                      <EthereumIcon />
+                    </span>
+                  )}
+                  <span>Soutenir</span>
+                </button>
+              )}
               <a
                 href="#"
                 className="hover:text-[rgb(var(--color-text))] transition-colors"
@@ -246,6 +277,11 @@ export function AppLayout() {
           </div>
         </div>
       </footer>
+
+      <DonationModal
+        isOpen={isDonationModalOpen}
+        onClose={() => setIsDonationModalOpen(false)}
+      />
     </div>
   );
 }
