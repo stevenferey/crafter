@@ -13,7 +13,7 @@ CREATE TABLE users (
 
   -- Identifiants
   email VARCHAR(255) UNIQUE NOT NULL CHECK (email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-  password_hash VARCHAR(255), -- NULL pour les utilisateurs OAuth uniquement
+  password_hash VARCHAR(255) NOT NULL, -- Mot de passe hashé (bcrypt)
 
   -- Rôle
   role user_role NOT NULL DEFAULT 'user',
@@ -32,9 +32,6 @@ CREATE TABLE users (
   password_reset_token VARCHAR(255),
   password_reset_expires TIMESTAMP WITH TIME ZONE,
 
-  -- OAuth Google
-  google_id VARCHAR(255) UNIQUE,
-
   -- Refresh token (hashé pour la révocation)
   refresh_token_hash VARCHAR(255),
 
@@ -46,7 +43,6 @@ CREATE TABLE users (
 
 -- Index pour la table users
 CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_google_id ON users(google_id) WHERE google_id IS NOT NULL;
 CREATE INDEX idx_users_email_verification_token ON users(email_verification_token) WHERE email_verification_token IS NOT NULL;
 CREATE INDEX idx_users_password_reset_token ON users(password_reset_token) WHERE password_reset_token IS NOT NULL;
 CREATE INDEX idx_users_created_at ON users(created_at DESC);
@@ -86,7 +82,7 @@ INSERT INTO users (
 \echo '✓ Migration 004_add_users.sql completed!'
 \echo ''
 \echo 'Table created:'
-\echo '  - users (with 5 indexes and trigger)'
+\echo '  - users (with 4 indexes and trigger)'
 \echo ''
 \echo 'Default admin user created:'
 \echo '  - Email: admin@crafter.app'

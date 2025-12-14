@@ -147,12 +147,4 @@ export const authService = {
       throw new Error(response.message || 'Échec de la réinitialisation');
     }
   },
-
-  /**
-   * Obtenir l'URL d'authentification Google
-   */
-  getGoogleAuthUrl(): string {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-    return `${apiUrl}/auth/google`;
-  },
 };

@@ -15,7 +15,6 @@ const SAFE_USER_COLUMNS = `
   last_name,
   avatar_url,
   email_verified,
-  google_id,
   last_login_at,
   created_at,
   updated_at
@@ -35,7 +34,6 @@ const ALL_USER_COLUMNS = `
   email_verification_expires,
   password_reset_token,
   password_reset_expires,
-  google_id,
   refresh_token_hash,
   last_login_at,
   created_at,
@@ -75,17 +73,6 @@ export class UserModel {
     const result = await query<User>(
       `SELECT ${ALL_USER_COLUMNS} FROM users WHERE LOWER(email) = LOWER($1)`,
       [email]
-    );
-    return result.rows[0] || null;
-  }
-
-  /**
-   * Recherche un utilisateur par son Google ID
-   */
-  static async findByGoogleId(googleId: string): Promise<User | null> {
-    const result = await query<User>(
-      `SELECT ${ALL_USER_COLUMNS} FROM users WHERE google_id = $1`,
-      [googleId]
     );
     return result.rows[0] || null;
   }
@@ -136,31 +123,6 @@ export class UserModel {
        VALUES ($1, $2, $3, $4)
        RETURNING ${ALL_USER_COLUMNS}`,
       [data.email, data.password_hash, data.first_name || null, data.last_name || null]
-    );
-    return result.rows[0];
-  }
-
-  /**
-   * Crée un utilisateur via OAuth Google
-   */
-  static async createFromGoogle(data: {
-    email: string;
-    google_id: string;
-    first_name?: string;
-    last_name?: string;
-    avatar_url?: string;
-  }): Promise<User> {
-    const result = await query<User>(
-      `INSERT INTO users (email, google_id, first_name, last_name, avatar_url, email_verified)
-       VALUES ($1, $2, $3, $4, $5, true)
-       RETURNING ${ALL_USER_COLUMNS}`,
-      [
-        data.email,
-        data.google_id,
-        data.first_name || null,
-        data.last_name || null,
-        data.avatar_url || null,
-      ]
     );
     return result.rows[0];
   }
@@ -300,23 +262,6 @@ export class UserModel {
   }
 
   /**
-   * Lie un compte Google à un utilisateur existant
-   */
-  static async linkGoogleAccount(
-    id: string,
-    googleId: string,
-    avatarUrl?: string
-  ): Promise<boolean> {
-    const result = await query(
-      `UPDATE users
-       SET google_id = $1, avatar_url = COALESCE($2, avatar_url), updated_at = CURRENT_TIMESTAMP
-       WHERE id = $3`,
-      [googleId, avatarUrl || null, id]
-    );
-    return result.rowCount !== null && result.rowCount > 0;
-  }
-
-  /**
    * Supprime un utilisateur
    */
   static async delete(id: string): Promise<boolean> {
@@ -347,7 +292,6 @@ export class UserModel {
       last_name: user.last_name,
       avatar_url: user.avatar_url,
       email_verified: user.email_verified,
-      google_id: user.google_id,
       last_login_at: user.last_login_at,
       created_at: user.created_at,
       updated_at: user.updated_at,

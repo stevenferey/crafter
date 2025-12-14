@@ -14,7 +14,6 @@ import { Register } from '@/pages/Register';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
 import { VerifyEmail } from '@/pages/VerifyEmail';
-import { AuthCallback } from '@/pages/AuthCallback';
 import { NotFound } from '@/pages/NotFound';
 import { ErrorBoundary } from '@/pages/ErrorBoundary';
 
@@ -43,10 +42,6 @@ export const router = createBrowserRouter([
   {
     path: '/verify-email/:token',
     element: <VerifyEmail />,
-  },
-  {
-    path: '/auth/callback',
-    element: <AuthCallback />,
   },
 
   // Routes protégées (nécessitent authentification)

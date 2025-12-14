@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import passport from 'passport';
 import { AuthController } from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 
@@ -25,27 +24,6 @@ router.post('/resend-verification', AuthController.resendVerification);
 // Mot de passe oublié
 router.post('/forgot-password', AuthController.forgotPassword);
 router.post('/reset-password', AuthController.resetPassword);
-
-// ============================================
-// Google OAuth
-// ============================================
-
-router.get(
-  '/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    session: false,
-  })
-);
-
-router.get(
-  '/google/callback',
-  passport.authenticate('google', {
-    session: false,
-    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google_auth_failed`,
-  }),
-  AuthController.googleCallback
-);
 
 // ============================================
 // Routes protégées (authentification requise)

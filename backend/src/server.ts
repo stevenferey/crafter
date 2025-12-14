@@ -5,9 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import cookieParser from 'cookie-parser';
-import passport from 'passport';
 import { testConnection, closePool } from './config/database.js';
-import { configurePassport } from './config/passport.config.js';
 import authRoutes from './routes/auth.routes.js';
 import craRoutes from './routes/cra.routes.js';
 import companyRoutes from './routes/company.routes.js';
@@ -35,10 +33,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-// Initialiser Passport
-configurePassport();
-app.use(passport.initialize());
 
 // Servir les fichiers statiques (uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -122,7 +116,6 @@ async function startServer() {
       console.log(`║     POST   /api/auth/logout                       ║`);
       console.log(`║     POST   /api/auth/refresh                      ║`);
       console.log(`║     GET    /api/auth/me                           ║`);
-      console.log(`║     GET    /api/auth/google                       ║`);
       console.log('║                                                   ║');
       console.log('║  CRAs:                                            ║');
       console.log(`║     GET    /api/cras                              ║`);
