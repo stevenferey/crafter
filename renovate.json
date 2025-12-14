@@ -1,0 +1,145 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":preserveSemverRanges",
+    "schedule:weekends"
+  ],
+  "description": "Configuration Renovate pour Crafter (frontend + backend)",
+  "timezone": "Europe/Paris",
+  "labels": ["dependencies", "renovate"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on the first day of the month"]
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "schedule": ["at any time"]
+  },
+  "packageRules": [
+    {
+      "description": "Frontend: Groupe React",
+      "matchPaths": ["package.json"],
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "react"
+    },
+    {
+      "description": "Frontend: Groupe React Router",
+      "matchPaths": ["package.json"],
+      "matchPackageNames": ["react-router-dom", "react-router"],
+      "groupName": "react-router"
+    },
+    {
+      "description": "Frontend: Groupe React Hook Form",
+      "matchPaths": ["package.json"],
+      "matchPackageNames": ["react-hook-form", "@hookform/resolvers"],
+      "groupName": "react-hook-form"
+    },
+    {
+      "description": "Frontend: Groupe Tailwind CSS",
+      "matchPaths": ["package.json"],
+      "matchPackagePatterns": ["^tailwind", "^@tailwindcss/"],
+      "matchPackageNames": ["tailwind-merge", "autoprefixer", "postcss"],
+      "groupName": "tailwind-css"
+    },
+    {
+      "description": "Frontend: Groupe Vite",
+      "matchPaths": ["package.json"],
+      "matchPackageNames": ["vite", "@vitejs/plugin-react"],
+      "groupName": "vite"
+    },
+    {
+      "description": "Frontend: Groupe ESLint",
+      "matchPaths": ["package.json"],
+      "matchPackagePatterns": ["^eslint", "^@typescript-eslint/"],
+      "matchPackageNames": ["globals"],
+      "groupName": "frontend-eslint"
+    },
+    {
+      "description": "Backend: Groupe Express",
+      "matchPaths": ["backend/package.json"],
+      "matchPackageNames": [
+        "express",
+        "@types/express",
+        "cors",
+        "@types/cors",
+        "cookie-parser",
+        "@types/cookie-parser"
+      ],
+      "groupName": "express"
+    },
+    {
+      "description": "Backend: Groupe authentification",
+      "matchPaths": ["backend/package.json"],
+      "matchPackageNames": [
+        "bcryptjs",
+        "@types/bcryptjs",
+        "jsonwebtoken",
+        "@types/jsonwebtoken"
+      ],
+      "groupName": "backend-auth"
+    },
+    {
+      "description": "Backend: Groupe PostgreSQL",
+      "matchPaths": ["backend/package.json"],
+      "matchPackageNames": ["pg", "@types/pg"],
+      "groupName": "postgres"
+    },
+    {
+      "description": "Backend: Groupe email",
+      "matchPaths": ["backend/package.json"],
+      "matchPackageNames": ["nodemailer", "@types/nodemailer", "resend"],
+      "groupName": "email"
+    },
+    {
+      "description": "Backend: Groupe upload fichiers",
+      "matchPaths": ["backend/package.json"],
+      "matchPackageNames": ["multer", "@types/multer"],
+      "groupName": "file-upload"
+    },
+    {
+      "description": "Backend: Groupe PDF",
+      "matchPaths": ["backend/package.json"],
+      "matchPackageNames": ["pdfmake", "@types/pdfmake"],
+      "groupName": "pdf"
+    },
+    {
+      "description": "Backend: Groupe ESLint",
+      "matchPaths": ["backend/package.json"],
+      "matchPackagePatterns": ["^eslint"],
+      "groupName": "backend-eslint"
+    },
+    {
+      "description": "Backend: Groupe outils dev",
+      "matchPaths": ["backend/package.json"],
+      "matchPackageNames": ["nodemon", "tsx"],
+      "groupName": "backend-dev-tools"
+    },
+    {
+      "description": "Groupe TypeScript (global)",
+      "matchPackageNames": ["typescript"],
+      "groupName": "typescript"
+    },
+    {
+      "description": "Groupe Prettier (global)",
+      "matchPackageNames": ["prettier", "eslint-config-prettier"],
+      "groupName": "prettier"
+    },
+    {
+      "description": "Groupe @types/node",
+      "matchPackageNames": ["@types/node"],
+      "groupName": "types-node"
+    },
+    {
+      "description": "Revue manuelle: mises à jour majeures",
+      "matchUpdateTypes": ["major"],
+      "labels": ["major-update", "needs-review"]
+    }
+  ]
+}
