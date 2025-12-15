@@ -41,7 +41,7 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] py-12 px-4 sm:px-6 lg:px-8 force-light">
       <div className="max-w-md w-full space-y-8">
         {/* Lien retour */}
         <Link
@@ -77,8 +77,8 @@ export function Login() {
         {/* Formulaire */}
         <div className="bg-[rgb(var(--color-bg))] shadow rounded-lg p-8">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
@@ -120,7 +120,7 @@ export function Login() {
             <div className="flex items-center justify-between">
               <Link
                 to="/forgot-password"
-                className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                className="text-sm text-indigo-600 hover:text-indigo-500"
               >
                 Mot de passe oublié ?
               </Link>
@@ -143,7 +143,7 @@ export function Login() {
             Pas encore de compte ?{' '}
             <Link
               to="/register"
-              className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               S'inscrire
             </Link>

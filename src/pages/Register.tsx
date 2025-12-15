@@ -46,12 +46,12 @@ export function Register() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] py-12 px-4 sm:px-6 lg:px-8 force-light">
         <div className="max-w-md w-full">
           <div className="bg-[rgb(var(--color-bg))] shadow rounded-lg p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
-                className="w-8 h-8 text-green-600 dark:text-green-400"
+                className="w-8 h-8 text-green-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -81,7 +81,7 @@ export function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--color-bg-secondary))] py-12 px-4 sm:px-6 lg:px-8 force-light">
       <div className="max-w-md w-full space-y-8">
         {/* Lien retour */}
         <Link
@@ -117,8 +117,8 @@ export function Register() {
         {/* Formulaire */}
         <div className="bg-[rgb(var(--color-bg))] shadow rounded-lg p-8">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
@@ -227,7 +227,7 @@ export function Register() {
             Déjà un compte ?{' '}
             <Link
               to="/login"
-              className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Se connecter
             </Link>
