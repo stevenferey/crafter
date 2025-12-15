@@ -39,12 +39,6 @@ export function EditCRA() {
   const addNotification = useAppStore((state) => state.addNotification);
 
   const { month: currentMonth, year: currentYear } = getCurrentMonthYear();
-  const [selectedMonth, setSelectedMonth] = useState(
-    selectedCRA?.month || currentMonth,
-  );
-  const [selectedYear, setSelectedYear] = useState(
-    selectedCRA?.year || currentYear,
-  );
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Charger les sociétés au montage du composant
@@ -112,24 +106,17 @@ export function EditCRA() {
         provider_use_current_date:
           selectedCRA.provider_use_current_date ?? false,
       });
-      setSelectedMonth(selectedCRA.month);
-      setSelectedYear(selectedCRA.year);
     }
   }, [selectedCRA, reset]);
 
   // Observer les changements de mois/année dans le formulaire
-  const watchMonth = watch('month', selectedMonth);
-  const watchYear = watch('year', selectedYear);
+  const watchMonth = watch('month');
+  const watchYear = watch('year');
   const watchWorkedDays = watch('worked_days', []);
 
-  // Synchroniser les états locaux avec les valeurs du formulaire
-  useEffect(() => {
-    if (watchMonth) setSelectedMonth(watchMonth);
-  }, [watchMonth]);
-
-  useEffect(() => {
-    if (watchYear) setSelectedYear(watchYear);
-  }, [watchYear]);
+  // Utiliser les valeurs du formulaire pour le calendrier (avec fallback)
+  const selectedMonth = watchMonth || selectedCRA?.month || currentMonth;
+  const selectedYear = watchYear || selectedCRA?.year || currentYear;
 
   // Créer les options pour les selects
   const companyOptions = companies.map((company) => ({
