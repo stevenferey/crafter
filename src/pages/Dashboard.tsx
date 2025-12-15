@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, StatusBadge, Spinner } from '@/components/ui';
 import { useCRAStore } from '@/stores/cra.store';
 import { useCompanyStore } from '@/stores/company.store';
-import { CRA_CONSTRAINTS, type CRAStatus } from '@/constants/cra.constants';
+import { type CRAStatus } from '@/constants/cra.constants';
 import { formatMonthYear } from '@/lib/monthUtils';
 import { logger } from '@/lib/logger';
 
@@ -16,7 +16,10 @@ export function Dashboard() {
 
   const companies = useCompanyStore((state) => state.companies);
   const fetchCompanies = useCompanyStore((state) => state.fetchCompanies);
-  const isLoadingCompanies = useCompanyStore((state) => state.isLoading);
+
+  // États pour la pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Charger les CRAs et les sociétés au montage du composant
   useEffect(() => {
@@ -76,8 +79,10 @@ export function Dashboard() {
     return b.month - a.month; // Mois décroissant
   });
 
-  // Prendre les CRAs les plus récents
-  const recentCRAs = sortedCRAs.slice(0, CRA_CONSTRAINTS.MAX_RECENT_CRAS);
+  // Pagination des CRAs
+  const totalPages = Math.ceil(sortedCRAs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedCRAs = sortedCRAs.slice(startIndex, startIndex + itemsPerPage);
 
   // Fonction helper pour obtenir le nom d'une société
   const getCompanyName = (companyId: string) => {
@@ -169,12 +174,38 @@ export function Dashboard() {
         ))}
       </div>
 
-      {/* Recent CRAs */}
+      {/* CRAs List */}
       <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))]">
         <div className="px-6 py-4 border-b border-[rgb(var(--color-border))]">
-          <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">
-            CRA récents
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">
+              Mes comptes rendus d'activités
+            </h2>
+            {sortedCRAs.length > 0 && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-[rgb(var(--color-text-secondary))]">
+                  Afficher
+                </label>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-1.5 text-sm border border-[rgb(var(--color-border))] rounded-lg bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+                <span className="text-sm text-[rgb(var(--color-text-secondary))]">
+                  par page
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {isLoading && cras.length === 0 ? (
@@ -184,7 +215,7 @@ export function Dashboard() {
               Chargement des CRAs...
             </p>
           </div>
-        ) : recentCRAs.length === 0 ? (
+        ) : paginatedCRAs.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <svg
               className="mx-auto h-12 w-12 text-[rgb(var(--color-text-muted))]"
@@ -211,7 +242,7 @@ export function Dashboard() {
           </div>
         ) : (
           <div className="divide-y divide-[rgb(var(--color-border))]">
-            {recentCRAs.map((cra) => (
+            {paginatedCRAs.map((cra) => (
               <div
                 key={cra.id}
                 className="px-6 py-4 hover:bg-[rgb(var(--color-surface-hover))] transition-colors"
@@ -278,127 +309,36 @@ export function Dashboard() {
             ))}
           </div>
         )}
-      </div>
 
-      {/* Companies Section */}
-      <div className="bg-[rgb(var(--color-surface))] rounded-lg border border-[rgb(var(--color-border))]">
-        <div className="px-6 py-4 border-b border-[rgb(var(--color-border))]">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-[rgb(var(--color-text))]">
-              Sociétés
-            </h2>
-            <Link to="/dashboard/companies/new">
-              <Button size="sm">
-                <span className="mr-2">+</span>
-                Nouvelle société
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {isLoadingCompanies && companies.length === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <Spinner />
-            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">
-              Chargement des sociétés...
-            </p>
-          </div>
-        ) : companies.length === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <svg
-              className="mx-auto h-12 w-12 text-[rgb(var(--color-text-muted))]"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-              />
-            </svg>
-            <p className="mt-4 text-[rgb(var(--color-text-secondary))]">
-              Aucune société disponible
-            </p>
-            <p className="text-sm text-[rgb(var(--color-text-muted))] mt-2">
-              Créez votre première société pour commencer
-            </p>
-            <Link to="/dashboard/companies/new">
-              <Button className="mt-4">Créer une société</Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[rgb(var(--color-surface-hover))]">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                    Désignation
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                    Ville
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                    Répertoire
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[rgb(var(--color-border))]">
-                {companies.slice(0, 5).map((company) => (
-                  <tr
-                    key={company.id}
-                    className="hover:bg-[rgb(var(--color-surface-hover))] transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-[rgb(var(--color-text))]">
-                        {company.designation}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        {company.city}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        {company.email}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                        {company.repertoire} - {company.repertoire_number}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link to={`/dashboard/companies/${company.id}/edit`}>
-                          <Button variant="ghost" size="sm">
-                            Éditer
-                          </Button>
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {companies.length > 5 && (
-          <div className="px-6 py-3 border-t border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-hover))]">
-            <Link to="/dashboard/companies">
-              <Button variant="ghost" size="sm" className="w-full">
-                Voir toutes les sociétés ({companies.length})
-              </Button>
-            </Link>
+        {/* Pagination Controls */}
+        {sortedCRAs.length > itemsPerPage && (
+          <div className="px-6 py-4 border-t border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-hover))]">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                {startIndex + 1} - {Math.min(startIndex + itemsPerPage, sortedCRAs.length)} sur {sortedCRAs.length} CRAs
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Précédent
+                </Button>
+                <span className="text-sm text-[rgb(var(--color-text))] px-2">
+                  Page {currentPage} / {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Suivant
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>
