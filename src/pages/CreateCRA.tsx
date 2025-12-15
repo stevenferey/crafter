@@ -33,8 +33,6 @@ export function CreateCRA() {
   const addNotification = useAppStore((state) => state.addNotification);
 
   const { month: currentMonth, year: currentYear } = getCurrentMonthYear();
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const [selectedYear, setSelectedYear] = useState(currentYear);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Charger les sociétés au montage
@@ -57,14 +55,9 @@ export function CreateCRA() {
   const watchYear = watch('year', currentYear);
   const watchWorkedDays = watch('worked_days', []);
 
-  // Synchroniser les états locaux avec les valeurs du formulaire
-  useEffect(() => {
-    if (watchMonth) setSelectedMonth(watchMonth);
-  }, [watchMonth]);
-
-  useEffect(() => {
-    if (watchYear) setSelectedYear(watchYear);
-  }, [watchYear]);
+  // Utiliser les valeurs du formulaire pour le calendrier
+  const selectedMonth = watchMonth || currentMonth;
+  const selectedYear = watchYear || currentYear;
 
   // Créer les options pour les selects
   const companyOptions = companies.map((company) => ({
