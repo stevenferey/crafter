@@ -15,14 +15,14 @@ export function Landing() {
   const hasDonationAddresses = BTC_ADDRESS || ETH_ADDRESS;
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-secondary))]">
+    <div className="min-h-screen bg-[rgb(var(--color-bg-secondary))] force-light">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
           <div className="text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[rgb(var(--color-text))] tracking-tight">
               Simplifiez la gestion
-              <span className="block text-indigo-600 dark:text-indigo-400">
+              <span className="block text-indigo-600">
                 de vos CRA
               </span>
             </h1>
@@ -65,9 +65,9 @@ export function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-xl p-8 shadow-sm border border-[rgb(var(--color-border))]">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
                 <svg
-                  className="w-6 h-6 text-indigo-600 dark:text-indigo-400"
+                  className="w-6 h-6 text-indigo-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -91,9 +91,9 @@ export function Landing() {
 
             {/* Feature 2 */}
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-xl p-8 shadow-sm border border-[rgb(var(--color-border))]">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
                 <svg
-                  className="w-6 h-6 text-indigo-600 dark:text-indigo-400"
+                  className="w-6 h-6 text-indigo-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -117,9 +117,9 @@ export function Landing() {
 
             {/* Feature 3 */}
             <div className="bg-[rgb(var(--color-bg-secondary))] rounded-xl p-8 shadow-sm border border-[rgb(var(--color-border))]">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
                 <svg
-                  className="w-6 h-6 text-indigo-600 dark:text-indigo-400"
+                  className="w-6 h-6 text-indigo-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
