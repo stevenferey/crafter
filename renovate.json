@@ -25,45 +25,54 @@
   "packageRules": [
     {
       "description": "Frontend: Groupe React",
-      "matchPaths": ["package.json"],
-      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "matchFileNames": ["package.json"],
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom"
+      ],
       "groupName": "react"
     },
     {
       "description": "Frontend: Groupe React Router",
-      "matchPaths": ["package.json"],
+      "matchFileNames": ["package.json"],
       "matchPackageNames": ["react-router-dom", "react-router"],
       "groupName": "react-router"
     },
     {
       "description": "Frontend: Groupe React Hook Form",
-      "matchPaths": ["package.json"],
+      "matchFileNames": ["package.json"],
       "matchPackageNames": ["react-hook-form", "@hookform/resolvers"],
       "groupName": "react-hook-form"
     },
     {
       "description": "Frontend: Groupe Tailwind CSS",
-      "matchPaths": ["package.json"],
-      "matchPackagePatterns": ["^tailwind", "^@tailwindcss/"],
-      "matchPackageNames": ["tailwind-merge", "autoprefixer", "postcss"],
+      "matchFileNames": ["package.json"],
+      "matchPackageNames": [
+        "tailwind-merge",
+        "autoprefixer",
+        "postcss",
+        "/^tailwind/",
+        "/^@tailwindcss//"
+      ],
       "groupName": "tailwind-css"
     },
     {
       "description": "Frontend: Groupe Vite",
-      "matchPaths": ["package.json"],
+      "matchFileNames": ["package.json"],
       "matchPackageNames": ["vite", "@vitejs/plugin-react"],
       "groupName": "vite"
     },
     {
       "description": "Frontend: Groupe ESLint",
-      "matchPaths": ["package.json"],
-      "matchPackagePatterns": ["^eslint", "^@typescript-eslint/"],
-      "matchPackageNames": ["globals"],
+      "matchFileNames": ["package.json"],
+      "matchPackageNames": ["globals", "/^eslint/", "/^@typescript-eslint//"],
       "groupName": "frontend-eslint"
     },
     {
       "description": "Backend: Groupe Express",
-      "matchPaths": ["backend/package.json"],
+      "matchFileNames": ["backend/package.json"],
       "matchPackageNames": [
         "express",
         "@types/express",
@@ -76,7 +85,7 @@
     },
     {
       "description": "Backend: Groupe authentification",
-      "matchPaths": ["backend/package.json"],
+      "matchFileNames": ["backend/package.json"],
       "matchPackageNames": [
         "bcryptjs",
         "@types/bcryptjs",
@@ -87,37 +96,37 @@
     },
     {
       "description": "Backend: Groupe PostgreSQL",
-      "matchPaths": ["backend/package.json"],
+      "matchFileNames": ["backend/package.json"],
       "matchPackageNames": ["pg", "@types/pg"],
       "groupName": "postgres"
     },
     {
       "description": "Backend: Groupe email",
-      "matchPaths": ["backend/package.json"],
+      "matchFileNames": ["backend/package.json"],
       "matchPackageNames": ["nodemailer", "@types/nodemailer", "resend"],
       "groupName": "email"
     },
     {
       "description": "Backend: Groupe upload fichiers",
-      "matchPaths": ["backend/package.json"],
+      "matchFileNames": ["backend/package.json"],
       "matchPackageNames": ["multer", "@types/multer"],
       "groupName": "file-upload"
     },
     {
       "description": "Backend: Groupe PDF",
-      "matchPaths": ["backend/package.json"],
+      "matchFileNames": ["backend/package.json"],
       "matchPackageNames": ["pdfmake", "@types/pdfmake"],
       "groupName": "pdf"
     },
     {
       "description": "Backend: Groupe ESLint",
-      "matchPaths": ["backend/package.json"],
-      "matchPackagePatterns": ["^eslint"],
-      "groupName": "backend-eslint"
+      "matchFileNames": ["backend/package.json"],
+      "groupName": "backend-eslint",
+      "matchPackageNames": ["/^eslint/"]
     },
     {
       "description": "Backend: Groupe outils dev",
-      "matchPaths": ["backend/package.json"],
+      "matchFileNames": ["backend/package.json"],
       "matchPackageNames": ["nodemon", "tsx"],
       "groupName": "backend-dev-tools"
     },
