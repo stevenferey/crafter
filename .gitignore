@@ -35,3 +35,6 @@ uploads/signatures/*
 *.sln
 *.sw?
 .claude/*
+
+# TypeScript incremental build cache
+*.tsbuildinfo
