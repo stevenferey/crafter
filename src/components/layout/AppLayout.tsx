@@ -254,13 +254,17 @@ export function AppLayout() {
                 </button>
               )}
               <a
-                href="#"
+                href="https://github.com/stevenferey/crafter"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:text-[rgb(var(--color-text))] transition-colors"
               >
                 Documentation
               </a>
               <a
-                href="#"
+                href="https://github.com/stevenferey/crafter/issues"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:text-[rgb(var(--color-text))] transition-colors"
               >
                 Support
