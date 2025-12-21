@@ -1,0 +1,17 @@
+# Railway configuration for Crafter Frontend
+# Deploy this service with Root Directory: /
+
+[build]
+builder = "nixpacks"
+buildCommand = "npm ci && npm run build"
+
+[deploy]
+startCommand = "npx serve dist -s -l $PORT"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[[services]]
+protocol = "http"
+port = 3000

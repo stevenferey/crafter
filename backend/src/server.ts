@@ -1,19 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import cookieParser from 'cookie-parser';
 import { testConnection, closePool } from './config/database.js';
 import authRoutes from './routes/auth.routes.js';
 import craRoutes from './routes/cra.routes.js';
 import companyRoutes from './routes/company.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
-
-// Obtenir __dirname dans un module ES
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -34,8 +27,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Servir les fichiers statiques (uploads)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Note: Les uploads sont maintenant stockés en base64 dans PostgreSQL
+// Plus besoin de servir les fichiers statiques
 
 // Middleware de logging
 app.use((req: Request, _res: Response, next: NextFunction) => {
@@ -70,7 +63,7 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-// Middleware de gestion des erreurs
+// Middleware de gestion des erreurs (Express exige 4 paramètres)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Error:', err);

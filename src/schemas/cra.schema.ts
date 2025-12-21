@@ -87,12 +87,12 @@ export const craFormSchema = z
     // Signatures (optionnelles, overrides des signatures par défaut)
     client_signatory_name: z.string().max(255).optional(),
     client_signatory_title: z.string().max(255).optional(),
-    client_signature_image: z.string().max(500).optional(),
+    client_signature_image: z.string().optional(), // Base64 data URL, pas de limite
     client_signature_location: z.string().max(255).optional(),
     client_use_current_date: z.boolean().optional(),
     provider_signatory_name: z.string().max(255).optional(),
     provider_signatory_title: z.string().max(255).optional(),
-    provider_signature_image: z.string().max(500).optional(),
+    provider_signature_image: z.string().optional(), // Base64 data URL, pas de limite
     provider_signature_location: z.string().max(255).optional(),
     provider_use_current_date: z.boolean().optional(),
   })
