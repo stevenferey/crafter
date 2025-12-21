@@ -3,7 +3,6 @@ import { Input } from './Input';
 import { Button } from './Button';
 import { uploadSignature } from '@/services/upload.service';
 import { SignatureData } from '@/types/cra.types';
-import { env } from '@/services/api';
 
 export interface SignatureInputProps {
   label: string;
@@ -90,12 +89,11 @@ export function SignatureInput({
     }
   };
 
-  const getImageUrl = (path?: string) => {
-    if (!path) return null;
-    // Si le chemin commence par http, c'est une URL complète
-    if (path.startsWith('http')) return path;
-    // Sinon, construire l'URL avec le base URL du backend
-    return `${env.apiUrl.replace('/api', '')}${path}`;
+  const getImageUrl = (imageData?: string) => {
+    if (!imageData) return null;
+    // Les signatures sont maintenant stockées en base64 (data URL)
+    // ou en URL complète (http/https) pour rétrocompatibilité
+    return imageData;
   };
 
   const hasValue =
