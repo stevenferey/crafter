@@ -20,6 +20,9 @@
   ],
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@types/multer": "^2.0.0",
     "@types/pdfmake": "^0.2.12",
