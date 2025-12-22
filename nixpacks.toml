@@ -1,5 +1,6 @@
-[phases.build]
-cmds = ["npm install && npm run build"]
-
 [phases.install]
 cmds = ["npm install"]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = ["npm run build"]
