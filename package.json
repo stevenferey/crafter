@@ -6,6 +6,9 @@
   "description": "Application React moderne construite avec Vite, TypeScript et Tailwind CSS",
   "author": "DiscoData",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
