@@ -1,6 +1,8 @@
 [phases.install]
 cmds = ["npm install"]
+cacheDirectories = []
 
 [phases.build]
 dependsOn = ["install"]
 cmds = ["npm run build"]
+cacheDirectories = []
