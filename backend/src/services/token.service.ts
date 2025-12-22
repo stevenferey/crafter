@@ -1,6 +1,6 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
-import { jwtConfig } from '../config/jwt.config';
+import { jwtConfig } from '../config/jwt.config.js';
 import type { TokenPayload } from '../types/auth.types';
 
 /**
