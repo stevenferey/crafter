@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { emailConfig, emailTemplates } from '../config/email.config';
+import { emailConfig, emailTemplates } from '../config/email.config.js';
 
 // Instance Resend (initialisée seulement si la clé API est configurée)
 let resend: Resend | null = null;
