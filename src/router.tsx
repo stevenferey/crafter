@@ -14,6 +14,7 @@ import { Register } from '@/pages/Register';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
 import { VerifyEmail } from '@/pages/VerifyEmail';
+import { Settings } from '@/pages/Settings';
 import { NotFound } from '@/pages/NotFound';
 import { ErrorBoundary } from '@/pages/ErrorBoundary';
 
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
       {
         path: 'companies/:id/edit',
         element: <EditCompany />,
+      },
+      {
+        path: 'settings',
+        element: <Settings />,
       },
       {
         path: '*',

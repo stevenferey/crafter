@@ -47,7 +47,7 @@ export function ResetPassword() {
       setError(
         err instanceof Error
           ? err.message
-          : 'Échec de la réinitialisation du mot de passe'
+          : 'Échec de la réinitialisation du mot de passe',
       );
     } finally {
       setIsLoading(false);

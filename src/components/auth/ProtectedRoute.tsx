@@ -13,7 +13,10 @@ interface ProtectedRouteProps {
  * Composant de protection des routes
  * Redirige vers /login si l'utilisateur n'est pas authentifié
  */
-export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  requiredRole,
+}: ProtectedRouteProps) {
   const { isAuthenticated, user, isLoading, isInitialized, initialize } =
     useAuthStore();
   const location = useLocation();

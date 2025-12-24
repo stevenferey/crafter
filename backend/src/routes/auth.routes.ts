@@ -36,4 +36,7 @@ router.post('/logout', authenticate, AuthController.logout);
 router.get('/me', authenticate, AuthController.getCurrentUser);
 router.patch('/me', authenticate, AuthController.updateProfile);
 
+// Changer le mot de passe
+router.patch('/change-password', authenticate, AuthController.changePassword);
+
 export default router;

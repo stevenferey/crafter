@@ -38,7 +38,9 @@ export function NotFound() {
           <Button variant="outline" onClick={() => navigate(-1)}>
             Retour
           </Button>
-          <Button onClick={() => navigate('/dashboard')}>Retour au Dashboard</Button>
+          <Button onClick={() => navigate('/dashboard')}>
+            Retour au Dashboard
+          </Button>
         </div>
       </div>
     </div>

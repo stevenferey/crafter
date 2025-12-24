@@ -466,28 +466,147 @@ DELETE /api/companies/:id
 
 **Note:** La suppression d'une société échouera si elle est référencée par des CRA existants (contrainte de clé étrangère).
 
+### Auth Endpoints
+
+#### Inscription
+
+```
+POST /api/auth/register
+```
+
+**Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "SecurePassword123",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+```
+
+#### Connexion
+
+```
+POST /api/auth/login
+```
+
+**Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "SecurePassword123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "user": { "id": "uuid", "email": "user@example.com", ... },
+    "accessToken": "jwt-token"
+  }
+}
+```
+
+#### Utilisateur courant
+
+```
+GET /api/auth/me
+Authorization: Bearer {accessToken}
+```
+
+#### Changer le mot de passe
+
+```
+PATCH /api/auth/change-password
+Authorization: Bearer {accessToken}
+```
+
+**Body:**
+```json
+{
+  "currentPassword": "OldPassword123",
+  "newPassword": "NewSecurePassword456"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Mot de passe modifié avec succès"
+}
+```
+
+**Notes:**
+- Requiert une authentification (token JWT valide)
+- Le mot de passe actuel doit être correct
+- Le nouveau mot de passe doit contenir au moins 8 caractères
+- Après changement, tous les refresh tokens sont invalidés (force re-login sur tous les appareils)
+
+#### Mot de passe oublié
+
+```
+POST /api/auth/forgot-password
+```
+
+**Body:**
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+#### Réinitialiser le mot de passe
+
+```
+POST /api/auth/reset-password
+```
+
+**Body:**
+```json
+{
+  "token": "reset-token-from-email",
+  "password": "NewSecurePassword456"
+}
+```
+
 ## 🏗️ Architecture
 
 ```
 backend/
 ├── src/
 │   ├── config/
-│   │   └── database.ts           # Configuration PostgreSQL
+│   │   ├── database.ts           # Configuration PostgreSQL
+│   │   ├── jwt.config.ts         # Configuration JWT (tokens)
+│   │   └── email.config.ts       # Configuration emails (templates)
 │   ├── controllers/
+│   │   ├── auth.controller.ts    # Logique métier authentification
 │   │   ├── cra.controller.ts     # Logique métier des CRA
 │   │   └── company.controller.ts # Logique métier des sociétés
+│   ├── middleware/
+│   │   ├── auth.middleware.ts    # Middleware JWT (authenticate)
+│   │   └── role.middleware.ts    # Middleware rôles (admin, user)
 │   ├── models/
-│   │   ├── cra.model.ts          # Modèle de données CRA et requêtes SQL
-│   │   └── company.model.ts      # Modèle de données Company et requêtes SQL
+│   │   ├── user.model.ts         # Modèle de données User
+│   │   ├── cra.model.ts          # Modèle de données CRA
+│   │   └── company.model.ts      # Modèle de données Company
 │   ├── routes/
+│   │   ├── auth.routes.ts        # Routes Express pour Auth
 │   │   ├── cra.routes.ts         # Routes Express pour CRA
 │   │   └── company.routes.ts     # Routes Express pour Companies
+│   ├── services/
+│   │   ├── token.service.ts      # Service JWT (génération, validation)
+│   │   └── email.service.ts      # Service emails (envoi via Resend)
 │   ├── types/
+│   │   ├── auth.types.ts         # Types TypeScript Auth
 │   │   ├── cra.types.ts          # Types TypeScript CRA
 │   │   └── company.types.ts      # Types TypeScript Company
 │   └── server.ts                 # Point d'entrée Express
 ├── migrations/
 │   ├── schema.sql                # Schéma de la DB
+│   ├── 004_add_users.sql         # Migration utilisateurs
 │   ├── run-all.sh                # Script d'initialisation
 │   └── README.md                 # Documentation du schéma
 ├── .env                          # Variables d'environnement (non versionné)

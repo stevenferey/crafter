@@ -9,6 +9,7 @@ import type {
   LoginInput,
   TokenPayload,
   UpdateProfileInput,
+  ChangePasswordInput,
 } from '../types/auth.types.js';
 
 // Configuration du cookie refresh token
@@ -614,6 +615,92 @@ export class AuthController {
         success: false,
         error: 'server_error',
         message: 'Erreur lors de la mise à jour du profil',
+      });
+    }
+  }
+
+  /**
+   * PATCH /api/auth/change-password
+   * Changer le mot de passe de l'utilisateur connecté
+   */
+  static async changePassword(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json({
+          success: false,
+          error: 'unauthorized',
+          message: 'Non authentifié',
+        });
+        return;
+      }
+
+      const { currentPassword, newPassword } = req.body as ChangePasswordInput;
+
+      // Validation
+      if (!currentPassword || !newPassword) {
+        res.status(400).json({
+          success: false,
+          error: 'validation_error',
+          message: 'Mot de passe actuel et nouveau mot de passe requis',
+        });
+        return;
+      }
+
+      if (newPassword.length < PASSWORD_MIN_LENGTH) {
+        res.status(400).json({
+          success: false,
+          error: 'validation_error',
+          message: `Le nouveau mot de passe doit contenir au moins ${PASSWORD_MIN_LENGTH} caractères`,
+        });
+        return;
+      }
+
+      // Vérifier que l'utilisateur a un mot de passe
+      if (!req.user.password_hash) {
+        res.status(400).json({
+          success: false,
+          error: 'no_password',
+          message: "Ce compte n'a pas de mot de passe configuré",
+        });
+        return;
+      }
+
+      // Vérifier le mot de passe actuel
+      const isValidPassword = await bcrypt.compare(
+        currentPassword,
+        req.user.password_hash
+      );
+
+      if (!isValidPassword) {
+        res.status(401).json({
+          success: false,
+          error: 'invalid_password',
+          message: 'Mot de passe actuel incorrect',
+        });
+        return;
+      }
+
+      // Hasher le nouveau mot de passe
+      const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+      // Mettre à jour le mot de passe
+      await UserModel.updatePassword(req.user.id, newPasswordHash);
+
+      // Invalider tous les refresh tokens (force re-login)
+      await UserModel.setRefreshToken(req.user.id, null);
+
+      console.log(`[Auth] Password changed: ${req.user.email}`);
+
+      res.json({
+        success: true,
+        message: 'Mot de passe modifié avec succès',
+      });
+    } catch (error) {
+      console.error('[Auth] Change password error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'server_error',
+        message: 'Erreur lors du changement de mot de passe',
       });
     }
   }

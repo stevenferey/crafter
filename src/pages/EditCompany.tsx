@@ -146,7 +146,10 @@ export function EditCompany() {
         <p className="text-[rgb(var(--color-text-secondary))] mt-2">
           La société demandée n'existe pas.
         </p>
-        <Button onClick={() => navigate('/dashboard/companies')} className="mt-4">
+        <Button
+          onClick={() => navigate('/dashboard/companies')}
+          className="mt-4"
+        >
           Retour à la liste
         </Button>
       </div>

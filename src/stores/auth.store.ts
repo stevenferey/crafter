@@ -82,7 +82,7 @@ export const useAuthStore = create<AuthState>()(
           console.log('[Auth Store] User registered:', data.email);
         } catch (error) {
           const message =
-            error instanceof Error ? error.message : 'Échec de l\'inscription';
+            error instanceof Error ? error.message : "Échec de l'inscription";
 
           set({ isLoading: false, error: message });
           throw error;
@@ -222,8 +222,8 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         accessToken: state.accessToken,
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Hook helper pour vérifier si l'utilisateur est admin

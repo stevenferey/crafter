@@ -1,8 +1,10 @@
 import { forwardRef, useId, InputHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
-export interface DatePickerProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'min' | 'max'> {
+export interface DatePickerProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'type' | 'min' | 'max'
+> {
   label?: string;
   error?: string;
   helperText?: string;
