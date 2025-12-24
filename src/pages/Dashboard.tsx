@@ -315,7 +315,9 @@ export function Dashboard() {
           <div className="px-6 py-4 border-t border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-hover))]">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                {startIndex + 1} - {Math.min(startIndex + itemsPerPage, sortedCRAs.length)} sur {sortedCRAs.length} CRAs
+                {startIndex + 1} -{' '}
+                {Math.min(startIndex + itemsPerPage, sortedCRAs.length)} sur{' '}
+                {sortedCRAs.length} CRAs
               </p>
               <div className="flex items-center gap-2">
                 <Button
@@ -332,7 +334,9 @@ export function Dashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                 >
                   Suivant

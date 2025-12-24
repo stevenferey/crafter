@@ -22,9 +22,7 @@ export function Landing() {
           <div className="text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[rgb(var(--color-text))] tracking-tight">
               Simplifiez la gestion
-              <span className="block text-indigo-600">
-                de vos CRA
-              </span>
+              <span className="block text-indigo-600">de vos CRA</span>
             </h1>
             <p className="mt-6 max-w-2xl mx-auto text-lg sm:text-xl text-[rgb(var(--color-text-secondary))]">
               Créez, gérez et exportez vos comptes rendus d'activité en quelques

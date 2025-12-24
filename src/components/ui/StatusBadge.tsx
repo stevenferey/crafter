@@ -2,8 +2,10 @@ import { forwardRef, HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 import { STATUS_CONFIG, type CRAStatus } from '@/constants/cra.constants';
 
-export interface StatusBadgeProps
-  extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
+export interface StatusBadgeProps extends Omit<
+  HTMLAttributes<HTMLSpanElement>,
+  'children'
+> {
   /**
    * Statut du CRA à afficher
    */

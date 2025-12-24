@@ -34,7 +34,7 @@ export function ForgotPassword() {
       setSuccess(true);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Échec de l\'envoi de l\'email'
+        err instanceof Error ? err.message : "Échec de l'envoi de l'email",
       );
     } finally {
       setIsLoading(false);
@@ -65,8 +65,8 @@ export function ForgotPassword() {
               Email envoyé
             </h2>
             <p className="text-[rgb(var(--color-text-secondary))] mb-6">
-              Si un compte existe avec cette adresse email, vous recevrez un lien
-              pour réinitialiser votre mot de passe.
+              Si un compte existe avec cette adresse email, vous recevrez un
+              lien pour réinitialiser votre mot de passe.
             </p>
             <Link to="/login">
               <Button variant="outline">Retour à la connexion</Button>

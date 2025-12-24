@@ -8,6 +8,7 @@ import type {
   ForgotPasswordData,
   ResetPasswordData,
   VerifyEmailData,
+  ChangePasswordData,
 } from '@/types/auth.types';
 
 /**
@@ -20,7 +21,7 @@ export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await api.post<ApiResponse<AuthResponse>>(
       '/auth/login',
-      credentials
+      credentials,
     );
 
     if (!response.success || !response.data) {
@@ -36,11 +37,11 @@ export const authService = {
   async register(data: RegisterData): Promise<{ user: User }> {
     const response = await api.post<ApiResponse<{ user: User }>>(
       '/auth/register',
-      data
+      data,
     );
 
     if (!response.success || !response.data) {
-      throw new Error(response.message || 'Échec de l\'inscription');
+      throw new Error(response.message || "Échec de l'inscription");
     }
 
     return response.data;
@@ -98,11 +99,13 @@ export const authService = {
   async verifyEmail(data: VerifyEmailData): Promise<void> {
     const response = await api.post<ApiResponse<void>>(
       '/auth/verify-email',
-      data
+      data,
     );
 
     if (!response.success) {
-      throw new Error(response.message || 'Échec de la vérification de l\'email');
+      throw new Error(
+        response.message || "Échec de la vérification de l'email",
+      );
     }
   },
 
@@ -112,11 +115,11 @@ export const authService = {
   async resendVerification(email: string): Promise<void> {
     const response = await api.post<ApiResponse<void>>(
       '/auth/resend-verification',
-      { email }
+      { email },
     );
 
     if (!response.success) {
-      throw new Error(response.message || 'Échec de l\'envoi de l\'email');
+      throw new Error(response.message || "Échec de l'envoi de l'email");
     }
   },
 
@@ -126,11 +129,11 @@ export const authService = {
   async forgotPassword(data: ForgotPasswordData): Promise<void> {
     const response = await api.post<ApiResponse<void>>(
       '/auth/forgot-password',
-      data
+      data,
     );
 
     if (!response.success) {
-      throw new Error(response.message || 'Échec de l\'envoi de l\'email');
+      throw new Error(response.message || "Échec de l'envoi de l'email");
     }
   },
 
@@ -140,11 +143,27 @@ export const authService = {
   async resetPassword(data: ResetPasswordData): Promise<void> {
     const response = await api.post<ApiResponse<void>>(
       '/auth/reset-password',
-      data
+      data,
     );
 
     if (!response.success) {
       throw new Error(response.message || 'Échec de la réinitialisation');
+    }
+  },
+
+  /**
+   * Changer le mot de passe (utilisateur connecté)
+   */
+  async changePassword(data: ChangePasswordData): Promise<void> {
+    const response = await api.patch<ApiResponse<void>>(
+      '/auth/change-password',
+      data,
+    );
+
+    if (!response.success) {
+      throw new Error(
+        response.message || 'Échec du changement de mot de passe',
+      );
     }
   },
 };

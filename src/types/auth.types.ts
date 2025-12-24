@@ -50,3 +50,8 @@ export interface ResetPasswordData {
 export interface VerifyEmailData {
   token: string;
 }
+
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}

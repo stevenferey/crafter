@@ -134,11 +134,15 @@ src/
    - Routes principales :
      - `/` → Landing (page publique)
      - `/login`, `/register` → Authentification
+     - `/forgot-password` → Mot de passe oublié
+     - `/reset-password/:token` → Réinitialisation du mot de passe
+     - `/verify-email/:token` → Vérification email
      - `/dashboard` → Dashboard (utilisateurs connectés)
      - `/dashboard/cra/new` → CreateCRA
      - `/dashboard/cra/:id/edit` → EditCRA
      - `/dashboard/cra/:id/preview` → PreviewCRA
      - `/dashboard/companies` → Liste des sociétés
+     - `/dashboard/settings` → Paramètres (changement de mot de passe)
 
 Exemple de configuration du router :
 ```tsx
@@ -150,6 +154,8 @@ export const router = createBrowserRouter([
   { path: '/', element: <Landing /> },
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
+  { path: '/forgot-password', element: <ForgotPassword /> },
+  { path: '/reset-password/:token', element: <ResetPassword /> },
 
   // Routes protégées (utilisateurs connectés)
   {
@@ -160,6 +166,7 @@ export const router = createBrowserRouter([
       { path: 'cra/new', element: <CreateCRA /> },
       { path: 'cra/:id/edit', element: <EditCRA /> },
       { path: 'companies', element: <Companies /> },
+      { path: 'settings', element: <Settings /> },
     ],
   },
 ]);

@@ -6,7 +6,7 @@ import { authService } from '@/services/auth.service';
 export function VerifyEmail() {
   const { token } = useParams<{ token: string }>();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
-    'loading'
+    'loading',
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +26,7 @@ export function VerifyEmail() {
         setError(
           err instanceof Error
             ? err.message
-            : 'Échec de la vérification de l\'email'
+            : "Échec de la vérification de l'email",
         );
       }
     };

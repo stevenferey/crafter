@@ -40,7 +40,7 @@ export function Register() {
       });
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Échec de l\'inscription');
+      setError(err instanceof Error ? err.message : "Échec de l'inscription");
     }
   };
 
@@ -198,7 +198,8 @@ export function Register() {
                 htmlFor="confirmPassword"
                 className="block text-sm font-medium text-[rgb(var(--color-text))]"
               >
-                Confirmer le mot de passe <span className="text-red-500">*</span>
+                Confirmer le mot de passe{' '}
+                <span className="text-red-500">*</span>
               </label>
               <Input
                 id="confirmPassword"
@@ -217,7 +218,7 @@ export function Register() {
                   Inscription...
                 </>
               ) : (
-                'S\'inscrire'
+                "S'inscrire"
               )}
             </Button>
           </form>
