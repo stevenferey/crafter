@@ -44,8 +44,8 @@ mcp__context7__get-library-docs({
 
 ## Stack Technique
 
-- **Framework**: React 18.3 avec TypeScript 5.6
-- **Build Tool**: Vite 6
+- **Framework**: React 19 avec TypeScript 5.9
+- **Build Tool**: Vite 7
 - **Styling**: Tailwind CSS v4 avec `@tailwindcss/postcss`
 - **Router**: React Router DOM v7
 - **Linting**: ESLint 9 avec TypeScript ESLint
