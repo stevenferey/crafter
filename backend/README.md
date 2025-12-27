@@ -4,8 +4,8 @@ Backend API REST pour l'application Crafter CRA (Compte Rendu d'Activité).
 
 ## 🛠️ Stack Technique
 
-- **Runtime**: Node.js 18+
-- **Framework**: Express 4.x
+- **Runtime**: Node.js 24+
+- **Framework**: Express 5.x
 - **Language**: TypeScript 5.x
 - **Base de données**: PostgreSQL 16
 - **ORM**: pg (node-postgres) - Client PostgreSQL natif
@@ -15,7 +15,7 @@ Backend API REST pour l'application Crafter CRA (Compte Rendu d'Activité).
 
 ### Prérequis
 
-- Node.js 18+ et npm
+- Node.js 24+ et npm
 - Docker et Docker Compose (pour PostgreSQL)
 - PostgreSQL 16+ (si pas d'utilisation de Docker)
 

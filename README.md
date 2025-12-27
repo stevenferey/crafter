@@ -6,7 +6,7 @@ Application full-stack de gestion de CRA (Comptes Rendus d'Activité) construite
 
 ### Prérequis
 
-- Node.js 18+
+- Node.js 24+
 - Docker et Docker Compose
 - npm ou yarn
 
@@ -89,16 +89,16 @@ npm run type-check
 ## 📦 Stack Technique
 
 ### Frontend
-- **Framework**: React 18.3 avec TypeScript 5.6
-- **Build Tool**: Vite 6
+- **Framework**: React 19 avec TypeScript 5.9
+- **Build Tool**: Vite 7
 - **Styling**: Tailwind CSS v4 avec PostCSS
 - **Router**: React Router DOM v7
 - **Linting**: ESLint 9 + Prettier
 - **API Client**: Fetch API avec hooks personnalisés
 
 ### Backend
-- **Runtime**: Node.js 18+
-- **Framework**: Express 4.x
+- **Runtime**: Node.js 24+
+- **Framework**: Express 5.x
 - **Language**: TypeScript 5.x
 - **Base de données**: PostgreSQL 16
 - **Client DB**: node-postgres (pg)
