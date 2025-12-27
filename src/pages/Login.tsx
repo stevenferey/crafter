@@ -5,6 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Spinner } from '@/components/ui';
 import { useAuthStore } from '@/stores/auth.store';
 import { loginSchema, type LoginFormData } from '@/schemas/auth.schema';
+import { authService } from '@/services/auth.service';
+import { ApiError } from '@/services/api';
 
 export function Login() {
   const navigate = useNavigate();
@@ -12,6 +14,10 @@ export function Login() {
   const login = useAuthStore((state) => state.login);
   const isLoading = useAuthStore((state) => state.isLoading);
   const [error, setError] = useState<string | null>(null);
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [lastEmail, setLastEmail] = useState('');
 
   // Récupérer l'URL de redirection (dashboard par défaut)
   const from =
@@ -31,12 +37,38 @@ export function Login() {
 
   const onSubmit = async (data: LoginFormData) => {
     setError(null);
+    setEmailNotVerified(false);
+    setResendSuccess(false);
 
     try {
       await login(data);
       navigate(from, { replace: true });
     } catch (err) {
+      // Détecter l'erreur email non vérifié
+      if (
+        err instanceof ApiError &&
+        (err.data as { error?: string })?.error === 'email_not_verified'
+      ) {
+        setEmailNotVerified(true);
+        setLastEmail(data.email);
+      }
       setError(err instanceof Error ? err.message : 'Échec de la connexion');
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResendLoading(true);
+    setError(null);
+
+    try {
+      await authService.resendVerification(lastEmail);
+      setResendSuccess(true);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Échec de l'envoi de l'email",
+      );
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -79,6 +111,27 @@ export function Login() {
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
               <p className="text-sm text-red-600">{error}</p>
+              {emailNotVerified && !resendSuccess && (
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resendLoading}
+                  className="mt-2 text-sm font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-50"
+                >
+                  {resendLoading
+                    ? 'Envoi en cours...'
+                    : "Renvoyer l'email de vérification"}
+                </button>
+              )}
+            </div>
+          )}
+
+          {resendSuccess && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
+              <p className="text-sm text-green-600">
+                Email de vérification envoyé ! Vérifiez votre boîte de
+                réception.
+              </p>
             </div>
           )}
 

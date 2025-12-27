@@ -168,6 +168,16 @@ export class AuthController {
         return;
       }
 
+      // Vérifier si l'email est vérifié
+      if (!user.email_verified) {
+        res.status(403).json({
+          success: false,
+          error: 'email_not_verified',
+          message: 'Veuillez vérifier votre adresse email avant de vous connecter',
+        });
+        return;
+      }
+
       // Générer les tokens
       const tokenPayload: TokenPayload = {
         userId: user.id,
