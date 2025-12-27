@@ -167,7 +167,7 @@ export function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-              &copy; {new Date().getFullYear()} Crafter. Tous droits réservés.
+              &copy; {new Date().getFullYear()} DiscoData. Tous droits réservés.
             </p>
             {hasDonationAddresses && (
               <div className="flex items-center gap-2">
