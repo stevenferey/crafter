@@ -18,8 +18,8 @@ import { SignatureInput } from '@/components/ui/SignatureInput';
 import type { SignatureData } from '@/types/cra.types';
 import {
   MONTHS,
-  WEEKDAYS,
-  getCalendarGrid,
+  WEEKDAYS_MONDAY_FIRST,
+  getCalendarGridMondayFirst,
   getCurrentMonthYear,
   getAvailableYears,
   formatMonthYear,
@@ -142,7 +142,7 @@ export function EditCRA() {
   );
 
   // Générer la grille du calendrier
-  const calendarGrid = getCalendarGrid(selectedMonth, selectedYear);
+  const calendarGrid = getCalendarGridMondayFirst(selectedMonth, selectedYear);
 
   // Récupérer les sociétés sélectionnées pour leurs signatures par défaut
   const selectedClientId = watch('client_id');
@@ -424,13 +424,13 @@ export function EditCRA() {
           title="Jours travaillés"
           description={`Sélectionnez les jours travaillés en ${formatMonthYear(selectedMonth, selectedYear)}`}
         >
-          <div className="space-y-4">
+          <div className="space-y-2">
             {/* En-tête du calendrier */}
-            <div className="grid grid-cols-7 gap-2">
-              {WEEKDAYS.map((day) => (
+            <div className="grid grid-cols-7 gap-1">
+              {WEEKDAYS_MONDAY_FIRST.map((day) => (
                 <div
                   key={day}
-                  className="text-center text-sm font-semibold text-[rgb(var(--color-text-secondary))] py-2"
+                  className="text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] py-1"
                 >
                   {day}
                 </div>
@@ -438,12 +438,10 @@ export function EditCRA() {
             </div>
 
             {/* Grille du calendrier */}
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1">
               {calendarGrid.map((dayInfo, index) => {
                 if (!dayInfo) {
-                  return (
-                    <div key={`empty-${index}`} className="aspect-square" />
-                  );
+                  return <div key={`empty-${index}`} className="h-11" />;
                 }
 
                 const isSelected = watchWorkedDays?.includes(dayInfo.day);
@@ -455,12 +453,12 @@ export function EditCRA() {
                     type="button"
                     onClick={() => toggleDay(dayInfo.day)}
                     className={`
-                      aspect-square rounded-lg border-2 text-sm font-medium transition-all
+                      h-11 rounded-md border text-xs font-medium transition-all
                       ${
                         isSelected
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                           : isWeekend
-                            ? 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300'
+                            ? 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300 dark:bg-gray-800 dark:text-gray-500 dark:border-gray-700'
                             : 'bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] border-[rgb(var(--color-border))] hover:border-blue-400'
                       }
                       ${isSelected ? 'scale-95' : 'hover:scale-105'}

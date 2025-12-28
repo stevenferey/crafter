@@ -16,8 +16,8 @@ import { SignatureInput } from '@/components/ui/SignatureInput';
 import type { SignatureData } from '@/types/cra.types';
 import {
   MONTHS,
-  WEEKDAYS,
-  getCalendarGrid,
+  WEEKDAYS_MONDAY_FIRST,
+  getCalendarGridMondayFirst,
   getCurrentMonthYear,
   getAvailableYears,
   formatMonthYear,
@@ -76,7 +76,7 @@ export function CreateCRA() {
   }));
 
   // Générer la grille du calendrier
-  const calendarGrid = getCalendarGrid(selectedMonth, selectedYear);
+  const calendarGrid = getCalendarGridMondayFirst(selectedMonth, selectedYear);
 
   // Récupérer les sociétés sélectionnées pour leurs signatures par défaut
   const selectedClientId = watch('client_id');
@@ -265,13 +265,13 @@ export function CreateCRA() {
           title="Jours travaillés"
           description={`Sélectionnez les jours travaillés en ${formatMonthYear(selectedMonth, selectedYear)}`}
         >
-          <div className="space-y-4">
+          <div className="space-y-2">
             {/* En-tête du calendrier */}
-            <div className="grid grid-cols-7 gap-2">
-              {WEEKDAYS.map((day) => (
+            <div className="grid grid-cols-7 gap-1">
+              {WEEKDAYS_MONDAY_FIRST.map((day) => (
                 <div
                   key={day}
-                  className="text-center text-sm font-semibold text-[rgb(var(--color-text-secondary))] py-2"
+                  className="text-center text-xs font-semibold text-[rgb(var(--color-text-secondary))] py-1"
                 >
                   {day}
                 </div>
@@ -279,12 +279,10 @@ export function CreateCRA() {
             </div>
 
             {/* Grille du calendrier */}
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1">
               {calendarGrid.map((dayInfo, index) => {
                 if (!dayInfo) {
-                  return (
-                    <div key={`empty-${index}`} className="aspect-square" />
-                  );
+                  return <div key={`empty-${index}`} className="h-11" />;
                 }
 
                 const isSelected = watchWorkedDays?.includes(dayInfo.day);
@@ -296,12 +294,12 @@ export function CreateCRA() {
                     type="button"
                     onClick={() => toggleDay(dayInfo.day)}
                     className={`
-                      aspect-square rounded-lg border-2 text-sm font-medium transition-all
+                      h-11 rounded-md border text-xs font-medium transition-all
                       ${
                         isSelected
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                           : isWeekend
-                            ? 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300'
+                            ? 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300 dark:bg-gray-800 dark:text-gray-500 dark:border-gray-700'
                             : 'bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] border-[rgb(var(--color-border))] hover:border-blue-400'
                       }
                       ${isSelected ? 'scale-95' : 'hover:scale-105'}
@@ -484,10 +482,10 @@ export function CreateCRA() {
         </FormSection>
 
         {/* Info Box */}
-        <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+        <div className="bg-[rgb(var(--color-primary-light))] border-2 border-[rgb(var(--color-primary))] rounded-lg p-4">
           <div className="flex gap-3">
             <svg
-              className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+              className="w-5 h-5 text-[rgb(var(--color-primary))] flex-shrink-0 mt-0.5"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -498,10 +496,10 @@ export function CreateCRA() {
               />
             </svg>
             <div className="text-sm">
-              <p className="font-bold mb-1 text-blue-800">
+              <p className="font-bold mb-1 text-[rgb(var(--color-text))]">
                 À propos du CRA mensuel
               </p>
-              <p className="text-blue-700">
+              <p className="text-[rgb(var(--color-text-secondary))]">
                 Le CRA sera créé en mode brouillon. Vous pourrez le modifier
                 avant de le soumettre pour validation.
               </p>
@@ -511,10 +509,10 @@ export function CreateCRA() {
 
         {/* Erreur de soumission */}
         {submitError && (
-          <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+          <div className="bg-red-100/50 dark:bg-red-900/20 border-2 border-[rgb(var(--color-error))] rounded-lg p-4">
             <div className="flex gap-3">
               <svg
-                className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+                className="w-5 h-5 text-[rgb(var(--color-error))] flex-shrink-0 mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -525,10 +523,10 @@ export function CreateCRA() {
                 />
               </svg>
               <div className="flex-1">
-                <p className="font-bold mb-1 text-red-800">
+                <p className="font-bold mb-1 text-[rgb(var(--color-text))]">
                   Erreur lors de la création
                 </p>
-                <p className="text-sm text-red-700">{submitError}</p>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">{submitError}</p>
               </div>
             </div>
           </div>

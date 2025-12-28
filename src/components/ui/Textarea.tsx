@@ -47,7 +47,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     // Classes pour le textarea
     const textareaClasses = cn(
       // Styles de base
-      'block px-4 py-2 text-sm text-[rgb(var(--color-text))] bg-[rgb(var(--color-surface))] border rounded-lg transition-colors',
+      'block px-4 py-2 text-sm text-[rgb(var(--color-text))] bg-[rgb(var(--color-surface))] border rounded-lg transition-colors placeholder:text-[rgb(var(--color-text-muted))]',
       // Focus
       'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
       // États
