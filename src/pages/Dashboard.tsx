@@ -347,31 +347,6 @@ export function Dashboard() {
         )}
       </div>
 
-      {/* Quick Actions */}
-      {cras.length === 0 && !isLoading && !error && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800 p-6">
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text))] mb-2">
-              Démarrage rapide
-            </h3>
-            <p className="text-[rgb(var(--color-text-secondary))] mb-4">
-              Créez votre premier CRA en quelques clics
-            </p>
-            <Link to="/dashboard/cra/new">
-              <Button variant="primary">Créer un CRA</Button>
-            </Link>
-          </div>
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800 p-6">
-            <h3 className="text-lg font-semibold text-[rgb(var(--color-text))] mb-2">
-              Besoin d'aide ?
-            </h3>
-            <p className="text-[rgb(var(--color-text-secondary))] mb-4">
-              Consultez notre documentation pour plus d'informations
-            </p>
-            <Button variant="outline">Voir la documentation</Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
