@@ -2,6 +2,11 @@
 
 # Script de démarrage pour l'environnement de développement Crafter
 # Ce script démarre Docker, initialise la base de données, et lance le backend et le frontend
+#
+# Usage:
+#   ./start-dev.sh          # Démarrage normal
+#   ./start-dev.sh --fresh  # Réinstalle les dépendances (npm ci) - à utiliser après git pull
+#   ./start-dev.sh -f       # Alias pour --fresh
 
 set -e  # Arrêter en cas d'erreur
 
@@ -19,6 +24,12 @@ echo "║   🚀 Starting Crafter Development Mode    ║"
 echo "║                                           ║"
 echo "╚═══════════════════════════════════════════╝"
 echo ""
+
+# Option --fresh pour forcer npm ci
+FRESH_INSTALL=false
+if [ "$1" = "--fresh" ] || [ "$1" = "-f" ]; then
+    FRESH_INSTALL=true
+fi
 
 # Fonction pour afficher les messages
 log_info() {
@@ -95,8 +106,21 @@ else
     log_warning "Database tables already exist. Skipping initialization."
 fi
 
+# Installation des dépendances
+if [ "$FRESH_INSTALL" = true ]; then
+    log_info "Fresh install requested, running npm ci..."
+    npm ci
+    log_success "Frontend dependencies installed (fresh)"
+    cd backend && npm ci && cd ..
+    log_success "Backend dependencies installed (fresh)"
+elif [ ! -d "node_modules" ]; then
+    log_info "Installing frontend dependencies..."
+    npm install
+    log_success "Frontend dependencies installed"
+fi
+
 # Vérifier si node_modules existe dans backend
-if [ ! -d "backend/node_modules" ]; then
+if [ "$FRESH_INSTALL" = false ] && [ ! -d "backend/node_modules" ]; then
     log_info "Installing backend dependencies..."
     cd backend && npm install && cd ..
     log_success "Backend dependencies installed"
