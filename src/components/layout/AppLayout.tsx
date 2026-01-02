@@ -257,7 +257,7 @@ export function AppLayout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-[rgb(var(--color-text-muted))]">
-              © 2025 DiscoData. Tous droits réservés.
+              © {new Date().getFullYear()} DiscoData. Tous droits réservés.
             </div>
             <div className="flex items-center space-x-6 text-sm text-[rgb(var(--color-text-muted))]">
               {hasDonationAddresses && (
