@@ -25,7 +25,8 @@ export function sitemapPlugin(): Plugin {
         return;
       }
 
-      const siteUrl = process.env.VITE_SITE_URL || '';
+      // Remove trailing slash to avoid double slashes in URLs
+      const siteUrl = (process.env.VITE_SITE_URL || '').replace(/\/$/, '');
 
       const urls: SitemapUrl[] = [
         { loc: '/', changefreq: 'weekly', priority: 1.0 },

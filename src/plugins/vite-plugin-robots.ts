@@ -6,7 +6,8 @@ export function robotsPlugin(): Plugin {
     apply: 'build',
     generateBundle() {
       const isIndexable = process.env.VITE_INDEXABLE === 'true';
-      const siteUrl = process.env.VITE_SITE_URL || '';
+      // Remove trailing slash to avoid double slashes in URLs
+      const siteUrl = (process.env.VITE_SITE_URL || '').replace(/\/$/, '');
 
       let robotsContent: string;
 
