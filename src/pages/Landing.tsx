@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui';
+import { SEO } from '@/components/SEO';
 import {
   DonationModal,
   BitcoinIcon,
@@ -15,7 +16,19 @@ export function Landing() {
   const hasDonationAddresses = BTC_ADDRESS || ETH_ADDRESS;
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg-secondary))] force-light">
+    <>
+      <SEO
+        path="/"
+        title="Crafter - Simplifiez la gestion de vos CRA"
+        description="Creez, gerez et exportez vos comptes rendus d'activite en quelques clics. Fini les tableaux Excel et les documents perdus."
+        openGraph={{
+          type: 'website',
+          title: 'Crafter - Simplifiez la gestion de vos CRA',
+          description:
+            "Creez, gerez et exportez vos comptes rendus d'activite en quelques clics.",
+        }}
+      />
+      <div className="min-h-screen bg-[rgb(var(--color-bg-secondary))] force-light">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
@@ -202,5 +215,6 @@ export function Landing() {
         onClose={() => setIsDonationModalOpen(false)}
       />
     </div>
+    </>
   );
 }
