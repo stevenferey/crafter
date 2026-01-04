@@ -1,0 +1,16 @@
+{
+  "name": "Crafter",
+  "short_name": "Crafter",
+  "description": "Gestion simplifiee de vos CRA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
