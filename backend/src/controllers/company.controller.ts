@@ -246,7 +246,7 @@ export class CompanyController {
    */
   static async getById(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const userIdFilter = getUserIdFilter(req);
       const company = await CompanyModel.findById(id, userIdFilter);
 
@@ -350,7 +350,7 @@ export class CompanyController {
    */
   static async update(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const userIdFilter = getUserIdFilter(req);
       const updateData: UpdateCompanyInput = {};
 
@@ -441,7 +441,7 @@ export class CompanyController {
    */
   static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const userIdFilter = getUserIdFilter(req);
       const deleted = await CompanyModel.delete(id, userIdFilter);
 
