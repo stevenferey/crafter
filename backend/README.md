@@ -7,7 +7,7 @@ Backend API REST pour l'application Crafter CRA (Compte Rendu d'Activité).
 - **Runtime**: Node.js 24+
 - **Framework**: Express 5.x
 - **Language**: TypeScript 5.x
-- **Base de données**: PostgreSQL 16
+- **Base de données**: PostgreSQL 18
 - **ORM**: pg (node-postgres) - Client PostgreSQL natif
 - **Dev Tools**: tsx, nodemon
 
@@ -17,7 +17,7 @@ Backend API REST pour l'application Crafter CRA (Compte Rendu d'Activité).
 
 - Node.js 24+ et npm
 - Docker et Docker Compose (pour PostgreSQL)
-- PostgreSQL 16+ (si pas d'utilisation de Docker)
+- PostgreSQL 18+ (si pas d'utilisation de Docker)
 
 ### Installation des dépendances
 
@@ -102,6 +102,19 @@ Le serveur démarre sur **http://localhost:3001**
 
 ### Structure
 
+#### Table `users`
+```sql
+- id (UUID, primary key)
+- email (VARCHAR, unique, required) - Email de connexion
+- password_hash (VARCHAR, required) - Mot de passe hashé (bcrypt)
+- first_name (VARCHAR, required) - Prénom
+- last_name (VARCHAR, required) - Nom
+- role (ENUM: user, admin) - Rôle utilisateur
+- email_verified (BOOLEAN) - Email vérifié
+- created_at (TIMESTAMP)
+- updated_at (TIMESTAMP)
+```
+
 #### Table `companies`
 ```sql
 - id (UUID, primary key)
@@ -122,6 +135,10 @@ Le serveur démarre sur **http://localhost:3001**
 - code (VARCHAR, optional) - Code d'activité
 - exemption (BOOLEAN) - Exemption TVA (Art.293 B du CGI)
 - tva_number (VARCHAR, optional) - Numéro TVA intracommunautaire
+- default_signatory_name (VARCHAR, optional) - Nom du signataire par défaut
+- default_signatory_title (VARCHAR, optional) - Titre du signataire par défaut
+- default_signature_image (TEXT, optional) - Image de signature en base64
+- owner_id (UUID, foreign key → users.id) - Propriétaire
 - created_at (TIMESTAMP)
 - updated_at (TIMESTAMP)
 ```
@@ -136,12 +153,19 @@ Le serveur démarre sur **http://localhost:3001**
 - client_id (UUID, foreign key → companies.id) - Société cliente
 - provider_id (UUID, foreign key → companies.id) - Société prestataire
 - status (ENUM: draft, submitted, approved, rejected)
+- client_signatory_name (VARCHAR, optional) - Nom du signataire client
+- client_signatory_title (VARCHAR, optional) - Titre du signataire client
+- client_signature_image (TEXT, optional) - Image de signature client en base64
+- provider_signatory_name (VARCHAR, optional) - Nom du signataire prestataire
+- provider_signatory_title (VARCHAR, optional) - Titre du signataire prestataire
+- provider_signature_image (TEXT, optional) - Image de signature prestataire en base64
+- signature_location (VARCHAR, optional) - Lieu de signature
+- signature_date (DATE, optional) - Date de signature
+- owner_id (UUID, foreign key → users.id) - Propriétaire
 - created_at (TIMESTAMP)
 - updated_at (TIMESTAMP)
 - CONSTRAINT: client_id <> provider_id (une société ne peut pas être à la fois client et prestataire)
 ```
-
-**Note:** La table `activities` a été supprimée. Les CRA sont maintenant mensuels avec un simple tableau de jours travaillés.
 
 ### Gestion de la base de données
 
@@ -572,6 +596,49 @@ POST /api/auth/reset-password
 }
 ```
 
+#### Vérifier l'email
+
+```
+POST /api/auth/verify-email
+```
+
+**Body:**
+```json
+{
+  "token": "verification-token-from-email"
+}
+```
+
+### Upload Endpoints
+
+#### Upload une image de signature
+
+```
+POST /api/upload/signature
+Authorization: Bearer {accessToken}
+Content-Type: multipart/form-data
+```
+
+**Body:** `signature` (file, PNG/JPEG, max 2MB)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "filename": "signature-uuid.png",
+    "url": "/uploads/signatures/signature-uuid.png"
+  }
+}
+```
+
+#### Supprimer une image de signature
+
+```
+DELETE /api/upload/signature/:filename
+Authorization: Bearer {accessToken}
+```
+
 ## 🏗️ Architecture
 
 ```
@@ -580,11 +647,13 @@ backend/
 │   ├── config/
 │   │   ├── database.ts           # Configuration PostgreSQL
 │   │   ├── jwt.config.ts         # Configuration JWT (tokens)
-│   │   └── email.config.ts       # Configuration emails (templates)
+│   │   ├── email.config.ts       # Configuration emails (templates)
+│   │   └── upload.config.ts      # Configuration Multer (upload fichiers)
 │   ├── controllers/
 │   │   ├── auth.controller.ts    # Logique métier authentification
 │   │   ├── cra.controller.ts     # Logique métier des CRA
-│   │   └── company.controller.ts # Logique métier des sociétés
+│   │   ├── company.controller.ts # Logique métier des sociétés
+│   │   └── upload.controller.ts  # Logique métier des uploads
 │   ├── middleware/
 │   │   ├── auth.middleware.ts    # Middleware JWT (authenticate)
 │   │   └── role.middleware.ts    # Middleware rôles (admin, user)
@@ -595,18 +664,25 @@ backend/
 │   ├── routes/
 │   │   ├── auth.routes.ts        # Routes Express pour Auth
 │   │   ├── cra.routes.ts         # Routes Express pour CRA
-│   │   └── company.routes.ts     # Routes Express pour Companies
+│   │   ├── company.routes.ts     # Routes Express pour Companies
+│   │   └── upload.routes.ts      # Routes Express pour Uploads
 │   ├── services/
 │   │   ├── token.service.ts      # Service JWT (génération, validation)
 │   │   └── email.service.ts      # Service emails (envoi via Resend)
 │   ├── types/
 │   │   ├── auth.types.ts         # Types TypeScript Auth
 │   │   ├── cra.types.ts          # Types TypeScript CRA
-│   │   └── company.types.ts      # Types TypeScript Company
+│   │   ├── company.types.ts      # Types TypeScript Company
+│   │   └── express.d.ts          # Extensions de types Express
 │   └── server.ts                 # Point d'entrée Express
 ├── migrations/
-│   ├── schema.sql                # Schéma de la DB
-│   ├── 004_add_users.sql         # Migration utilisateurs
+│   ├── schema.sql                # Schéma de base (companies, cras)
+│   ├── 002_add_signature_fields.sql    # Champs signature
+│   ├── 003_add_signature_location_date.sql # Lieu/date signature
+│   ├── 004_add_users.sql               # Table utilisateurs
+│   ├── 005_add_user_ownership.sql      # Relations user-company/cra
+│   ├── 006_remove_google_auth.sql      # Suppression OAuth
+│   ├── 007_signatures_base64.sql       # Signatures en base64
 │   ├── run-all.sh                # Script d'initialisation
 │   └── README.md                 # Documentation du schéma
 ├── .env                          # Variables d'environnement (non versionné)
@@ -720,7 +796,6 @@ npm run db:migrate
 - Les timestamps utilisent `CURRENT_TIMESTAMP` avec timezone
 - Les transactions sont gérées pour les opérations complexes (create, update)
 - Un trigger met à jour automatiquement `updated_at` sur les CRA et les Companies
-- La suppression d'un CRA supprime en cascade ses activités
 - La suppression d'une Company est protégée si elle est référencée par des CRA (contrainte FK)
 - Une société ne peut pas être à la fois client et prestataire sur un même CRA (contrainte CHECK)
 - Les champs `client_id` et `provider_id` sont requis pour tous les CRA
@@ -736,5 +811,5 @@ npm run db:migrate
 
 - [Express.js](https://expressjs.com/)
 - [node-postgres](https://node-postgres.com/)
-- [PostgreSQL 16](https://www.postgresql.org/docs/16/)
+- [PostgreSQL 18](https://www.postgresql.org/docs/18/)
 - [TypeScript](https://www.typescriptlang.org/)
