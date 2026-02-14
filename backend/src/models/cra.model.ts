@@ -443,7 +443,6 @@ export class CRAModel {
     if (month !== undefined) {
       queryText += ` AND month = $${paramIndex}`;
       params.push(month);
-      paramIndex++;
     }
 
     const result = await query<{ count: string }>(queryText, params);

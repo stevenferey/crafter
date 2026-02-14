@@ -64,7 +64,6 @@ app.use((req: Request, res: Response) => {
 });
 
 // Middleware de gestion des erreurs (Express exige 4 paramètres)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Error:', err);
 
