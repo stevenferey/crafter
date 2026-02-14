@@ -542,7 +542,6 @@ export class CompanyModel {
     if (registre) {
       queryText += ` AND registre = $${paramIndex}`;
       params.push(registre);
-      paramIndex++;
     }
 
     const result = await query<{ count: string }>(queryText, params);
