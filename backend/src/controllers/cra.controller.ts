@@ -71,7 +71,7 @@ export class CRAController {
    */
   static async getById(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const userIdFilter = getUserIdFilter(req);
       const cra = await CRAModel.findById(id, userIdFilter);
 
@@ -341,7 +341,7 @@ export class CRAController {
         updateData.provider_use_current_date =
           req.body.provider_use_current_date;
 
-      const updatedCRA = await CRAModel.update(id, updateData, userIdFilter);
+      const updatedCRA = await CRAModel.update(id as string, updateData, userIdFilter);
 
       if (!updatedCRA) {
         res.status(404).json({
@@ -385,7 +385,7 @@ export class CRAController {
    */
   static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const userIdFilter = getUserIdFilter(req);
       const deleted = await CRAModel.delete(id, userIdFilter);
 
