@@ -17,25 +17,28 @@ Crafter est une application web moderne construite avec React, TypeScript et Vit
 
 Le projet suit une architecture modulaire avec une séparation claire des responsabilités :
 
-- **components/** - Composants React organisés par type (ui, layout, features)
+- **components/** - Composants React organisés par type (ui, layout, auth, features, pdf)
+- **constants/** - Constantes de l'application
 - **hooks/** - Custom React hooks pour la logique réutilisable
 - **lib/** - Fonctions utilitaires et helpers
 - **pages/** - Composants de pages pour le routing
+- **plugins/** - Plugins Vite (SEO, sitemap, robots.txt)
+- **schemas/** - Schémas de validation Zod
 - **services/** - Services API et logique métier
-- **stores/** - Gestion d'état global
+- **stores/** - Gestion d'état global (Zustand)
 - **types/** - Définitions TypeScript partagées
 
 ### Stack Technique
 
 #### Frontend
-- **React 18.3** - Bibliothèque UI avec concurrent features
-- **TypeScript 5.6** - Typage statique strict
-- **Vite 6** - Build tool rapide avec HMR
+- **React 19** - Bibliothèque UI avec concurrent features
+- **TypeScript 5.9** - Typage statique strict
+- **Vite 7** - Build tool rapide avec HMR
 - **Tailwind CSS v4** - Framework CSS utility-first
 - **React Router DOM v7** - Routing client-side
 
 #### Développement
-- **ESLint 9** - Linting du code JavaScript/TypeScript
+- **ESLint 10** - Linting du code JavaScript/TypeScript
 - **Prettier** - Formatage automatique du code
 - **TypeScript ESLint** - Rules ESLint pour TypeScript
 
@@ -80,6 +83,8 @@ Le projet utilise les variables d'environnement Vite (préfixe `VITE_`):
 - `VITE_APP_NAME` - Nom de l'application
 - `VITE_DONATION_BTC` - Adresse Bitcoin pour les dons (optionnel)
 - `VITE_DONATION_ETH` - Adresse Ethereum ERC20 pour les dons (optionnel)
+- `VITE_SITE_URL` - URL du site pour SEO (optionnel)
+- `VITE_INDEXABLE` - Activer l'indexation SEO (optionnel)
 
 Fichiers de configuration :
 - `.env.example` - Template (versionné)
@@ -240,6 +245,6 @@ Pour toute question concernant le projet, la licence ou les contributions :
 
 ---
 
-**Dernière mise à jour** : 2025
+**Dernière mise à jour** : 2026
 **Version** : 0.0.0
 **Mainteneur** : DiscoData

@@ -48,7 +48,7 @@ mcp__context7__get-library-docs({
 - **Build Tool**: Vite 7
 - **Styling**: Tailwind CSS v4 avec `@tailwindcss/postcss`
 - **Router**: React Router DOM v7
-- **Linting**: ESLint 9 avec TypeScript ESLint
+- **Linting**: ESLint 10 avec TypeScript ESLint
 - **Formatting**: Prettier
 - **Utilitaires**: clsx + tailwind-merge (via fonction `cn()`)
 
@@ -69,6 +69,10 @@ VITE_APP_NAME=Crafter
 # Donation addresses (optionnel, pour afficher les boutons de dons)
 VITE_DONATION_BTC=
 VITE_DONATION_ETH=
+
+# SEO (optionnel, pour génération sitemap/robots.txt et meta tags)
+VITE_SITE_URL=
+VITE_INDEXABLE=
 ```
 
 **Important** :
@@ -102,13 +106,18 @@ npm run type-check       # Vérifie les erreurs TypeScript sans émettre de fich
 src/
 ├── components/
 │   ├── ui/              # Composants UI réutilisables (Button, Input, etc.)
-│   ├── layout/          # Composants de mise en page (Header, Footer, etc.)
-│   └── features/        # Composants spécifiques aux fonctionnalités
+│   ├── layout/          # Composants de mise en page (AppLayout)
+│   ├── auth/            # Composants d'authentification (ProtectedRoute)
+│   ├── features/        # Composants spécifiques aux fonctionnalités
+│   └── pdf/             # Composants de génération PDF
+├── constants/           # Constantes de l'application
 ├── hooks/               # Custom React hooks
 ├── lib/                 # Fonctions utilitaires et helpers
 ├── pages/               # Composants de pages/routes
+├── plugins/             # Plugins Vite (SEO, sitemap, robots.txt)
+├── schemas/             # Schémas de validation Zod
 ├── services/            # Services API et logique métier
-├── stores/              # State management (Context, Zustand, etc.)
+├── stores/              # State management (Zustand)
 └── types/               # Types et interfaces TypeScript partagés
 ```
 
@@ -128,7 +137,7 @@ src/
    - Router défini dans `src/router.tsx` avec `createBrowserRouter`
    - Routes organisées avec la propriété `children` pour les routes imbriquées
    - Layout principal dans `src/components/layout/AppLayout.tsx` avec `<Outlet />`
-   - Pages dans `src/pages/` (Dashboard, CreateCRA, EditCRA, PreviewCRA)
+   - Pages dans `src/pages/`
    - Navigation avec `<Link>` et `useNavigate()`
    - Paramètres dynamiques avec `useParams()`
    - Routes principales :
@@ -142,6 +151,8 @@ src/
      - `/dashboard/cra/:id/edit` → EditCRA
      - `/dashboard/cra/:id/preview` → PreviewCRA
      - `/dashboard/companies` → Liste des sociétés
+     - `/dashboard/companies/new` → CreateCompany
+     - `/dashboard/companies/:id/edit` → EditCompany
      - `/dashboard/settings` → Paramètres (changement de mot de passe)
 
 Exemple de configuration du router :
@@ -156,16 +167,21 @@ export const router = createBrowserRouter([
   { path: '/register', element: <Register /> },
   { path: '/forgot-password', element: <ForgotPassword /> },
   { path: '/reset-password/:token', element: <ResetPassword /> },
+  { path: '/verify-email/:token', element: <VerifyEmail /> },
 
   // Routes protégées (utilisateurs connectés)
   {
     path: '/dashboard',
     element: <ProtectedRoute><AppLayout /></ProtectedRoute>,
+    errorElement: <ErrorBoundary />,
     children: [
       { index: true, element: <Dashboard /> },
       { path: 'cra/new', element: <CreateCRA /> },
       { path: 'cra/:id/edit', element: <EditCRA /> },
+      { path: 'cra/:id/preview', element: <PreviewCRA /> },
       { path: 'companies', element: <Companies /> },
+      { path: 'companies/new', element: <CreateCompany /> },
+      { path: 'companies/:id/edit', element: <EditCompany /> },
       { path: 'settings', element: <Settings /> },
     ],
   },

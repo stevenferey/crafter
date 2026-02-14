@@ -93,14 +93,14 @@ npm run type-check
 - **Build Tool**: Vite 7
 - **Styling**: Tailwind CSS v4 avec PostCSS
 - **Router**: React Router DOM v7
-- **Linting**: ESLint 9 + Prettier
+- **Linting**: ESLint 10 + Prettier
 - **API Client**: Fetch API avec hooks personnalisés
 
 ### Backend
 - **Runtime**: Node.js 24+
 - **Framework**: Express 5.x
 - **Language**: TypeScript 5.x
-- **Base de données**: PostgreSQL 16
+- **Base de données**: PostgreSQL 18
 - **Client DB**: node-postgres (pg)
 - **Dev Tools**: tsx, nodemon
 
@@ -120,22 +120,29 @@ crafter/
 │   │   ├── components/     # Composants React réutilisables
 │   │   │   ├── ui/        # Composants UI de base
 │   │   │   ├── layout/    # Composants de mise en page
-│   │   │   └── features/  # Composants spécifiques
+│   │   │   ├── auth/      # Composants d'authentification
+│   │   │   ├── features/  # Composants spécifiques
+│   │   │   └── pdf/       # Composants de génération PDF
+│   │   ├── constants/     # Constantes de l'application
 │   │   ├── hooks/         # Custom React hooks
 │   │   ├── lib/           # Fonctions utilitaires
 │   │   ├── pages/         # Composants de pages/routes
-│   │   ├── services/      # Services API (craService, api)
-│   │   ├── stores/        # State management
+│   │   ├── plugins/       # Plugins Vite (SEO, sitemap, robots.txt)
+│   │   ├── schemas/       # Schémas de validation Zod
+│   │   ├── services/      # Services API (cra, company, auth, upload)
+│   │   ├── stores/        # State management (Zustand)
 │   │   └── types/         # Types TypeScript partagés
 │   ├── .env.local         # Variables d'environnement frontend
 │   └── package.json
 │
 ├── backend/ (Express + TypeScript + PostgreSQL)
 │   ├── src/
-│   │   ├── config/        # Configuration (database.ts)
-│   │   ├── controllers/   # Logique métier (cra.controller.ts)
-│   │   ├── models/        # Modèles et requêtes SQL (cra.model.ts)
-│   │   ├── routes/        # Routes Express (cra.routes.ts)
+│   │   ├── config/        # Configuration (database, jwt, email, upload)
+│   │   ├── controllers/   # Logique métier (auth, cra, company, upload)
+│   │   ├── middleware/     # Middleware Express (auth, role)
+│   │   ├── models/        # Modèles et requêtes SQL (user, cra, company)
+│   │   ├── routes/        # Routes Express (auth, cra, company, upload)
+│   │   ├── services/      # Services (token, email)
 │   │   ├── types/         # Types TypeScript backend
 │   │   └── server.ts      # Point d'entrée Express
 │   ├── migrations/        # Schéma de base de données (schema.sql)
@@ -192,6 +199,8 @@ VITE_AI_API_KEY=
 VITE_APP_NAME=Crafter
 VITE_DONATION_BTC=       # Adresse Bitcoin (optionnel)
 VITE_DONATION_ETH=       # Adresse Ethereum ERC20 (optionnel)
+VITE_SITE_URL=           # URL du site pour SEO (optionnel)
+VITE_INDEXABLE=          # Activer l'indexation SEO (optionnel)
 ```
 
 #### Backend (`backend/.env`)
@@ -362,4 +371,4 @@ Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ---
 
-© 2025 DiscoData. Tous droits réservés.
+© 2025-2026 DiscoData. Tous droits réservés.
