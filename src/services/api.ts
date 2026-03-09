@@ -10,7 +10,7 @@ const APP_NAME = import.meta.env.VITE_APP_NAME || 'Crafter';
  * Fonction pour récupérer le token d'accès depuis le localStorage
  * Évite la dépendance circulaire avec le store
  */
-const getAccessToken = (): string | null => {
+export const getAccessToken = (): string | null => {
   try {
     const stored = localStorage.getItem('crafter-auth-storage');
     if (stored) {

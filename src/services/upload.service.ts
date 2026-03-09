@@ -1,4 +1,4 @@
-import { env } from './api';
+import { env, getAccessToken } from './api';
 
 /**
  * Upload une image de signature
@@ -9,9 +9,15 @@ export async function uploadSignature(file: File): Promise<string> {
   const formData = new FormData();
   formData.append('signature', file);
 
+  const accessToken = getAccessToken();
+
   const response = await fetch(`${env.apiUrl}/upload/signature`, {
     method: 'POST',
     body: formData,
+    credentials: 'include',
+    headers: {
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+    },
   });
 
   if (!response.ok) {
