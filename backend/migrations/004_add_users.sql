@@ -54,37 +54,13 @@ CREATE TRIGGER update_users_updated_at
   EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
--- Utilisateur admin par défaut (optionnel)
--- Mot de passe: admin123 (à changer en production!)
--- ============================================
--- Note: Le hash ci-dessous correspond à 'admin123' avec bcrypt
--- En production, créer l'admin via l'API ou changer ce mot de passe
-INSERT INTO users (
-  email,
-  password_hash,
-  role,
-  first_name,
-  last_name,
-  email_verified
-) VALUES (
-  'admin@crafter.app',
-  '$2b$12$I4GOY9X5k1tqeGAsZ4YcFeJM0btSodSjyFUWx.NHXuV7E.aX9xDkG',
-  'admin',
-  'Admin',
-  'Crafter',
-  true
-);
-
--- ============================================
 -- Affichage du résumé
 -- ============================================
+-- Note: To create an admin user, use the seed script:
+--   npx tsx scripts/create-admin.ts <email> <password>
 \echo ''
 \echo '✓ Migration 004_add_users.sql completed!'
 \echo ''
 \echo 'Table created:'
 \echo '  - users (with 4 indexes and trigger)'
-\echo ''
-\echo 'Default admin user created:'
-\echo '  - Email: admin@crafter.app'
-\echo '  - Password: admin123 (CHANGE IN PRODUCTION!)'
 \echo ''
