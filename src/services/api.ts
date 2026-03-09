@@ -4,7 +4,6 @@
 
 // Configuration de l'API
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-const AI_API_KEY = import.meta.env.VITE_AI_API_KEY;
 const APP_NAME = import.meta.env.VITE_APP_NAME || 'Crafter';
 
 /**
@@ -186,7 +185,6 @@ export function unwrapApiResponse<T>(
  */
 export const env = {
   apiUrl: API_URL,
-  aiApiKey: AI_API_KEY,
   appName: APP_NAME,
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
