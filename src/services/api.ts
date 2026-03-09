@@ -2,25 +2,17 @@
  * Configuration de l'API et fonctions utilitaires pour les requêtes HTTP
  */
 
+import { tokenStore } from '@/lib/token-store';
+
 // Configuration de l'API
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 const APP_NAME = import.meta.env.VITE_APP_NAME || 'Crafter';
 
 /**
- * Fonction pour récupérer le token d'accès depuis le localStorage
- * Évite la dépendance circulaire avec le store
+ * Fonction pour récupérer le token d'accès depuis le store en mémoire
  */
 export const getAccessToken = (): string | null => {
-  try {
-    const stored = localStorage.getItem('crafter-auth-storage');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      return parsed.state?.accessToken || null;
-    }
-  } catch {
-    // Ignorer les erreurs de parsing
-  }
-  return null;
+  return tokenStore.get();
 };
 
 /**
