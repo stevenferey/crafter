@@ -60,9 +60,6 @@ Le projet utilise des variables d'environnement pour la configuration. Copier `.
 # API Backend URL
 VITE_API_URL=http://localhost:3001/api
 
-# AI API Key (optionnel, pour fonctionnalités d'aide IA)
-VITE_AI_API_KEY=
-
 # Application Name
 VITE_APP_NAME=Crafter
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { uploadSignature } from '../config/upload.config.js';
 import { uploadSignatureImage } from '../controllers/upload.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
@@ -12,6 +13,7 @@ const router = Router();
  */
 router.post(
   '/signature',
+  authenticate,
   uploadSignature.single('signature'),
   uploadSignatureImage,
 );

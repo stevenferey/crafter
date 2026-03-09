@@ -15,7 +15,7 @@ import type {
 // Configuration du cookie refresh token
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: process.env.NODE_ENV !== 'development',
   sameSite: 'strict' as const,
   maxAge: getRefreshTokenMaxAge(),
   path: '/api/auth',
@@ -97,7 +97,7 @@ export class AuthController {
       // Envoyer l'email de vérification
       await EmailService.sendVerificationEmail(user.email, verificationToken, user.first_name || undefined);
 
-      console.log(`[Auth] User registered: ${user.email}`);
+      console.log(`[Auth] User registered: ${user.id}`);
 
       res.status(201).json({
         success: true,
@@ -197,7 +197,7 @@ export class AuthController {
       // Définir le cookie refresh token
       res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
 
-      console.log(`[Auth] User logged in: ${user.email}`);
+      console.log(`[Auth] User logged in: ${user.id}`);
 
       res.json({
         success: true,
@@ -225,7 +225,7 @@ export class AuthController {
       if (req.user) {
         // Supprimer le refresh token de la base
         await UserModel.setRefreshToken(req.user.id, null);
-        console.log(`[Auth] User logged out: ${req.user.email}`);
+        console.log(`[Auth] User logged out: ${req.user.id}`);
       }
 
       // Supprimer le cookie
@@ -360,7 +360,7 @@ export class AuthController {
       // Envoyer l'email de bienvenue
       await EmailService.sendWelcomeEmail(user.email, user.first_name || undefined);
 
-      console.log(`[Auth] Email verified: ${user.email}`);
+      console.log(`[Auth] Email verified: ${user.id}`);
 
       res.json({
         success: true,
@@ -476,7 +476,7 @@ export class AuthController {
       await UserModel.setResetToken(user.id, tokenHash, tokenExpires);
       await EmailService.sendPasswordResetEmail(user.email, resetToken, user.first_name || undefined);
 
-      console.log(`[Auth] Password reset requested: ${user.email}`);
+      console.log(`[Auth] Password reset requested: ${user.id}`);
 
       res.json({ success: true, message: successMessage });
     } catch (error) {
@@ -538,7 +538,7 @@ export class AuthController {
       // Invalider tous les refresh tokens existants
       await UserModel.setRefreshToken(user.id, null);
 
-      console.log(`[Auth] Password reset successful: ${user.email}`);
+      console.log(`[Auth] Password reset successful: ${user.id}`);
 
       res.json({
         success: true,
@@ -699,7 +699,7 @@ export class AuthController {
       // Invalider tous les refresh tokens (force re-login)
       await UserModel.setRefreshToken(req.user.id, null);
 
-      console.log(`[Auth] Password changed: ${req.user.email}`);
+      console.log(`[Auth] Password changed: ${req.user.id}`);
 
       res.json({
         success: true,
