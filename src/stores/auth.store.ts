@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
             error: null,
           });
 
-          console.log('[Auth Store] User logged in:', response.user.email);
+          console.log('[Auth Store] User logged in');
         } catch (error) {
           const message =
             error instanceof Error ? error.message : 'Échec de la connexion';
@@ -79,7 +79,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           await authService.register(data);
           set({ isLoading: false, error: null });
-          console.log('[Auth Store] User registered:', data.email);
+          console.log('[Auth Store] User registered');
         } catch (error) {
           const message =
             error instanceof Error ? error.message : "Échec de l'inscription";

@@ -54,7 +54,7 @@ export class EmailService {
         return false;
       }
 
-      console.log(`[Email] Email sent successfully to ${options.to}`);
+      console.log('[Email] Email sent successfully');
       return true;
     } catch (error) {
       console.error('[Email] Error sending email:', error);
