@@ -1,8 +1,18 @@
 // Configuration JWT
 
+const accessSecret = process.env.JWT_ACCESS_SECRET;
+const refreshSecret = process.env.JWT_REFRESH_SECRET;
+
+if (!accessSecret || !refreshSecret) {
+  throw new Error(
+    'FATAL: JWT_ACCESS_SECRET and JWT_REFRESH_SECRET environment variables must be set. ' +
+      "Generate secure values with: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"",
+  );
+}
+
 export const jwtConfig = {
-  accessSecret: process.env.JWT_ACCESS_SECRET || 'default-access-secret-change-in-production',
-  refreshSecret: process.env.JWT_REFRESH_SECRET || 'default-refresh-secret-change-in-production',
+  accessSecret,
+  refreshSecret,
   accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
   refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
 };
