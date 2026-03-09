@@ -1,5 +1,14 @@
 // Configuration Email (Resend)
 
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 export const emailConfig = {
   from: process.env.EMAIL_FROM || 'noreply@crafter.app',
   resendApiKey: process.env.RESEND_API_KEY || '',
@@ -11,7 +20,7 @@ export const emailTemplates = {
   verification: {
     subject: 'Vérifiez votre adresse email - Crafter',
     getBody: (verificationUrl: string, firstName?: string): string => `
-      <h1>Bienvenue sur Crafter${firstName ? `, ${firstName}` : ''} !</h1>
+      <h1>Bienvenue sur Crafter${firstName ? `, ${escapeHtml(firstName)}` : ''} !</h1>
       <p>Merci de vous être inscrit. Veuillez cliquer sur le lien ci-dessous pour vérifier votre adresse email :</p>
       <p><a href="${verificationUrl}" style="display: inline-block; padding: 12px 24px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 8px;">Vérifier mon email</a></p>
       <p>Ce lien expire dans 24 heures.</p>
@@ -23,7 +32,7 @@ export const emailTemplates = {
     subject: 'Réinitialisation de votre mot de passe - Crafter',
     getBody: (resetUrl: string, firstName?: string): string => `
       <h1>Réinitialisation de mot de passe</h1>
-      <p>Bonjour${firstName ? ` ${firstName}` : ''},</p>
+      <p>Bonjour${firstName ? ` ${escapeHtml(firstName)}` : ''},</p>
       <p>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le lien ci-dessous :</p>
       <p><a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 8px;">Réinitialiser mon mot de passe</a></p>
       <p>Ce lien expire dans 1 heure.</p>
@@ -34,7 +43,7 @@ export const emailTemplates = {
   welcome: {
     subject: 'Bienvenue sur Crafter !',
     getBody: (firstName?: string): string => `
-      <h1>Bienvenue sur Crafter${firstName ? `, ${firstName}` : ''} !</h1>
+      <h1>Bienvenue sur Crafter${firstName ? `, ${escapeHtml(firstName)}` : ''} !</h1>
       <p>Votre compte a été créé avec succès et votre email est maintenant vérifié.</p>
       <p>Vous pouvez maintenant :</p>
       <ul>

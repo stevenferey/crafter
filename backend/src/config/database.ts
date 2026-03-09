@@ -17,10 +17,11 @@ export const pool = new Pool({
         user: process.env.DB_USER || 'cra_user',
         password: process.env.DB_PASSWORD || 'cra_password',
       }),
-  // SSL requis en production (Railway)
+  // SSL requis en production
+  // Set DB_SSL_REJECT_UNAUTHORIZED=false only for providers with self-signed certs (e.g. Railway)
   ssl:
     process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: false }
+      ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' }
       : false,
   max: 20,
   idleTimeoutMillis: 30000,
