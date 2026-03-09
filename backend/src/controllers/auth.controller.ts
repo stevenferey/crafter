@@ -15,7 +15,7 @@ import type {
 // Configuration du cookie refresh token
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: process.env.NODE_ENV !== 'development',
   sameSite: 'strict' as const,
   maxAge: getRefreshTokenMaxAge(),
   path: '/api/auth',
