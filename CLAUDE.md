@@ -22,7 +22,7 @@ Utilisez **systématiquement** Context7 dans les situations suivantes :
 mcp__context7__resolve-library-id({ libraryName: "react-router-dom" })
 
 // 2. Récupérer la documentation
-mcp__context7__get-library-docs({
+mcp__context7__query-docs({
   context7CompatibleLibraryID: "/remix-run/react-router/7.6.2",
   topic: "createBrowserRouter RouterProvider useNavigate",
   tokens: 3000
@@ -45,7 +45,7 @@ mcp__context7__get-library-docs({
 ## Stack Technique
 
 - **Framework**: React 19 avec TypeScript 5.9
-- **Build Tool**: Vite 7
+- **Build Tool**: Vite 8
 - **Styling**: Tailwind CSS v4 avec `@tailwindcss/postcss`
 - **Router**: React Router DOM v7
 - **Linting**: ESLint 10 avec TypeScript ESLint

@@ -6,7 +6,7 @@ Application full-stack de gestion de CRA (Comptes Rendus d'Activité) construite
 
 ### Prérequis
 
-- Node.js 24+
+- Node.js 20+
 - Docker et Docker Compose
 - npm ou yarn
 
@@ -90,14 +90,14 @@ npm run type-check
 
 ### Frontend
 - **Framework**: React 19 avec TypeScript 5.9
-- **Build Tool**: Vite 7
+- **Build Tool**: Vite 8
 - **Styling**: Tailwind CSS v4 avec PostCSS
 - **Router**: React Router DOM v7
 - **Linting**: ESLint 10 + Prettier
 - **API Client**: Fetch API avec hooks personnalisés
 
 ### Backend
-- **Runtime**: Node.js 24+
+- **Runtime**: Node.js 20+
 - **Framework**: Express 5.x
 - **Language**: TypeScript 5.x
 - **Base de données**: PostgreSQL 18
@@ -195,7 +195,6 @@ Format de réponse API :
 
 ```bash
 VITE_API_URL=http://localhost:3001/api
-VITE_AI_API_KEY=
 VITE_APP_NAME=Crafter
 VITE_DONATION_BTC=       # Adresse Bitcoin (optionnel)
 VITE_DONATION_ETH=       # Adresse Ethereum ERC20 (optionnel)
