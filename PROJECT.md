@@ -33,7 +33,7 @@ Le projet suit une architecture modulaire avec une séparation claire des respon
 #### Frontend
 - **React 19** - Bibliothèque UI avec concurrent features
 - **TypeScript 5.9** - Typage statique strict
-- **Vite 7** - Build tool rapide avec HMR
+- **Vite 8** - Build tool rapide avec HMR
 - **Tailwind CSS v4** - Framework CSS utility-first
 - **React Router DOM v7** - Routing client-side
 
@@ -79,7 +79,6 @@ Le projet suit une architecture modulaire avec une séparation claire des respon
 Le projet utilise les variables d'environnement Vite (préfixe `VITE_`):
 
 - `VITE_API_URL` - URL de l'API backend
-- `VITE_AI_API_KEY` - Clé API pour services IA (optionnel)
 - `VITE_APP_NAME` - Nom de l'application
 - `VITE_DONATION_BTC` - Adresse Bitcoin pour les dons (optionnel)
 - `VITE_DONATION_ETH` - Adresse Ethereum ERC20 pour les dons (optionnel)
