@@ -1,7 +1,7 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { jwtConfig } from '../config/jwt.config.js';
-import type { TokenPayload } from '../types/auth.types';
+import type { TokenPayload } from '../types/auth.types.js';
 
 /**
  * Service de gestion des tokens JWT
