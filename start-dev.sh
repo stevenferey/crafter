@@ -103,7 +103,18 @@ if [ "$TABLE_EXISTS" = "f" ]; then
         exit 1
     fi
 else
-    log_warning "Database tables already exist. Skipping initialization."
+    log_warning "Database tables already exist. Skipping schema initialization."
+fi
+
+# Appliquer les migrations incrémentales (idempotent, safe à chaque démarrage).
+# Sur une DB fraîchement initialisée : applique toutes les migrations NNN_*.sql.
+# Sur une DB existante : bootstrap auto puis applique uniquement les nouvelles.
+log_info "Applying pending migrations..."
+if bash backend/migrations/migrate.sh; then
+    log_success "Database migrations up-to-date"
+else
+    log_error "Failed to apply migrations"
+    exit 1
 fi
 
 # Installation des dépendances

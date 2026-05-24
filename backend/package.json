@@ -9,6 +9,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "db:migrate": "bash migrations/run-all.sh",
+    "db:upgrade": "bash migrations/migrate.sh",
     "lint": "eslint src",
     "format": "prettier --write \"src/**/*.ts\""
   },

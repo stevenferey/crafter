@@ -32,6 +32,11 @@ export function EditCRA() {
   const { id } = useParams<{ id: string }>();
 
   const { cra: selectedCRA, isLoading, error } = useCRA(id);
+
+  // Normalise une date reçue du backend (ISO timestamp ou YYYY-MM-DD) en YYYY-MM-DD
+  const toIsoDate = (raw?: string | null): string =>
+    raw ? raw.substring(0, 10) : '';
+
   const updateCRA = useCRAStore((state) => state.updateCRA);
   const deleteCRA = useCRAStore((state) => state.deleteCRA);
   const companies = useCompanyStore((state) => state.companies);
@@ -71,6 +76,7 @@ export function EditCRA() {
           client_signature_location:
             selectedCRA.client_signature_location || '',
           client_use_current_date: selectedCRA.client_use_current_date ?? false,
+          client_signature_date: toIsoDate(selectedCRA.client_signature_date),
           provider_signatory_name: selectedCRA.provider_signatory_name || '',
           provider_signatory_title: selectedCRA.provider_signatory_title || '',
           provider_signature_image: selectedCRA.provider_signature_image || '',
@@ -78,6 +84,9 @@ export function EditCRA() {
             selectedCRA.provider_signature_location || '',
           provider_use_current_date:
             selectedCRA.provider_use_current_date ?? false,
+          provider_signature_date: toIsoDate(
+            selectedCRA.provider_signature_date,
+          ),
         }
       : {},
   );
@@ -98,6 +107,7 @@ export function EditCRA() {
         client_signature_image: selectedCRA.client_signature_image || '',
         client_signature_location: selectedCRA.client_signature_location || '',
         client_use_current_date: selectedCRA.client_use_current_date ?? false,
+        client_signature_date: toIsoDate(selectedCRA.client_signature_date),
         provider_signatory_name: selectedCRA.provider_signatory_name || '',
         provider_signatory_title: selectedCRA.provider_signatory_title || '',
         provider_signature_image: selectedCRA.provider_signature_image || '',
@@ -105,6 +115,7 @@ export function EditCRA() {
           selectedCRA.provider_signature_location || '',
         provider_use_current_date:
           selectedCRA.provider_use_current_date ?? false,
+        provider_signature_date: toIsoDate(selectedCRA.provider_signature_date),
       });
     }
   }, [selectedCRA, reset]);
@@ -204,11 +215,13 @@ export function EditCRA() {
         client_signature_image: data.client_signature_image || null,
         client_signature_location: data.client_signature_location || null,
         client_use_current_date: data.client_use_current_date ?? null,
+        client_signature_date: data.client_signature_date || null,
         provider_signatory_name: data.provider_signatory_name || null,
         provider_signatory_title: data.provider_signatory_title || null,
         provider_signature_image: data.provider_signature_image || null,
         provider_signature_location: data.provider_signature_location || null,
         provider_use_current_date: data.provider_use_current_date ?? null,
+        provider_signature_date: data.provider_signature_date || null,
       });
 
       addNotification('CRA mis à jour avec succès', 'success');
@@ -551,27 +564,39 @@ export function EditCRA() {
                               name="client_use_current_date"
                               control={control}
                               render={({ field: dateField }) => (
-                                <SignatureInput
-                                  label={`Signature ${clientCompany?.designation || 'Client'}`}
-                                  value={{
-                                    signatoryName: nameField.value || '',
-                                    signatoryTitle: titleField.value || '',
-                                    signatureImage: imageField.value || '',
-                                    signatureLocation:
-                                      locationField.value || '',
-                                    useCurrentDate: dateField.value ?? false,
-                                  }}
-                                  onChange={(sig) => {
-                                    nameField.onChange(sig.signatoryName);
-                                    titleField.onChange(sig.signatoryTitle);
-                                    imageField.onChange(sig.signatureImage);
-                                    locationField.onChange(
-                                      sig.signatureLocation,
-                                    );
-                                    dateField.onChange(sig.useCurrentDate);
-                                  }}
-                                  defaultSignature={clientDefaultSignature}
-                                  disabled={!selectedClientId}
+                                <Controller
+                                  name="client_signature_date"
+                                  control={control}
+                                  render={({ field: fixedDateField }) => (
+                                    <SignatureInput
+                                      label={`Signature ${clientCompany?.designation || 'Client'}`}
+                                      value={{
+                                        signatoryName: nameField.value || '',
+                                        signatoryTitle: titleField.value || '',
+                                        signatureImage: imageField.value || '',
+                                        signatureLocation:
+                                          locationField.value || '',
+                                        useCurrentDate:
+                                          dateField.value ?? false,
+                                        signatureDate:
+                                          fixedDateField.value || undefined,
+                                      }}
+                                      onChange={(sig) => {
+                                        nameField.onChange(sig.signatoryName);
+                                        titleField.onChange(sig.signatoryTitle);
+                                        imageField.onChange(sig.signatureImage);
+                                        locationField.onChange(
+                                          sig.signatureLocation,
+                                        );
+                                        dateField.onChange(sig.useCurrentDate);
+                                        fixedDateField.onChange(
+                                          sig.signatureDate || '',
+                                        );
+                                      }}
+                                      defaultSignature={clientDefaultSignature}
+                                      disabled={!selectedClientId}
+                                    />
+                                  )}
                                 />
                               )}
                             />
@@ -605,27 +630,41 @@ export function EditCRA() {
                               name="provider_use_current_date"
                               control={control}
                               render={({ field: dateField }) => (
-                                <SignatureInput
-                                  label={`Signature ${providerCompany?.designation || 'Prestataire'}`}
-                                  value={{
-                                    signatoryName: nameField.value || '',
-                                    signatoryTitle: titleField.value || '',
-                                    signatureImage: imageField.value || '',
-                                    signatureLocation:
-                                      locationField.value || '',
-                                    useCurrentDate: dateField.value ?? false,
-                                  }}
-                                  onChange={(sig) => {
-                                    nameField.onChange(sig.signatoryName);
-                                    titleField.onChange(sig.signatoryTitle);
-                                    imageField.onChange(sig.signatureImage);
-                                    locationField.onChange(
-                                      sig.signatureLocation,
-                                    );
-                                    dateField.onChange(sig.useCurrentDate);
-                                  }}
-                                  defaultSignature={providerDefaultSignature}
-                                  disabled={!selectedProviderId}
+                                <Controller
+                                  name="provider_signature_date"
+                                  control={control}
+                                  render={({ field: fixedDateField }) => (
+                                    <SignatureInput
+                                      label={`Signature ${providerCompany?.designation || 'Prestataire'}`}
+                                      value={{
+                                        signatoryName: nameField.value || '',
+                                        signatoryTitle: titleField.value || '',
+                                        signatureImage: imageField.value || '',
+                                        signatureLocation:
+                                          locationField.value || '',
+                                        useCurrentDate:
+                                          dateField.value ?? false,
+                                        signatureDate:
+                                          fixedDateField.value || undefined,
+                                      }}
+                                      onChange={(sig) => {
+                                        nameField.onChange(sig.signatoryName);
+                                        titleField.onChange(sig.signatoryTitle);
+                                        imageField.onChange(sig.signatureImage);
+                                        locationField.onChange(
+                                          sig.signatureLocation,
+                                        );
+                                        dateField.onChange(sig.useCurrentDate);
+                                        fixedDateField.onChange(
+                                          sig.signatureDate || '',
+                                        );
+                                      }}
+                                      defaultSignature={
+                                        providerDefaultSignature
+                                      }
+                                      disabled={!selectedProviderId}
+                                    />
+                                  )}
                                 />
                               )}
                             />

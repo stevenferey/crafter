@@ -3,7 +3,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { Pool } = pg;
+const { Pool, types } = pg;
+
+// PostgreSQL DATE (OID 1082) est sémantiquement une date civile sans timezone.
+// Par défaut, node-pg le convertit en Date en heure locale, qui devient décalé
+// d'un jour à la sérialisation JSON UTC (ex. stocké 2026-01-31 → renvoyé
+// "2026-01-30T23:00:00.000Z" pour un process en Europe/Paris). On préfère
+// renvoyer la chaîne YYYY-MM-DD telle quelle pour éviter ce décalage.
+types.setTypeParser(1082, (val: string) => val);
 
 // Configuration de la connexion PostgreSQL
 // Supporte DATABASE_URL (Railway/production) ou variables séparées (dev local)
@@ -21,7 +28,10 @@ export const pool = new Pool({
   // Set DB_SSL_REJECT_UNAUTHORIZED=false only for providers with self-signed certs (e.g. Railway)
   ssl:
     process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' }
+      ? {
+          rejectUnauthorized:
+            process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false',
+        }
       : false,
   max: 20,
   idleTimeoutMillis: 30000,

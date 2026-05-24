@@ -26,11 +26,13 @@ export interface CRA {
   client_signature_image?: string;
   client_signature_location?: string;
   client_use_current_date?: boolean;
+  client_signature_date?: Date | string | null;
   provider_signatory_name?: string;
   provider_signatory_title?: string;
   provider_signature_image?: string;
   provider_signature_location?: string;
   provider_use_current_date?: boolean;
+  provider_signature_date?: Date | string | null;
 
   created_at: Date;
   updated_at: Date;
@@ -52,11 +54,13 @@ export interface CreateCRAInput {
   client_signature_image?: string;
   client_signature_location?: string;
   client_use_current_date?: boolean;
+  client_signature_date?: string | null;
   provider_signatory_name?: string;
   provider_signatory_title?: string;
   provider_signature_image?: string;
   provider_signature_location?: string;
   provider_use_current_date?: boolean;
+  provider_signature_date?: string | null;
 }
 
 export interface UpdateCRAInput {
@@ -74,11 +78,13 @@ export interface UpdateCRAInput {
   client_signature_image?: string;
   client_signature_location?: string;
   client_use_current_date?: boolean;
+  client_signature_date?: string | null;
   provider_signatory_name?: string;
   provider_signatory_title?: string;
   provider_signature_image?: string;
   provider_signature_location?: string;
   provider_use_current_date?: boolean;
+  provider_signature_date?: string | null;
 }
 
 export interface CRAFilters {

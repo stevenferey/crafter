@@ -1,8 +1,17 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { Input } from './Input';
 import { Button } from './Button';
+import { DatePicker } from './DatePicker';
 import { uploadSignature } from '@/services/upload.service';
 import { SignatureData } from '@/types/cra.types';
+
+type SignatureDateMode = 'auto' | 'fixed' | 'empty';
+
+function getDateMode(value: Partial<SignatureData>): SignatureDateMode {
+  if (value.signatureDate) return 'fixed';
+  if (value.useCurrentDate) return 'auto';
+  return 'empty';
+}
 
 export interface SignatureInputProps {
   label: string;
@@ -73,6 +82,7 @@ export function SignatureInput({
       signatureImage: '',
       signatureLocation: '',
       useCurrentDate: false,
+      signatureDate: undefined,
     });
     setUploadError(null);
   };
@@ -85,9 +95,30 @@ export function SignatureInput({
         signatureImage: defaultSignature.signatureImage || '',
         signatureLocation: defaultSignature.signatureLocation || '',
         useCurrentDate: defaultSignature.useCurrentDate ?? false,
+        signatureDate: defaultSignature.signatureDate,
       });
     }
   };
+
+  const handleDateModeChange = (mode: SignatureDateMode) => {
+    if (mode === 'auto') {
+      onChange({ ...value, useCurrentDate: true, signatureDate: undefined });
+    } else if (mode === 'fixed') {
+      // Pré-remplir avec aujourd'hui : une valeur truthy est nécessaire pour
+      // que getDateMode renvoie 'fixed' au prochain render (sinon le mapping
+      // `|| undefined` côté pages CRA retransforme '' en undefined → 'empty').
+      const today = new Date().toISOString().substring(0, 10);
+      onChange({
+        ...value,
+        useCurrentDate: false,
+        signatureDate: value.signatureDate || today,
+      });
+    } else {
+      onChange({ ...value, useCurrentDate: false, signatureDate: undefined });
+    }
+  };
+
+  const dateMode = getDateMode(value);
 
   const getImageUrl = (imageData?: string) => {
     if (!imageData) return null;
@@ -101,13 +132,15 @@ export function SignatureInput({
     value.signatoryTitle ||
     value.signatureImage ||
     value.signatureLocation ||
-    value.useCurrentDate;
+    value.useCurrentDate ||
+    value.signatureDate;
   const hasDefault =
     defaultSignature?.signatoryName ||
     defaultSignature?.signatoryTitle ||
     defaultSignature?.signatureImage ||
     defaultSignature?.signatureLocation ||
-    defaultSignature?.useCurrentDate;
+    defaultSignature?.useCurrentDate ||
+    defaultSignature?.signatureDate;
 
   return (
     <div className="flex flex-col gap-4 p-4 border border-[rgb(var(--color-border))] rounded-lg bg-[rgb(var(--color-surface))]">
@@ -178,21 +211,71 @@ export function SignatureInput({
         fullWidth
       />
 
-      {/* Utiliser la date du jour */}
-      <label className="flex items-center gap-3 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={value.useCurrentDate || false}
-          onChange={(e) =>
-            onChange({ ...value, useCurrentDate: e.target.checked })
-          }
-          disabled={disabled}
-          className="w-4 h-4 rounded border-[rgb(var(--color-border))] text-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
-        />
-        <span className="text-sm text-[rgb(var(--color-text))]">
-          Utiliser la date du jour à la génération du PDF
-        </span>
-      </label>
+      {/* Date de signature : Auto / Fixe / Vide */}
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm font-medium text-[rgb(var(--color-text))] mb-1">
+          Date de signature
+        </legend>
+
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="radio"
+            name={`signature-date-mode-${label}`}
+            checked={dateMode === 'auto'}
+            onChange={() => handleDateModeChange('auto')}
+            disabled={disabled}
+            className="w-4 h-4 border-[rgb(var(--color-border))] text-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
+          />
+          <span className="text-sm text-[rgb(var(--color-text))]">
+            Date du jour à la génération du PDF
+          </span>
+        </label>
+
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="radio"
+            name={`signature-date-mode-${label}`}
+            checked={dateMode === 'fixed'}
+            onChange={() => handleDateModeChange('fixed')}
+            disabled={disabled}
+            className="w-4 h-4 border-[rgb(var(--color-border))] text-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
+          />
+          <span className="text-sm text-[rgb(var(--color-text))]">
+            Date fixe
+          </span>
+        </label>
+
+        {dateMode === 'fixed' && (
+          <div className="ml-7">
+            <DatePicker
+              value={value.signatureDate || ''}
+              onChange={(e) =>
+                onChange({
+                  ...value,
+                  useCurrentDate: false,
+                  signatureDate: e.target.value || '',
+                })
+              }
+              disabled={disabled}
+              helperText="Cette date apparaîtra telle quelle dans le PDF"
+            />
+          </div>
+        )}
+
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="radio"
+            name={`signature-date-mode-${label}`}
+            checked={dateMode === 'empty'}
+            onChange={() => handleDateModeChange('empty')}
+            disabled={disabled}
+            className="w-4 h-4 border-[rgb(var(--color-border))] text-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))]"
+          />
+          <span className="text-sm text-[rgb(var(--color-text))]">
+            Laisser vide (à remplir manuellement)
+          </span>
+        </label>
+      </fieldset>
 
       {/* Upload d'image */}
       <div className="flex flex-col gap-2">

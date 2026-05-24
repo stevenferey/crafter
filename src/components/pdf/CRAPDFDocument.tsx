@@ -65,6 +65,10 @@ export function CRAPDFDocument({
 }: CRAPDFDocumentProps) {
   const workedDaysCount = cra.worked_days?.length || 0;
 
+  // Normalise une date reçue du backend (ISO timestamp ou YYYY-MM-DD) en YYYY-MM-DD
+  const toIsoDate = (raw?: string | null): string | undefined =>
+    raw ? raw.substring(0, 10) : undefined;
+
   // Récupérer les signatures (CRA override ou défaut company)
   const clientSignature = {
     name: cra.client_signatory_name || clientCompany.default_signatory_name,
@@ -74,6 +78,7 @@ export function CRAPDFDocument({
       cra.client_signature_location || clientCompany.default_signature_location,
     useCurrentDate:
       cra.client_use_current_date ?? clientCompany.default_use_current_date,
+    signatureDate: toIsoDate(cra.client_signature_date),
   };
 
   const providerSignature = {
@@ -87,6 +92,7 @@ export function CRAPDFDocument({
       providerCompany.default_signature_location,
     useCurrentDate:
       cra.provider_use_current_date ?? providerCompany.default_use_current_date,
+    signatureDate: toIsoDate(cra.provider_signature_date),
   };
 
   return (

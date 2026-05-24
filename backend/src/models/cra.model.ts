@@ -41,11 +41,13 @@ export class CRAModel {
         client_signature_image,
         client_signature_location,
         client_use_current_date,
+        client_signature_date,
         provider_signatory_name,
         provider_signatory_title,
         provider_signature_image,
         provider_signature_location,
         provider_use_current_date,
+        provider_signature_date,
         created_at,
         updated_at
       FROM cras
@@ -122,11 +124,13 @@ export class CRAModel {
         client_signature_image,
         client_signature_location,
         client_use_current_date,
+        client_signature_date,
         provider_signatory_name,
         provider_signatory_title,
         provider_signature_image,
         provider_signature_location,
         provider_use_current_date,
+        provider_signature_date,
         created_at,
         updated_at
       FROM cras
@@ -164,13 +168,15 @@ export class CRAModel {
         client_signature_image,
         client_signature_location,
         client_use_current_date,
+        client_signature_date,
         provider_signatory_name,
         provider_signatory_title,
         provider_signature_image,
         provider_signature_location,
-        provider_use_current_date
+        provider_use_current_date,
+        provider_signature_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
       RETURNING
         id,
         user_id,
@@ -186,11 +192,13 @@ export class CRAModel {
         client_signature_image,
         client_signature_location,
         client_use_current_date,
+        client_signature_date,
         provider_signatory_name,
         provider_signatory_title,
         provider_signature_image,
         provider_signature_location,
         provider_use_current_date,
+        provider_signature_date,
         created_at,
         updated_at
     `;
@@ -209,11 +217,13 @@ export class CRAModel {
       data.client_signature_image || null,
       data.client_signature_location || null,
       data.client_use_current_date ?? null,
+      data.client_signature_date || null,
       data.provider_signatory_name || null,
       data.provider_signatory_title || null,
       data.provider_signature_image || null,
       data.provider_signature_location || null,
       data.provider_use_current_date ?? null,
+      data.provider_signature_date || null,
     ]);
 
     return result.rows[0];
@@ -222,7 +232,11 @@ export class CRAModel {
   /**
    * Met à jour un CRA existant
    */
-  static async update(id: string, data: UpdateCRAInput, userId?: string): Promise<CRA | null> {
+  static async update(
+    id: string,
+    data: UpdateCRAInput,
+    userId?: string,
+  ): Promise<CRA | null> {
     // Construire la requête de mise à jour dynamiquement
     const updates: string[] = [];
     const params: unknown[] = [];
@@ -300,6 +314,12 @@ export class CRAModel {
       paramIndex++;
     }
 
+    if (data.client_signature_date !== undefined) {
+      updates.push(`client_signature_date = $${paramIndex}`);
+      params.push(data.client_signature_date || null);
+      paramIndex++;
+    }
+
     if (data.provider_signatory_name !== undefined) {
       updates.push(`provider_signatory_name = $${paramIndex}`);
       params.push(data.provider_signatory_name || null);
@@ -327,6 +347,12 @@ export class CRAModel {
     if (data.provider_use_current_date !== undefined) {
       updates.push(`provider_use_current_date = $${paramIndex}`);
       params.push(data.provider_use_current_date);
+      paramIndex++;
+    }
+
+    if (data.provider_signature_date !== undefined) {
+      updates.push(`provider_signature_date = $${paramIndex}`);
+      params.push(data.provider_signature_date || null);
       paramIndex++;
     }
 
@@ -369,11 +395,13 @@ export class CRAModel {
         client_signature_image,
         client_signature_location,
         client_use_current_date,
+        client_signature_date,
         provider_signatory_name,
         provider_signatory_title,
         provider_signature_image,
         provider_signature_location,
         provider_use_current_date,
+        provider_signature_date,
         created_at,
         updated_at
     `;

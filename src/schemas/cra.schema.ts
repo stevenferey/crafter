@@ -86,11 +86,21 @@ const craFormBaseSchema = z.object({
   client_signature_image: z.string().optional(),
   client_signature_location: z.string().max(255).optional(),
   client_use_current_date: z.boolean().optional(),
+  client_signature_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date invalide (format YYYY-MM-DD attendu)')
+    .or(z.literal(''))
+    .optional(),
   provider_signatory_name: z.string().max(255).optional(),
   provider_signatory_title: z.string().max(255).optional(),
   provider_signature_image: z.string().optional(),
   provider_signature_location: z.string().max(255).optional(),
   provider_use_current_date: z.boolean().optional(),
+  provider_signature_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date invalide (format YYYY-MM-DD attendu)')
+    .or(z.literal(''))
+    .optional(),
 });
 
 /**

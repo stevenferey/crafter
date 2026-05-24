@@ -136,11 +136,13 @@ export function CreateCRA() {
         client_signature_image: data.client_signature_image,
         client_signature_location: data.client_signature_location,
         client_use_current_date: data.client_use_current_date,
+        client_signature_date: data.client_signature_date || null,
         provider_signatory_name: data.provider_signatory_name,
         provider_signatory_title: data.provider_signatory_title,
         provider_signature_image: data.provider_signature_image,
         provider_signature_location: data.provider_signature_location,
         provider_use_current_date: data.provider_use_current_date,
+        provider_signature_date: data.provider_signature_date || null,
       });
 
       addNotification('CRA créé avec succès', 'success');
@@ -392,27 +394,39 @@ export function CreateCRA() {
                               name="client_use_current_date"
                               control={control}
                               render={({ field: dateField }) => (
-                                <SignatureInput
-                                  label={`Signature ${clientCompany?.designation || 'Client'}`}
-                                  value={{
-                                    signatoryName: nameField.value || '',
-                                    signatoryTitle: titleField.value || '',
-                                    signatureImage: imageField.value || '',
-                                    signatureLocation:
-                                      locationField.value || '',
-                                    useCurrentDate: dateField.value ?? false,
-                                  }}
-                                  onChange={(sig) => {
-                                    nameField.onChange(sig.signatoryName);
-                                    titleField.onChange(sig.signatoryTitle);
-                                    imageField.onChange(sig.signatureImage);
-                                    locationField.onChange(
-                                      sig.signatureLocation,
-                                    );
-                                    dateField.onChange(sig.useCurrentDate);
-                                  }}
-                                  defaultSignature={clientDefaultSignature}
-                                  disabled={!selectedClientId}
+                                <Controller
+                                  name="client_signature_date"
+                                  control={control}
+                                  render={({ field: fixedDateField }) => (
+                                    <SignatureInput
+                                      label={`Signature ${clientCompany?.designation || 'Client'}`}
+                                      value={{
+                                        signatoryName: nameField.value || '',
+                                        signatoryTitle: titleField.value || '',
+                                        signatureImage: imageField.value || '',
+                                        signatureLocation:
+                                          locationField.value || '',
+                                        useCurrentDate:
+                                          dateField.value ?? false,
+                                        signatureDate:
+                                          fixedDateField.value || undefined,
+                                      }}
+                                      onChange={(sig) => {
+                                        nameField.onChange(sig.signatoryName);
+                                        titleField.onChange(sig.signatoryTitle);
+                                        imageField.onChange(sig.signatureImage);
+                                        locationField.onChange(
+                                          sig.signatureLocation,
+                                        );
+                                        dateField.onChange(sig.useCurrentDate);
+                                        fixedDateField.onChange(
+                                          sig.signatureDate || '',
+                                        );
+                                      }}
+                                      defaultSignature={clientDefaultSignature}
+                                      disabled={!selectedClientId}
+                                    />
+                                  )}
                                 />
                               )}
                             />
@@ -446,27 +460,41 @@ export function CreateCRA() {
                               name="provider_use_current_date"
                               control={control}
                               render={({ field: dateField }) => (
-                                <SignatureInput
-                                  label={`Signature ${providerCompany?.designation || 'Prestataire'}`}
-                                  value={{
-                                    signatoryName: nameField.value || '',
-                                    signatoryTitle: titleField.value || '',
-                                    signatureImage: imageField.value || '',
-                                    signatureLocation:
-                                      locationField.value || '',
-                                    useCurrentDate: dateField.value ?? false,
-                                  }}
-                                  onChange={(sig) => {
-                                    nameField.onChange(sig.signatoryName);
-                                    titleField.onChange(sig.signatoryTitle);
-                                    imageField.onChange(sig.signatureImage);
-                                    locationField.onChange(
-                                      sig.signatureLocation,
-                                    );
-                                    dateField.onChange(sig.useCurrentDate);
-                                  }}
-                                  defaultSignature={providerDefaultSignature}
-                                  disabled={!selectedProviderId}
+                                <Controller
+                                  name="provider_signature_date"
+                                  control={control}
+                                  render={({ field: fixedDateField }) => (
+                                    <SignatureInput
+                                      label={`Signature ${providerCompany?.designation || 'Prestataire'}`}
+                                      value={{
+                                        signatoryName: nameField.value || '',
+                                        signatoryTitle: titleField.value || '',
+                                        signatureImage: imageField.value || '',
+                                        signatureLocation:
+                                          locationField.value || '',
+                                        useCurrentDate:
+                                          dateField.value ?? false,
+                                        signatureDate:
+                                          fixedDateField.value || undefined,
+                                      }}
+                                      onChange={(sig) => {
+                                        nameField.onChange(sig.signatoryName);
+                                        titleField.onChange(sig.signatoryTitle);
+                                        imageField.onChange(sig.signatureImage);
+                                        locationField.onChange(
+                                          sig.signatureLocation,
+                                        );
+                                        dateField.onChange(sig.useCurrentDate);
+                                        fixedDateField.onChange(
+                                          sig.signatureDate || '',
+                                        );
+                                      }}
+                                      defaultSignature={
+                                        providerDefaultSignature
+                                      }
+                                      disabled={!selectedProviderId}
+                                    />
+                                  )}
                                 />
                               )}
                             />
@@ -526,7 +554,9 @@ export function CreateCRA() {
                 <p className="font-bold mb-1 text-[rgb(var(--color-text))]">
                   Erreur lors de la création
                 </p>
-                <p className="text-sm text-[rgb(var(--color-text-secondary))]">{submitError}</p>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+                  {submitError}
+                </p>
               </div>
             </div>
           </div>
