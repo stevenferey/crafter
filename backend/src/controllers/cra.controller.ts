@@ -6,6 +6,25 @@ import {
   CRAFilters,
 } from '../types/cra.types.js';
 
+const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Valide qu'une valeur est une date ISO YYYY-MM-DD valide, ou null/undefined.
+ * Retourne true si OK, false sinon.
+ */
+function isValidIsoDateOrNullish(value: unknown): boolean {
+  if (value === null || value === undefined || value === '') return true;
+  if (typeof value !== 'string') return false;
+  if (!ISO_DATE_REGEX.test(value)) return false;
+  const [y, m, d] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return (
+    date.getUTCFullYear() === y &&
+    date.getUTCMonth() === m - 1 &&
+    date.getUTCDate() === d
+  );
+}
+
 /**
  * Helper pour obtenir le user_id à filtrer
  * Retourne undefined pour les admins (qui voient tout)
@@ -177,6 +196,18 @@ export class CRAController {
         return;
       }
 
+      if (
+        !isValidIsoDateOrNullish(req.body.client_signature_date) ||
+        !isValidIsoDateOrNullish(req.body.provider_signature_date)
+      ) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid signature date',
+          message: 'La date de signature doit être au format YYYY-MM-DD',
+        });
+        return;
+      }
+
       const craData: CreateCRAInput = {
         user_id: req.user.id,
         month,
@@ -192,6 +223,7 @@ export class CRAController {
         client_signature_location:
           req.body.client_signature_location || undefined,
         client_use_current_date: req.body.client_use_current_date ?? undefined,
+        client_signature_date: req.body.client_signature_date || undefined,
         provider_signatory_name: req.body.provider_signatory_name || undefined,
         provider_signatory_title:
           req.body.provider_signatory_title || undefined,
@@ -201,6 +233,7 @@ export class CRAController {
           req.body.provider_signature_location || undefined,
         provider_use_current_date:
           req.body.provider_use_current_date ?? undefined,
+        provider_signature_date: req.body.provider_signature_date || undefined,
       };
 
       const newCRA = await CRAModel.create(craData);
@@ -334,14 +367,44 @@ export class CRAController {
           req.body.client_signature_location || null;
       if (req.body.client_use_current_date !== undefined)
         updateData.client_use_current_date = req.body.client_use_current_date;
+      if (req.body.client_signature_date !== undefined) {
+        if (!isValidIsoDateOrNullish(req.body.client_signature_date)) {
+          res.status(400).json({
+            success: false,
+            error: 'Invalid signature date',
+            message:
+              'La date de signature client doit être au format YYYY-MM-DD',
+          });
+          return;
+        }
+        updateData.client_signature_date =
+          req.body.client_signature_date || null;
+      }
       if (req.body.provider_signature_location !== undefined)
         updateData.provider_signature_location =
           req.body.provider_signature_location || null;
       if (req.body.provider_use_current_date !== undefined)
         updateData.provider_use_current_date =
           req.body.provider_use_current_date;
+      if (req.body.provider_signature_date !== undefined) {
+        if (!isValidIsoDateOrNullish(req.body.provider_signature_date)) {
+          res.status(400).json({
+            success: false,
+            error: 'Invalid signature date',
+            message:
+              'La date de signature prestataire doit être au format YYYY-MM-DD',
+          });
+          return;
+        }
+        updateData.provider_signature_date =
+          req.body.provider_signature_date || null;
+      }
 
-      const updatedCRA = await CRAModel.update(id as string, updateData, userIdFilter);
+      const updatedCRA = await CRAModel.update(
+        id as string,
+        updateData,
+        userIdFilter,
+      );
 
       if (!updatedCRA) {
         res.status(404).json({

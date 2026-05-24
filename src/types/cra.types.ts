@@ -23,11 +23,13 @@ export interface CRA {
   client_signature_image?: string;
   client_signature_location?: string;
   client_use_current_date?: boolean;
+  client_signature_date?: string | null; // Date fixe de signature client (YYYY-MM-DD ou ISO)
   provider_signatory_name?: string;
   provider_signatory_title?: string;
   provider_signature_image?: string;
   provider_signature_location?: string;
   provider_use_current_date?: boolean;
+  provider_signature_date?: string | null; // Date fixe de signature prestataire (YYYY-MM-DD ou ISO)
 
   created_at: string; // Format ISO 8601
   updated_at: string; // Format ISO 8601
@@ -51,11 +53,13 @@ export type CreateCRAInput = {
   client_signature_image?: string;
   client_signature_location?: string;
   client_use_current_date?: boolean;
+  client_signature_date?: string | null;
   provider_signatory_name?: string;
   provider_signatory_title?: string;
   provider_signature_image?: string;
   provider_signature_location?: string;
   provider_use_current_date?: boolean;
+  provider_signature_date?: string | null;
 };
 
 /**
@@ -77,11 +81,13 @@ export type UpdateCRAInput = {
   client_signature_image?: string | null;
   client_signature_location?: string | null;
   client_use_current_date?: boolean | null;
+  client_signature_date?: string | null;
   provider_signatory_name?: string | null;
   provider_signatory_title?: string | null;
   provider_signature_image?: string | null;
   provider_signature_location?: string | null;
   provider_use_current_date?: boolean | null;
+  provider_signature_date?: string | null;
 };
 
 /**
@@ -114,5 +120,6 @@ export interface SignatureData {
   signatoryTitle: string; // Titre/fonction du signataire
   signatureImage: string; // Chemin ou URL de l'image de signature
   signatureLocation?: string; // Lieu de signature (ville)
-  useCurrentDate?: boolean; // Utiliser la date du jour
+  useCurrentDate?: boolean; // Utiliser la date du jour à la génération du PDF
+  signatureDate?: string; // Date fixe de signature (YYYY-MM-DD). Si présente, prime sur useCurrentDate.
 }
