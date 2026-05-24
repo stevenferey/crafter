@@ -26,8 +26,10 @@ interface SignatureInfo {
   image?: string;
   /** Lieu de signature (ville) */
   location?: string;
-  /** Utiliser la date courante */
+  /** Utiliser la date courante (jour de la génération) */
   useCurrentDate?: boolean;
+  /** Date fixe (YYYY-MM-DD). Prime sur useCurrentDate si présente. */
+  signatureDate?: string;
 }
 
 interface PDFSignaturesProps {
@@ -54,8 +56,12 @@ function getSignatureImageUrl(path?: string): string | null {
 /**
  * Vérifie si les champs lieu/date sont vides (nécessitant un remplissage manuel)
  */
-function isManualEntry(location?: string, useCurrentDate?: boolean): boolean {
-  return !location && !useCurrentDate;
+function isManualEntry(
+  location?: string,
+  useCurrentDate?: boolean,
+  signatureDate?: string,
+): boolean {
+  return !location && !useCurrentDate && !signatureDate;
 }
 
 /**
@@ -70,11 +76,27 @@ function formatFaitALocation(location?: string): string {
 
 /**
  * Formate la ligne "le <DATE>"
+ *
+ * Trois cas :
+ * - signatureDate fournie (YYYY-MM-DD) → date fixe formatée en fr-FR
+ * - useCurrentDate true → date du jour à la génération
+ * - sinon → champ vide à remplir à la main
  */
-function formatFaitADate(useCurrentDate?: boolean): string {
-  const datePart = useCurrentDate
-    ? new Date().toLocaleDateString('fr-FR')
-    : '____/____/_______';
+function formatFaitADate(
+  useCurrentDate?: boolean,
+  signatureDate?: string,
+): string {
+  let datePart: string;
+  if (signatureDate) {
+    // 'T00:00:00' évite les décalages de timezone (la date civile reste celle saisie)
+    datePart = new Date(signatureDate + 'T00:00:00').toLocaleDateString(
+      'fr-FR',
+    );
+  } else if (useCurrentDate) {
+    datePart = new Date().toLocaleDateString('fr-FR');
+  } else {
+    datePart = '____/____/_______';
+  }
   return `le ${datePart}`;
 }
 
@@ -117,19 +139,26 @@ export function PDFSignatures({
               {isManualEntry(
                 providerSignature.location,
                 providerSignature.useCurrentDate,
+                providerSignature.signatureDate,
               ) ? (
                 <>
                   <Text style={pdfStyles.faitAEmpty}>
                     {formatFaitALocation(providerSignature.location)}
                   </Text>
                   <Text style={pdfStyles.faitAEmptyDate}>
-                    {formatFaitADate(providerSignature.useCurrentDate)}
+                    {formatFaitADate(
+                      providerSignature.useCurrentDate,
+                      providerSignature.signatureDate,
+                    )}
                   </Text>
                 </>
               ) : (
                 <Text style={pdfStyles.faitA}>
                   {formatFaitALocation(providerSignature.location)}{' '}
-                  {formatFaitADate(providerSignature.useCurrentDate)}
+                  {formatFaitADate(
+                    providerSignature.useCurrentDate,
+                    providerSignature.signatureDate,
+                  )}
                 </Text>
               )}
               <Text style={pdfStyles.luEtApprouvePlaceholder}>
@@ -175,19 +204,26 @@ export function PDFSignatures({
               {isManualEntry(
                 clientSignature.location,
                 clientSignature.useCurrentDate,
+                clientSignature.signatureDate,
               ) ? (
                 <>
                   <Text style={pdfStyles.faitAEmpty}>
                     {formatFaitALocation(clientSignature.location)}
                   </Text>
                   <Text style={pdfStyles.faitAEmptyDate}>
-                    {formatFaitADate(clientSignature.useCurrentDate)}
+                    {formatFaitADate(
+                      clientSignature.useCurrentDate,
+                      clientSignature.signatureDate,
+                    )}
                   </Text>
                 </>
               ) : (
                 <Text style={pdfStyles.faitA}>
                   {formatFaitALocation(clientSignature.location)}{' '}
-                  {formatFaitADate(clientSignature.useCurrentDate)}
+                  {formatFaitADate(
+                    clientSignature.useCurrentDate,
+                    clientSignature.signatureDate,
+                  )}
                 </Text>
               )}
               <Text style={pdfStyles.luEtApprouvePlaceholder}>
