@@ -103,7 +103,7 @@
     {
       "description": "Backend: Groupe email",
       "matchFileNames": ["backend/package.json"],
-      "matchPackageNames": ["nodemailer", "@types/nodemailer", "resend"],
+      "matchPackageNames": ["resend"],
       "groupName": "email"
     },
     {
@@ -111,12 +111,6 @@
       "matchFileNames": ["backend/package.json"],
       "matchPackageNames": ["multer", "@types/multer"],
       "groupName": "file-upload"
-    },
-    {
-      "description": "Backend: Groupe PDF",
-      "matchFileNames": ["backend/package.json"],
-      "matchPackageNames": ["pdfmake", "@types/pdfmake"],
-      "groupName": "pdf"
     },
     {
       "description": "Backend: Groupe ESLint",
