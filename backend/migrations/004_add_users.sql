@@ -54,26 +54,19 @@ CREATE TRIGGER update_users_updated_at
   EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
--- Utilisateur admin par défaut (optionnel)
--- Mot de passe: admin123 (à changer en production!)
+-- Pas d'utilisateur admin par défaut
 -- ============================================
--- Note: Le hash ci-dessous correspond à 'admin123' avec bcrypt
--- En production, créer l'admin via l'API ou changer ce mot de passe
-INSERT INTO users (
-  email,
-  password_hash,
-  role,
-  first_name,
-  last_name,
-  email_verified
-) VALUES (
-  'admin@crafter.app',
-  '$2b$12$I4GOY9X5k1tqeGAsZ4YcFeJM0btSodSjyFUWx.NHXuV7E.aX9xDkG',
-  'admin',
-  'Admin',
-  'Crafter',
-  true
-);
+-- Cette migration créait auparavant un compte 'admin@crafter.app' dont le mot
+-- de passe ('admin123') était publié en clair dans ce dépôt : n'importe qui
+-- pouvait s'y connecter et, le rôle 'admin' désactivant le filtrage par
+-- propriétaire, lire et modifier les données de tous les utilisateurs.
+--
+-- Le compte se crée désormais hors du dépôt : inscrire un utilisateur via
+-- POST /api/auth/register, puis le promouvoir explicitement :
+--   UPDATE users SET role = 'admin' WHERE email = '<votre-email>';
+--
+-- Les bases déjà migrées conservent l'ancien compte : la migration
+-- 009_disable_default_admin.sql le neutralise.
 
 -- ============================================
 -- Affichage du résumé
@@ -84,7 +77,5 @@ INSERT INTO users (
 \echo 'Table created:'
 \echo '  - users (with 4 indexes and trigger)'
 \echo ''
-\echo 'Default admin user created:'
-\echo '  - Email: admin@crafter.app'
-\echo '  - Password: admin123 (CHANGE IN PRODUCTION!)'
+\echo 'No default admin user is created (see comment in this file).'
 \echo ''

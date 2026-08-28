@@ -465,6 +465,28 @@ export class CompanyModel {
     try {
       await client.query('BEGIN');
 
+      // Vérifier d'abord que la société est accessible à l'appelant.
+      // Ce contrôle précède volontairement le comptage des CRA : dans l'ordre
+      // inverse, le message d'erreur « utilisée dans N CRA(s) » révélait
+      // l'existence et le volume d'activité d'une société d'un autre compte.
+      let ownershipQuery = 'SELECT id FROM companies WHERE id = $1';
+      const ownershipParams: unknown[] = [id];
+
+      if (userId) {
+        ownershipQuery += ' AND user_id = $2';
+        ownershipParams.push(userId);
+      }
+
+      const ownershipResult = await client.query(
+        ownershipQuery,
+        ownershipParams,
+      );
+
+      if (ownershipResult.rowCount === 0) {
+        await client.query('COMMIT');
+        return false;
+      }
+
       // Vérifier si la société est utilisée dans des CRA
       const checkQuery = `
         SELECT COUNT(*) as count
@@ -482,7 +504,7 @@ export class CompanyModel {
         );
       }
 
-      // Supprimer la société avec filtrage par propriétaire si userId fourni
+      // Supprimer la société (la propriété a déjà été vérifiée ci-dessus)
       let deleteQuery = 'DELETE FROM companies WHERE id = $1';
       const params: unknown[] = [id];
 
