@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { CRAModel } from '../models/cra.model.js';
+import { CompanyModel } from '../models/company.model.js';
 import {
   CreateCRAInput,
   UpdateCRAInput,
@@ -34,6 +35,27 @@ function getUserIdFilter(req: Request): string | undefined {
   // Les admins peuvent voir tous les CRA
   if (req.user.role === 'admin') return undefined;
   return req.user.id;
+}
+
+/**
+ * Vérifie que chaque société référencée est accessible à l'appelant.
+ *
+ * Sans ce contrôle, un utilisateur peut rattacher son CRA à la société d'un
+ * autre compte : la clé étrangère est satisfaite et aucune autre vérification
+ * n'intervient. La société de la victime devient alors indéboulonnable, car
+ * CompanyModel.delete refuse toute société référencée par un CRA.
+ *
+ * userIdFilter vaut undefined pour un admin, ce qui laisse passer toutes les
+ * sociétés — même sémantique que partout ailleurs dans ce contrôleur.
+ */
+async function allCompaniesAccessible(
+  ids: string[],
+  userIdFilter?: string,
+): Promise<boolean> {
+  const found = await Promise.all(
+    ids.map((id) => CompanyModel.findById(id, userIdFilter)),
+  );
+  return found.every((company) => company !== null);
 }
 
 /**
@@ -204,6 +226,21 @@ export class CRAController {
           success: false,
           error: 'Invalid signature date',
           message: 'La date de signature doit être au format YYYY-MM-DD',
+        });
+        return;
+      }
+
+      // Les sociétés référencées doivent appartenir à l'appelant
+      if (
+        !(await allCompaniesAccessible(
+          [client_id, provider_id],
+          getUserIdFilter(req),
+        ))
+      ) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid input',
+          message: 'Société cliente ou prestataire introuvable',
         });
         return;
       }
@@ -398,6 +435,24 @@ export class CRAController {
         }
         updateData.provider_signature_date =
           req.body.provider_signature_date || null;
+      }
+
+      // Les sociétés référencées doivent appartenir à l'appelant
+      const referencedCompanyIds = [
+        updateData.client_id,
+        updateData.provider_id,
+      ].filter((companyId): companyId is string => companyId !== undefined);
+
+      if (
+        referencedCompanyIds.length > 0 &&
+        !(await allCompaniesAccessible(referencedCompanyIds, userIdFilter))
+      ) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid input',
+          message: 'Société cliente ou prestataire introuvable',
+        });
+        return;
       }
 
       const updatedCRA = await CRAModel.update(
