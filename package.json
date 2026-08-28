@@ -7,7 +7,7 @@
   "author": "DiscoData",
   "license": "MIT",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.11.0"
   },
   "scripts": {
     "dev": "vite",
