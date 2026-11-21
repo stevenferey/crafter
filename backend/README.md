@@ -7,7 +7,7 @@ Backend API REST pour l'application Crafter CRA (Compte Rendu d'Activité).
 - **Runtime**: Node.js 24+
 - **Framework**: Express 5.x
 - **Language**: TypeScript 5.x
-- **Base de données**: PostgreSQL 18
+- **Base de données**: PostgreSQL 19
 - **ORM**: pg (node-postgres) - Client PostgreSQL natif
 - **Dev Tools**: tsx, nodemon
 
@@ -17,7 +17,7 @@ Backend API REST pour l'application Crafter CRA (Compte Rendu d'Activité).
 
 - Node.js 24+ et npm
 - Docker et Docker Compose (pour PostgreSQL)
-- PostgreSQL 18+ (si pas d'utilisation de Docker)
+- PostgreSQL 19+ (si pas d'utilisation de Docker)
 
 ### Installation des dépendances
 
@@ -811,5 +811,5 @@ npm run db:migrate
 
 - [Express.js](https://expressjs.com/)
 - [node-postgres](https://node-postgres.com/)
-- [PostgreSQL 18](https://www.postgresql.org/docs/18/)
+- [PostgreSQL 19](https://www.postgresql.org/docs/19/)
 - [TypeScript](https://www.typescriptlang.org/)
