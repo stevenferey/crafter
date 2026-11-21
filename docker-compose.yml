@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:18-alpine
+    image: postgres:19-alpine
     container_name: cra_postgres
     restart: unless-stopped
     ports:
@@ -9,10 +9,13 @@ services:
       POSTGRES_DB: cra_db
       POSTGRES_USER: cra_user
       POSTGRES_PASSWORD: cra_password
-      PGDATA: /var/lib/postgresql/data/18/docker
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./backend/migrations:/docker-entrypoint-initdb.d
+      # Depuis PostgreSQL 18, l'image range les données dans
+      # /var/lib/postgresql/<version majeure>/docker et refuse de démarrer si
+      # un cluster d'une autre version s'y trouve : pour une montée de version
+      # majeure, suivre la procédure du README.
+      # Le schéma et les migrations sont appliqués par start-dev.sh.
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U cra_user -d cra_db']
       interval: 10s

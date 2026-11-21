@@ -100,7 +100,7 @@ npm run type-check
 - **Runtime**: Node.js 24+
 - **Framework**: Express 5.x
 - **Language**: TypeScript 5.x
-- **Base de données**: PostgreSQL 18
+- **Base de données**: PostgreSQL 19
 - **Client DB**: node-postgres (pg)
 - **Dev Tools**: tsx, nodemon
 
@@ -290,6 +290,30 @@ docker-compose down
 docker volume rm crafter_postgres_data
 docker-compose up -d
 cd backend && npm run db:migrate
+```
+
+### Montée de version majeure de PostgreSQL
+
+Les données d'une version majeure ne sont pas lisibles par la suivante. L'image
+range les données dans `/var/lib/postgresql/<version>/docker` et refuse de
+démarrer si elle y trouve un cluster d'une autre version. Pour conserver les
+données (exemple : 18 → 19) :
+
+```bash
+# 1. Avant de changer le tag, sauvegarder avec l'ancienne version
+docker exec cra_postgres pg_dump -U cra_user -d cra_db > ~/cra_db.sql
+
+# 2. Archiver puis retirer l'ancien cluster du volume
+docker compose stop postgres
+docker run --rm -v crafter_postgres_data:/v -v "$HOME":/backup alpine \
+  tar czf /backup/cra_pg18_volume.tgz -C /v 18
+docker run --rm -v crafter_postgres_data:/v alpine rm -rf /v/18
+
+# 3. Changer le tag dans docker-compose.yml, puis recréer le conteneur
+docker compose up -d --wait postgres
+
+# 4. Restaurer dans la nouvelle version (avant tout lancement de start-dev.sh)
+docker exec -i cra_postgres psql -U cra_user -d cra_db -v ON_ERROR_STOP=1 < ~/cra_db.sql
 ```
 
 ## 📡 API Documentation
